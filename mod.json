@@ -1,0 +1,24 @@
+{
+	"geode": "5.5.3",
+	"gd": {
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
+	},
+	"id": "zumbisinho.more-inputs",
+	"name": "more-inputs",
+	"version": "v1.0.0",
+	"developer": "Zumbisinho",
+	"description": "A mod that adds custom inputs",
+	"dependencies": {
+		"geode.node-ids": ">=v1.20.0"
+	},
+	"settings": {
+		"test-key": {
+			"type": "keybind",
+			"name": "Change Counter 3 Debug",
+			"default": "H"
+		}
+	}
+}
