@@ -17,8 +17,8 @@ class $modify(MyPlayLayer, GJEffectManager)
 				if (down && !repeat)
 				{
 					auto manager = this; 
-					manager->addCountToItem(3, 32); 
-					log::info("Variável 3 = 43");
+					manager->addCountToItem(3, 1); 
+					
 				}
 			}
 		);
