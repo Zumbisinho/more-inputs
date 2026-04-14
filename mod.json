@@ -24,6 +24,9 @@
     "resources": {
         "spritesheets": {
             "Btns": ["resources/*.png"]
-        }
+        },
+        "files": [
+            "resources/constrains.json"
+        ]
     }
 }

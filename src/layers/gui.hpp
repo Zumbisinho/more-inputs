@@ -2,6 +2,8 @@
 #include "customLabels/keybindLabel.hpp"
 using namespace geode::prelude;
 
+// TODO: Add popup to edit key
+
 class KeyBindsLocalConfigGui : public geode::Popup
 {
 public:
