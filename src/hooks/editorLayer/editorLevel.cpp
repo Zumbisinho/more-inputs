@@ -11,27 +11,26 @@ using namespace geode::prelude;
 
 
 class $modify(MyPlayLayer, LevelEditorLayer) {
-    //void startGame() {
-    //    LevelEditorLayer::startGame();
-//
-    //    auto& json = getConfig();
-//
-    //    int id = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
-    //    int value = json["defaultModIdentityValue"].asInt().unwrapOr(0);
-//
-	//	log::info("{} {}",id,value);
-    //    pickupManager::changePickupId(id, value);
-	//	
-    //}
+    struct Fields {
+        int m_defaultModIdentityPickupId = 0;
+        int m_defaultModIdentityValue = 0; // Custom field
+    };
+    bool init(GJGameLevel* level, bool noUI) {
+        if (!LevelEditorLayer::init(level, noUI)) return false;
+        auto& json = getConfig();
+
+        m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
+        m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(0);
+        return true;
+    }
+    
 	void onPlaytest() {
         LevelEditorLayer::onPlaytest();
 
-        auto& json = getConfig();
-
-        int id = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
-        int value = json["defaultModIdentityValue"].asInt().unwrapOr(0);
+        int id = m_fields->m_defaultModIdentityPickupId;
+        int value = m_fields->m_defaultModIdentityValue;
 
 		log::info("{} {}",id,value);
-        pickupManager::changePickupId(id, value);
+        pickupManager::changePickupId(id,value);
     }
 };

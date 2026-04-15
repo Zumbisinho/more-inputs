@@ -3,6 +3,8 @@
 #include "../utils/getJson.hpp"
 #include "../utils/getKeysFromCurrentLevel.hpp"
 #include "../utils/pickupManager.hpp"
+#include "../utils/keybindsCache.hpp"
+
 
 using namespace geode::prelude;
 
@@ -12,20 +14,21 @@ using namespace geode::prelude;
     //"keyPressedValue" : int,
     //"keyReleasedValue" : int
 
+
+
+
 class $modify(MyKeyboard, CCKeyboardDispatcher) {
     bool dispatchKeyboardMSG(enumKeyCodes key, bool down, bool repeat,double dt) {
-        auto& json = getConfig();
+        if (!KeybindCache::initialized) {
+            KeybindCache::init();
+        }   
         int keyInt = static_cast<int>(key);
-        log::info("{} | {} | {}",keyInt,down,repeat);
-        
-        int startId = json["startKeyPickupId"].asInt().unwrapOr(0);
-        int value = json["keyPressedValue"].asInt().unwrapOr(0);
 
-        auto keybinds = getLevelKeyBinds();
+        log::info("{} | {} | {}",keyInt,down,repeat);
 
         if (down) {
-            if (keybinds.contains(key)) {
-                pickupManager::changePickupId(startId + keyInt,value);
+            if (KeybindCache::keybinds.contains(key)) {
+                pickupManager::changePickupId(KeybindCache::startId + keyInt,KeybindCache::value);
             }
         }
 
