@@ -1,9 +1,9 @@
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 #include <Geode/Geode.hpp>
-#include "../utils/getJson.hpp"
-#include "../utils/getKeysFromCurrentLevel.hpp"
 #include "../utils/pickupManager.hpp"
 #include "../utils/keybindsCache.hpp"
+#include "../utils/keycodeToString.hpp"
+
 
 
 using namespace geode::prelude;
@@ -23,8 +23,8 @@ class $modify(MyKeyboard, CCKeyboardDispatcher) {
             KeybindCache::init();
         }   
         int keyInt = static_cast<int>(key);
-
-        log::info("{} | {} | {}",keyInt,down,repeat);
+        
+        log::info("{} | {} | {} | {}",keyInt,down,repeat,keyToString(key));
 
         if (down) {
             if (KeybindCache::keybinds.contains(key)) {

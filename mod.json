@@ -12,7 +12,9 @@
     "developer": "Zumbisinho",
     "description": "A mod that adds custom inputs",
     "dependencies": {
-        "geode.node-ids": ">=v1.20.0"
+        "geode.node-ids": ">=v1.20.0",
+        "alphalaneous.level-storage-api": ">=v1.0.0",
+        "alphalaneous.editortab_api" : ">=2.1.5"
     },
     "settings": {
         "test-key": {

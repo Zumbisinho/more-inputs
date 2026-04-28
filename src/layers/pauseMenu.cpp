@@ -1,6 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
+#include "../utils/keybindsAPI.hpp"
+#include "../utils/keycodeToString.hpp"
 #include "gui.hpp"
 #include <unordered_map>
 
@@ -46,13 +48,7 @@ class $modify(MyLayer, PauseLayer)
     };
     void onClick(CCObject * obj)
     {
-        std::unordered_map<std::string, std::string> keys;
-        keys["jump"] = "space";
-        keys["attack"] = "e";
-        keys["fruck"] = "f";
-        keys["farias"] = "z";
-        keys["frida"] = "2";
-        keys["cauHD"] = "l";
+        auto keys = keybindsAPI::getLevelKeyBinds();
 
         KeyBindsLocalConfigGui::open(obj,keys);
     }

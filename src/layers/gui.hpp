@@ -7,7 +7,7 @@ using namespace geode::prelude;
 class KeyBindsLocalConfigGui : public geode::Popup
 {
 public:
-    static KeyBindsLocalConfigGui *create(std::unordered_map<std::string, std::string> const &keybinds)
+    static KeyBindsLocalConfigGui *create(std::unordered_map<std::string, int> const &keybinds)
     {
         auto ret = new KeyBindsLocalConfigGui;
         if (ret && ret->init(keybinds))
@@ -18,14 +18,14 @@ public:
         delete ret;
         return nullptr;
     };
-    static void open(CCObject *, std::unordered_map<std::string, std::string> keyBindsDict)
+    static void open(CCObject *, std::unordered_map<std::string, int> keyBindsDict)
     {
         auto layer = create(keyBindsDict);
         layer->show();
     }
 
 private:
-    bool init(std::unordered_map<std::string, std::string> const &keyBindsDict)
+    bool init(std::unordered_map<std::string, int> const &keyBindsDict)
     {
         if (!Popup::init(440.f, 280.f))
             return false;

@@ -1,5 +1,5 @@
 #include "getJson.hpp"
-#include "getKeysFromCurrentLevel.hpp"
+#include "keybindsAPI.hpp"
 #include "keybindsCache.hpp"
 
 namespace KeybindCache {
@@ -11,7 +11,7 @@ namespace KeybindCache {
     void init() {
         auto& json = getConfig();
 
-        keybinds = getLevelKeyBinds();
+        keybinds = keybindsAPI::getLevelKeyBindsRaw();
         startId = json["startKeyPickupId"].asInt().unwrapOr(0);
         value = json["keyPressedValue"].asInt().unwrapOr(0);
 

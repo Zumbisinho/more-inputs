@@ -1,9 +1,9 @@
 #include "keybindLabel.hpp"
-#include <Geode/ui/BasedButtonSprite.hpp>
+
 
 KeyBindsSection* KeyBindsSection::create(
     const std::string& KeyName,
-    const std::string& DefaultKey,
+    const int DefaultKey,
     const CCSize& size
 ) {
     auto ret = new KeyBindsSection();
@@ -19,7 +19,7 @@ KeyBindsSection* KeyBindsSection::create(
 
 bool KeyBindsSection::init(
     const std::string& KeyName = "",
-    const std::string& DefaultKey = "",
+    const int DefaultKey = 0,
     const CCSize& size = {60.f,67.f}
 ) 
 {
@@ -27,7 +27,7 @@ bool KeyBindsSection::init(
 
     
     m_keyName = KeyName;
-    m_defaultKey = DefaultKey;
+    m_defaultKey = keyToString(DefaultKey);
     ccColor3B bgColor;
 
     this->setLayout(RowLayout::create()

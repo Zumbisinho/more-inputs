@@ -1,5 +1,7 @@
 #pragma once
 #include <Geode/Geode.hpp>
+#include <Geode/ui/BasedButtonSprite.hpp>
+#include "../../utils/keycodeToString.hpp"
 
 using namespace geode::prelude;
 
@@ -10,7 +12,7 @@ protected:
 
     bool init(
         const std::string& KeyName,
-        const std::string& DefaultKey,
+        const int DefaultKey,
         const CCSize& size
         
     );
@@ -19,7 +21,7 @@ public:
     
     static KeyBindsSection* create(
         const std::string& KeyName,
-        const std::string& DefaultKey,
+        const int DefaultKey,
         const CCSize& size
         
     );
