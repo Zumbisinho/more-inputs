@@ -3,8 +3,12 @@
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include "../utils/keybindsAPI.hpp"
 #include "../utils/keycodeToString.hpp"
+#include "../utils/keybindsCache.hpp"
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
+#include "Geode/loader/Log.hpp"
 #include "gui.hpp"
-#include <unordered_map>
+
+
 
 using namespace geode::prelude;
 
@@ -48,8 +52,20 @@ class $modify(MyLayer, PauseLayer)
     };
     void onClick(CCObject * obj)
     {
-        auto keys = keybindsAPI::getLevelKeyBinds();
+        geode::log::info("PauseMenu on the keybindsShit and Initiazled : {} {}",KeybindCache::keybindsAndAction, KeybindCache::initialized);
+        if (!KeybindCache::keybindsAndAction.empty())
+        {
+            KeyBindsLocalConfigGui::open(obj,KeybindCache::keybindsAndAction);
+            return;
+        }
+        
+
+        auto playLayer = PlayLayer::get();
+        auto editorLayer = LevelEditorLayer::get();
+
+        auto keys = keybindsAPI::getLevelKeyBinds(playLayer ? (CCLayer*)playLayer: (CCLayer*)editorLayer,true);
 
         KeyBindsLocalConfigGui::open(obj,keys);
+        return;
     }
 };

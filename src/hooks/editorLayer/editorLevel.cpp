@@ -2,6 +2,7 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include "../../utils/pickupManager.hpp"
 #include "../../utils/getJson.hpp"
+#include "../../utils/keybindsCache.hpp"
 
 // TODO Encode keysbinds via some shit with object encoding (Or just lazy json on text label Exact what i'm gonna do!)
 
@@ -30,6 +31,7 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
         int id = m_fields->m_defaultModIdentityPickupId;
         int value = m_fields->m_defaultModIdentityValue;
 
+        KeybindCache::init(this);
 		log::info("{} {}",id,value);
         pickupManager::changePickupId(id,value);
     }
