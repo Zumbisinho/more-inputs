@@ -1,6 +1,8 @@
 #include "../utils/keybindsCache.hpp"
 #include "../utils/keycodeToString.hpp"
 #include "../utils/pickupManager.hpp"
+#include "Geode/cocos/robtop/keyboard_dispatcher/CCKeyboardDelegate.h"
+#include "Geode/loader/Log.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/PlayLayer.hpp>
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
@@ -10,6 +12,7 @@ class $modify(MyKeyboard, CCKeyboardDispatcher) {
         switch (key) {
         case KEY_LeftWindowsKey:
         case KEY_RightWindowsKey:
+
             return false;
         default:
             return true;
@@ -19,7 +22,7 @@ class $modify(MyKeyboard, CCKeyboardDispatcher) {
                              double dt) {
         static bool s_processing = false;
 
-        if (s_processing)
+        if (s_processing || repeat)
             return CCKeyboardDispatcher::dispatchKeyboardMSG(key, down, repeat,
                                                              dt);
 
@@ -41,16 +44,39 @@ class $modify(MyKeyboard, CCKeyboardDispatcher) {
                         key, down, repeat, dt);
                 }
             }
-
+            if (editorLayer) {
+                if (editorLayer->m_playbackMode == PlaybackMode::Not) {
+                    geode::log::info("I dont wanna on the editor, get out of my way!");
+                    s_processing = false;
+                    return CCKeyboardDispatcher::dispatchKeyboardMSG(
+                        key, down, repeat, dt);
+                }
+            }
             int keyInt = static_cast<int>(key);
-            log::info("Before dispatch: key={} down={} repeat={} dt={}", keyInt, down, repeat, dt);
-            if (down && KeybindCache::keybinds.contains(keyInt)) {
+            log::info("Before dispatch: key={} down={} repeat={} dt={}", keyInt,
+                      down, repeat, dt);
+            
+            if (KeybindCache::keybinds.contains(keyInt)) {
                 auto it = KeybindCache::keyToActionIds.find(keyInt);
                 if (it != KeybindCache::keyToActionIds.end()) {
-                    for (const int actionID : it->second) {
-                        pickupManager::changePickupId(actionID,
-                                                      KeybindCache::value);
-                    }
+                    if (down) // self-explaning
+                        for (const int actionID : it->second) {
+                            Loader::get()->queueInMainThread([=] {
+                        pickupManager::changePickupId(
+                            actionID,
+                            KeybindCache::value
+                        );
+                    });
+                        };
+                    if (!down) // On upkey event
+                        for (const int actionID : it->second) {
+                            Loader::get()->queueInMainThread([=] {
+                        pickupManager::changePickupId(
+                            actionID,
+                            0
+                        );
+                    });
+                        };
                 }
             }
         }
