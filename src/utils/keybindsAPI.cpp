@@ -1,4 +1,5 @@
 #include "keybindsAPI.hpp"
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
 #include "Geode/loader/Log.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
@@ -33,8 +34,12 @@ std::string containsValue(const matjson::Value &obj, int target) {
     }
     return "";
 }
-void addKeyToJson(std::string actionName, int actionKeyCode,
-                  matjson::Value *json, bool replaceEmpty = true) {
+void addKeyToJson(
+    std::string actionName,
+    int actionKeyCode,
+    matjson::Value *json,
+    bool replaceEmpty = true
+) {
     if ((*json)["keybinds"].isObject() == false)
         return;
     if (replaceEmpty) {
@@ -48,8 +53,12 @@ void addKeyToJson(std::string actionName, int actionKeyCode,
     }
     (*json)["keybinds"][actionName] = actionKeyCode;
 }
-void editKeybind(matjson::Value *json, const std::string &oldAction,
-                 const std::string &newAction, int newKeyCode) {
+void editKeybind(
+    matjson::Value *json,
+    const std::string &oldAction,
+    const std::string &newAction,
+    int newKeyCode
+) {
 
     if (!json || !json->isObject()) // how do you even get here?
         return;
@@ -85,8 +94,8 @@ std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer) {
     return keyRaw;
 }
 
-std::vector<std::pair<std::string, int>> getLevelKeyBinds(CCLayer *layer,
-                                                          bool ignoreEmpty) {
+std::vector<std::pair<std::string, int>>
+getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
 
     std::vector<std::pair<std::string, int>> keys;
     auto configJson =
@@ -112,36 +121,53 @@ void addLevelKeyBind(LevelEditorLayer *layer, std::string key, int def) {
             0) // First key added | needs to create a default json
     {
         auto newDict = getDefaultJson();
-        addKeyToJson(key, def, &newDict,false);
+        addKeyToJson(key, def, &newDict, false);
         alpha::level_storage::setSavedValue(layer, "config", newDict);
         return;
     }
-    addKeyToJson(key, def, &savedDict,true);
+    addKeyToJson(key, def, &savedDict, true);
     alpha::level_storage::setSavedValue(layer, "config", savedDict);
     return;
 }
-void editLevelKeyBind(LevelEditorLayer *layer, std::string oldActionName,
-                      std::pair<std::string, int> newActionAndKey,bool replaceEmpty) {
+void editLevelKeyBind(
+    LevelEditorLayer *layer,
+    std::string oldActionName,
+    std::pair<std::string, int> newActionAndKey,
+    bool replaceEmpty
+) {
     auto savedDict =
         alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
-    log::info("edotLevelKey {} / isObj {} | isNull {}", savedDict.dump(),
-              savedDict.isObject(), savedDict.isNull());
+    log::info(
+        "edotLevelKey {} / isObj {} | isNull {}",
+        savedDict.dump(),
+        savedDict.isObject(),
+        savedDict.isNull()
+    );
     // 2 cases, same or different actionName
     if (oldActionName == newActionAndKey.first)
         addKeyToJson(
-            newActionAndKey.first, newActionAndKey.second,
-            &savedDict,replaceEmpty); // Just Overrite the old value //! Error I used edit...
-                         // to delete the key, if another key is deleted, it
-                         // gonna override that key because of this if, just add
-                         // a bool to enable emptyFill
+            newActionAndKey.first,
+            newActionAndKey.second,
+            &savedDict,
+            replaceEmpty
+        ); // Just Overrite the old value //! Error I used edit...
+           // to delete the key, if another key is deleted, it
+           // gonna override that key because of this if, just add
+           // a bool to enable emptyFill
     else
         editKeybind(
-            &savedDict, oldActionName, newActionAndKey.first,
-            newActionAndKey.second); // transverse the entire json until
-                                     // oldactionName is founded and replaced
+            &savedDict,
+            oldActionName,
+            newActionAndKey.first,
+            newActionAndKey.second
+        ); // transverse the entire json until
+           // oldactionName is founded and replaced
     alpha::level_storage::setSavedValue(layer, "config", savedDict);
 
     return;
 }
+void deleteKeybindsFromLevel(LevelEditorLayer *layer) {
+    alpha::level_storage::setSavedValue(layer,"config",{});
+};
 
 }; // namespace keybindsAPI

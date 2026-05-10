@@ -27,5 +27,5 @@ namespace keybindsAPI {
 
     void addLevelKeyBind(LevelEditorLayer* layer, std::string key, int def);
     void editLevelKeyBind(LevelEditorLayer* layer, std::string oldActionName,std::pair<std::string,int> newActionAndKey,bool replaceEmpty = true);
-
+    void deleteKeybindsFromLevel(LevelEditorLayer *layer);
 }

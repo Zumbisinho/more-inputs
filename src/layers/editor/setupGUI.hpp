@@ -20,6 +20,7 @@
 #include <Geode/binding/TextArea.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/TextInput.hpp>
+#include <cstddef>
 #include <functional>
 #include <string>
 #include <utility>
@@ -144,7 +145,7 @@ protected:
         content->addChild(nameInputWrapped);
         content->addChild(separator);
         content->addChild(keyDefBtn);
-        
+
         content->updateLayout();
         m_mainLayer->updateLayout();
 
@@ -353,21 +354,23 @@ private:
             m_oldActionName,
             keyToString(m_keyCode)
         );
-        geode::createQuickPopup(
+        createQuickPopup(
             "Are you sure?",
             message,
             "No",
             "Yes",
             [this](auto popup, bool btn2) {
-                keybindsAPI::editLevelKeyBind(
-                    LevelEditorLayer::get(),
-                    m_oldActionName,
-                    {m_oldActionName, -67},
-                    false
-                ); // worst way to do it but its how i do it
-                KeybindCache::reset();
-                if (m_afterActionCB)
-                    m_afterActionCB();
+                if (btn2) {
+                    keybindsAPI::editLevelKeyBind(
+                        LevelEditorLayer::get(),
+                        m_oldActionName,
+                        {m_oldActionName, -67},
+                        false
+                    ); // worst way to do it but its how i do it
+                    KeybindCache::reset();
+                    if (m_afterActionCB)
+                        m_afterActionCB();
+                };
                 this->onClose(nullptr);
             }
         );
@@ -384,7 +387,7 @@ private:
     // the same actionID, and delete - delete just set // the key and actionName
     // to _empty = -67 //! Very bad aprouch but i am lazy to rewrite all
     std::function<void(CCObject *, std::string, int, CCLabelBMFont *)> m_editCB;
-    TextArea* m_noKeysTip;
+    TextArea *m_noKeysTip;
 
 public:
     static setupKeyBindsGUI *
@@ -411,11 +414,12 @@ private:
         geode::log::info("reseting list | kbs : {}", keybinds);
         m_contentLayer->removeAllChildrenWithCleanup(true);
         bool keyTipDeleted = false;
+        m_noKeysTip->setVisible(true);
         for (const auto &[key, def] : keybinds) {
             if (def == -67) // empty value
                 continue;
-            if (!keyTipDeleted){
-                m_noKeysTip->removeMeAndCleanup();
+            if (!keyTipDeleted) {
+                m_noKeysTip->setVisible(false);
                 keyTipDeleted = true;
             };
             auto Label = KeyBindsSection::create(
@@ -514,30 +518,29 @@ private:
         listLabel->addChildAtPosition(scrollArea, geode::Anchor::TopLeft);
         m_mainLayer->addChildAtPosition(bg, geode::Anchor::Center);
 
-        if (!keyBindsDict.empty())
+        auto noKeysTip = TextArea::create(
+            "You dont have any <cy>Keybinds</c> yet!\n To add click on "
+            "the<cg> plus button</c> to add one!",
+            "bigFont.fnt",
+            1.f,
+            360.f,
+            {0.5f, 0.5f},
+            28.f,
+            false
+        );
+        noKeysTip->setOpacity(180);
+        noKeysTip->setScale(0.7f);
+        m_noKeysTip = noKeysTip;
+        scrollArea->addChildAtPosition(noKeysTip, Anchor::Center);
+
+        if (!keyBindsDict.empty()) {
+            m_noKeysTip->setVisible(false);
             for (const auto &[key, def] : keyBindsDict) {
                 auto Label = KeyBindsSection::create(
                     key, def, {contentSize.width, 20.f}, m_editCB
                 );
                 content->addChild(Label);
             }
-        else { // If empty, add a label to tell how to add, idk why i am
-               // commenting this
-            auto noKeysTip = TextArea::create(
-                "You dont have any <cy>Keybinds</c> yet!\n To add click on "
-                "the<cg> plus button</c> to add one!",
-                "bigFont.fnt",
-                1.f,
-                360.f,
-                {0.5f, 0.5f},
-                28.f,
-                false
-            );
-            noKeysTip->setOpacity(180);
-            noKeysTip->setScale(0.7f);
-            m_noKeysTip = noKeysTip;
-            scrollArea->addChildAtPosition(noKeysTip, Anchor::Center);
-            
         }
         content->updateLayout();
         scrollArea->m_contentLayer->updateLayout();
@@ -594,5 +597,23 @@ private:
         );
     }
 
-    void onDelete(CCObject *sender) { log::info("Saborrr deleted"); }
+    void onDelete(CCObject *sender) {
+        createQuickPopup(
+            "Are you sure?",
+            "You are not able to roll-back this action. This will <cr>Delete "
+            "all your Keybinds</c> on this level.",
+            "No",
+            "Yes",
+            [this](auto popup, bool btn2) {
+                if (btn2) {
+                    keybindsAPI::deleteKeybindsFromLevel(
+                        LevelEditorLayer::get()
+                    );
+                    KeybindCache::reset();
+                    resetList();
+                };
+                this->onClose(nullptr);
+            }
+        );
+    }
 };
