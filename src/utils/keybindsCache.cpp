@@ -39,6 +39,7 @@ void init(CCLayer *layer) {
     keybindsAndAction.clear();
 
     keybinds = keybindsAPI::getLevelKeyBindsRaw(layer);
+    keybinds.erase(-67);
     keybindsAndAction = keybindsAPI::getLevelKeyBinds(layer,false);
 
     startId = json["startKeyPickupId"].asInt().unwrapOr(0);

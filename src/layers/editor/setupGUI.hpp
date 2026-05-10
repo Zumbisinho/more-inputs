@@ -13,9 +13,11 @@
 #include "Geode/ui/Popup.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "Geode/ui/Scrollbar.hpp"
+#include "ccTypes.h"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
+#include <Geode/binding/TextArea.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/TextInput.hpp>
 #include <functional>
@@ -29,14 +31,16 @@ using namespace geode::prelude;
 // TODO : add the fucking popup key, and a callback for it - added, what do you
 // want more? "a integration", **The big Zz**
 namespace wrapperLabel {
-inline CCMenu *create(CCNode *target, float size, std::string text,
-                      AxisAlignment side) {
+inline CCMenu *
+create(CCNode *target, float size, std::string text, AxisAlignment side) {
     // How hard is to resize a text :(
     auto container = CCMenu::create();
-    container->setLayout(ColumnLayout::create()
-                             ->setAxisAlignment(AxisAlignment::Center)
-                             ->setCrossAxisLineAlignment(side)
-                             ->setAxisReverse(true));
+    container->setLayout(
+        ColumnLayout::create()
+            ->setAxisAlignment(AxisAlignment::Center)
+            ->setCrossAxisLineAlignment(side)
+            ->setAxisReverse(true)
+    );
     auto label = CCLabelBMFont::create(text.c_str(), "bigFont.fnt");
     float sidePoint = 0.f;
     if (side == AxisAlignment::End)
@@ -52,14 +56,16 @@ inline CCMenu *create(CCNode *target, float size, std::string text,
     auto CSize = target->getScaledContentSize();
     auto LSize = label->getScaledContentSize();
 
-    container->setContentSize({std::max(CSize.width, LSize.width),
-                               CSize.height + LSize.height + 5.f});
+    container->setContentSize(
+        {std::max(CSize.width, LSize.width), CSize.height + LSize.height + 5.f}
+    );
 
     container->addChild(label);
     container->addChild(target);
     container->updateLayout();
-    container->setContentSize({std::max(CSize.width, LSize.width),
-                               CSize.height + LSize.height + 5.f});
+    container->setContentSize(
+        {std::max(CSize.width, LSize.width), CSize.height + LSize.height + 5.f}
+    );
 
     if (size > 0.f)
         target->setScale(size);
@@ -94,9 +100,11 @@ protected:
             RowLayout::create()
                 ->setAxisAlignment(AxisAlignment::Between)
                 ->setGap(15)
-                ->setCrossAxisLineAlignment(AxisAlignment::Start));
+                ->setCrossAxisLineAlignment(AxisAlignment::Start)
+        );
         content->setLayoutOptions(
-            AnchorLayoutOptions::create()->setAnchor(Anchor::Center));
+            AnchorLayoutOptions::create()->setAnchor(Anchor::Center)
+        );
 
         auto nameInput = TextInput::create(220.f, "Action Name", "bigFont.fnt");
         nameInput->setAnchorPoint({0.f, 0.f});
@@ -110,10 +118,12 @@ protected:
         keyDefault->setAnchorPoint({0.5f, 0.5f});
 
         auto keyDefBtn = CCMenuItemSpriteExtra::create(
-            keyDefault, this, menu_selector(addKeyGUI::onKeyDef));
+            keyDefault, this, menu_selector(addKeyGUI::onKeyDef)
+        );
 
         auto nameInputWrapped = wrapperLabel::create(
-            nameInput, 1.f, "Action Name", AxisAlignment::Start);
+            nameInput, 1.f, "Action Name", AxisAlignment::Start
+        );
         nameInputWrapped->setAnchorPoint({0.f, 0.5f});
 
         auto separator = CCLabelBMFont::create(":", "bigFont.fnt");
@@ -121,9 +131,12 @@ protected:
         separator->setAnchorPoint({0.5f, 0.7f});
 
         auto okBtn = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("OK", 0, false, "goldFont.fnt",
-                                 "GJ_button_01.png", 30.0f, 1.0f),
-            this, menu_selector(addKeyGUI::onConfirm));
+            ButtonSprite::create(
+                "OK", 0, false, "goldFont.fnt", "GJ_button_01.png", 30.0f, 1.0f
+            ),
+            this,
+            menu_selector(addKeyGUI::onConfirm)
+        );
         okBtn->setPosition({180, 30});
         m_buttonMenu->addChild(okBtn);
 
@@ -131,7 +144,7 @@ protected:
         content->addChild(nameInputWrapped);
         content->addChild(separator);
         content->addChild(keyDefBtn);
-
+        
         content->updateLayout();
         m_mainLayer->updateLayout();
 
@@ -176,8 +189,8 @@ public:
         delete ret;
         return nullptr;
     }
-    static void open(CCObject *,
-                     std::function<void(std::pair<std::string, int>)> cb) {
+    static void
+    open(CCObject *, std::function<void(std::pair<std::string, int>)> cb) {
         auto layer = create(cb);
         layer->show();
     }
@@ -193,9 +206,12 @@ private:
     std::string m_oldActionName;
 
 public:
-    static editKeyGUI *create(std::function<void(std::string, int)> cb,
-                              std::string oldActionName, int oldKeyCode,
-                              std::function<void()> afterActionCB) {
+    static editKeyGUI *create(
+        std::function<void(std::string, int)> cb,
+        std::string oldActionName,
+        int oldKeyCode,
+        std::function<void()> afterActionCB
+    ) {
         auto ret = new editKeyGUI;
         if (ret && ret->init(cb, oldActionName, oldKeyCode, afterActionCB)) {
             ret->autorelease();
@@ -204,17 +220,24 @@ public:
         delete ret;
         return nullptr;
     };
-    static void open(CCObject *, std::function<void(std::string, int)> cb,
-                     std::string oldActionName, int oldKeyCode,
-                     std::function<void()> afterActionCB) {
+    static void open(
+        CCObject *,
+        std::function<void(std::string, int)> cb,
+        std::string oldActionName,
+        int oldKeyCode,
+        std::function<void()> afterActionCB
+    ) {
         auto layer = create(cb, oldActionName, oldKeyCode, afterActionCB);
         layer->show();
     }
 
 private:
-    bool init(std::function<void(std::string, int)> cb,
-              std::string oldActionName, int oldKeyCode,
-              std::function<void()> afterActionCB) {
+    bool init(
+        std::function<void(std::string, int)> cb,
+        std::string oldActionName,
+        int oldKeyCode,
+        std::function<void()> afterActionCB
+    ) {
         if (!Popup::init(360.f, 160.f))
             return false;
         m_keyCode = oldKeyCode;
@@ -230,9 +253,11 @@ private:
             RowLayout::create()
                 ->setAxisAlignment(AxisAlignment::Between)
                 ->setGap(15)
-                ->setCrossAxisLineAlignment(AxisAlignment::Start));
+                ->setCrossAxisLineAlignment(AxisAlignment::Start)
+        );
         content->setLayoutOptions(
-            AnchorLayoutOptions::create()->setAnchor(Anchor::Center));
+            AnchorLayoutOptions::create()->setAnchor(Anchor::Center)
+        );
 
         auto nameInput = TextInput::create(220.f, "Action Name", "bigFont.fnt");
         nameInput->setAnchorPoint({0.f, 0.f});
@@ -240,7 +265,8 @@ private:
         m_textInput = nameInput;
 
         auto keyDefaultSpr = CCLabelBMFont::create(
-            keyToString(oldKeyCode).c_str(), "bigFont.fnt");
+            keyToString(oldKeyCode).c_str(), "bigFont.fnt"
+        );
         keyDefaultSpr->setAnchorPoint({0.5f, 0.4f});
         m_keyDef = keyDefaultSpr;
         auto keyDefault =
@@ -248,10 +274,12 @@ private:
         keyDefault->setAnchorPoint({0.5f, 0.5f});
 
         auto keyDefBtn = CCMenuItemSpriteExtra::create(
-            keyDefault, this, menu_selector(editKeyGUI::onKeyDef));
+            keyDefault, this, menu_selector(editKeyGUI::onKeyDef)
+        );
 
         auto nameInputWrapped = wrapperLabel::create(
-            nameInput, 1.f, "Action Name", AxisAlignment::Start);
+            nameInput, 1.f, "Action Name", AxisAlignment::Start
+        );
         nameInputWrapped->setAnchorPoint({0.f, 0.5f});
 
         auto separator = CCLabelBMFont::create(":", "bigFont.fnt");
@@ -259,9 +287,12 @@ private:
         separator->setAnchorPoint({0.5f, 0.7f});
 
         auto okBtn = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("OK", 0, false, "goldFont.fnt",
-                                 "GJ_button_01.png", 30.0f, 1.0f),
-            this, menu_selector(editKeyGUI::onConfirm));
+            ButtonSprite::create(
+                "OK", 0, false, "goldFont.fnt", "GJ_button_01.png", 30.0f, 1.0f
+            ),
+            this,
+            menu_selector(editKeyGUI::onConfirm)
+        );
         okBtn->setPosition({180, 30});
         m_buttonMenu->addChild(okBtn);
 
@@ -280,7 +311,8 @@ private:
             CCSprite::createWithSpriteFrameName("GJ_trashBtn_001.png");
         deleteBtnSpr->setScale(1.25f);
         auto deleteBtn = CCMenuItemSpriteExtra::create(
-            deleteBtnSpr, this, menu_selector(editKeyGUI::onDelete));
+            deleteBtnSpr, this, menu_selector(editKeyGUI::onDelete)
+        );
 
         deleteBtn->setAnchorPoint({0.5, 0.5});
         auto deleteSize = deleteBtn->getScaledContentSize();
@@ -316,21 +348,29 @@ private:
         this->onClose(nullptr);
     }
     void onDelete(CCObject *sender) {
-        std::string message =
-            fmt::format("You wanna delete action {}({})?", m_oldActionName,
-                        keyToString(m_keyCode));
+        std::string message = fmt::format(
+            "You wanna delete action {}({})?",
+            m_oldActionName,
+            keyToString(m_keyCode)
+        );
         geode::createQuickPopup(
-            "Are you sure?", message, "No", "Yes",
+            "Are you sure?",
+            message,
+            "No",
+            "Yes",
             [this](auto popup, bool btn2) {
                 keybindsAPI::editLevelKeyBind(
-                    LevelEditorLayer::get(), m_oldActionName,
+                    LevelEditorLayer::get(),
+                    m_oldActionName,
                     {m_oldActionName, -67},
-                    false); // worst way to do it but its how i do it
+                    false
+                ); // worst way to do it but its how i do it
                 KeybindCache::reset();
                 if (m_afterActionCB)
                     m_afterActionCB();
                 this->onClose(nullptr);
-            });
+            }
+        );
     }
 };
 
@@ -343,9 +383,8 @@ private:
     // Create a popup that is like the add popup, but can edit // name/key, with
     // the same actionID, and delete - delete just set // the key and actionName
     // to _empty = -67 //! Very bad aprouch but i am lazy to rewrite all
-    std::function<void(CCObject *, std::string, int,CCLabelBMFont *)>
-        m_editCB;
-        
+    std::function<void(CCObject *, std::string, int, CCLabelBMFont *)> m_editCB;
+    TextArea* m_noKeysTip;
 
 public:
     static setupKeyBindsGUI *
@@ -358,8 +397,8 @@ public:
         delete ret;
         return nullptr;
     };
-    static void open(CCObject *,
-                     std::vector<std::pair<std::string, int>> keyBindsDict) {
+    static void
+    open(CCObject *, std::vector<std::pair<std::string, int>> keyBindsDict) {
         auto layer = create(keyBindsDict);
         layer->show();
     }
@@ -369,19 +408,26 @@ private:
         if (!KeybindCache::initialized)
             KeybindCache::init(LevelEditorLayer::get());
         auto keybinds = KeybindCache::keybindsAndAction;
-        geode::log::info("reseting list | kbs : {}",keybinds);
+        geode::log::info("reseting list | kbs : {}", keybinds);
         m_contentLayer->removeAllChildrenWithCleanup(true);
+        bool keyTipDeleted = false;
         for (const auto &[key, def] : keybinds) {
             if (def == -67) // empty value
                 continue;
+            if (!keyTipDeleted){
+                m_noKeysTip->removeMeAndCleanup();
+                keyTipDeleted = true;
+            };
             auto Label = KeyBindsSection::create(
-                key, def, {m_contentSize.width, 20.f}, m_editCB);
+                key, def, {m_contentSize.width, 20.f}, m_editCB
+            );
             m_contentLayer->addChild(Label);
         };
         m_contentLayer->updateLayout();
         m_scrollArea->m_contentLayer->updateLayout();
         m_scrollArea->m_contentLayer->setContentHeight(
-            m_contentLayer->getContentHeight());
+            m_contentLayer->getContentHeight()
+        );
         m_scrollArea->scrollToTop();
     }
     bool init(std::vector<std::pair<std::string, int>> const &keyBindsDict) {
@@ -389,25 +435,37 @@ private:
             return false;
 
         this->setTitle("Setup level Keybinds");
-        const std::function<void(CCObject *, std::string, int,CCLabelBMFont *)> Editcallback =
-            [this, keyBindsDict](CCObject *sender, std::string actionName, int oldKeyCode, CCLabelBMFont * keyBtn) {
+        const std::function<void(CCObject *, std::string, int, CCLabelBMFont *)>
+            Editcallback = [this, keyBindsDict](
+                               CCObject *sender,
+                               std::string actionName,
+                               int oldKeyCode,
+                               CCLabelBMFont *keyBtn
+                           ) {
                 const std::function<void(std::string, int)> onEdit =
-                    [this, actionName, keyBindsDict](std::string newActionName,int newKeyCode) {
+                    [this,
+                     actionName,
+                     keyBindsDict](std::string newActionName, int newKeyCode) {
                         // Needs logic here
-                        std::pair<std::string, int> newPair = {newActionName,
-                                                               newKeyCode};
-                        keybindsAPI::editLevelKeyBind(LevelEditorLayer::get(),
-                                                      actionName, newPair,false);
+                        std::pair<std::string, int> newPair = {
+                            newActionName, newKeyCode
+                        };
+                        keybindsAPI::editLevelKeyBind(
+                            LevelEditorLayer::get(), actionName, newPair, false
+                        );
                         KeybindCache::reset();
-                        
                     };
 
                 editKeyGUI::open(
-                    sender, onEdit, actionName, oldKeyCode,
-                    [this, keyBindsDict]() { this->resetList(); });
+                    sender,
+                    onEdit,
+                    actionName,
+                    oldKeyCode,
+                    [this, keyBindsDict]() { this->resetList(); }
+                );
             };
         m_editCB = Editcallback;
-        
+
         auto listLabel = CCScale9Sprite::create("square02b_001.png");
         listLabel->setColor(ccc3(145, 80, 48));
         listLabel->setContentSize({360.f, 200.f});
@@ -427,7 +485,8 @@ private:
         scrollArea->m_contentLayer->setLayout(
             AxisLayout::create()
                 ->setAxisAlignment(AxisAlignment::Center)
-                ->setAxisReverse(true));
+                ->setAxisReverse(true)
+        );
 
         m_scrollArea = scrollArea;
 
@@ -438,29 +497,53 @@ private:
         m_scrollBar = scrollBar;
 
         auto content = CCNode::create();
-        content->setLayout(ColumnLayout::create()
-                               ->setGap(5)
-                               ->setAutoGrowAxis(contentSize.height)
-                               ->setAxisAlignment(AxisAlignment::End)
-                               ->setAxisReverse(true));
+        content->setLayout(
+            ColumnLayout::create()
+                ->setGap(5)
+                ->setAutoGrowAxis(contentSize.height)
+                ->setAxisAlignment(AxisAlignment::End)
+                ->setAxisReverse(true)
+        );
         m_contentLayer = content;
         scrollArea->m_contentLayer->addChild(content);
 
-        m_mainLayer->addChildAtPosition(scrollBar, geode::Anchor::Right,
-                                        {-27.f, 0.f});
+        m_mainLayer->addChildAtPosition(
+            scrollBar, geode::Anchor::Right, {-27.f, 0.f}
+        );
         bg->addChildAtPosition(listLabel, geode::Anchor::Center);
         listLabel->addChildAtPosition(scrollArea, geode::Anchor::TopLeft);
         m_mainLayer->addChildAtPosition(bg, geode::Anchor::Center);
 
-        for (const auto &[key, def] : keyBindsDict) {
-            auto Label = KeyBindsSection::create(
-                key, def, {contentSize.width, 20.f}, m_editCB);
-            content->addChild(Label);
-        };
+        if (!keyBindsDict.empty())
+            for (const auto &[key, def] : keyBindsDict) {
+                auto Label = KeyBindsSection::create(
+                    key, def, {contentSize.width, 20.f}, m_editCB
+                );
+                content->addChild(Label);
+            }
+        else { // If empty, add a label to tell how to add, idk why i am
+               // commenting this
+            auto noKeysTip = TextArea::create(
+                "You dont have any <cy>Keybinds</c> yet!\n To add click on "
+                "the<cg> plus button</c> to add one!",
+                "bigFont.fnt",
+                1.f,
+                360.f,
+                {0.5f, 0.5f},
+                28.f,
+                false
+            );
+            noKeysTip->setOpacity(180);
+            noKeysTip->setScale(0.7f);
+            m_noKeysTip = noKeysTip;
+            scrollArea->addChildAtPosition(noKeysTip, Anchor::Center);
+            
+        }
         content->updateLayout();
         scrollArea->m_contentLayer->updateLayout();
         scrollArea->m_contentLayer->setContentHeight(
-            content->getContentHeight());
+            content->getContentHeight()
+        );
         scrollArea->scrollToTop();
 
         auto windowSize = m_buttonMenu->getContentSize();
@@ -469,16 +552,20 @@ private:
             CCSprite::createWithSpriteFrameName("GJ_plusBtn_001.png");
         addBtnSpr->setScale(1.1f);
         auto addBtn = CCMenuItemSpriteExtra::create(
-            addBtnSpr, this, menu_selector(setupKeyBindsGUI::onAdd));
+            addBtnSpr, this, menu_selector(setupKeyBindsGUI::onAdd)
+        );
         addBtn->setAnchorPoint({0.5, 0.5});
-        addBtn->setPosition({windowSize.width - addBtn->getContentWidth() / 4,
-                             addBtn->getContentHeight() / 4});
+        addBtn->setPosition(
+            {windowSize.width - addBtn->getContentWidth() / 4,
+             addBtn->getContentHeight() / 4}
+        );
 
         auto deleteBtnSpr =
             CCSprite::createWithSpriteFrameName("GJ_trashBtn_001.png");
         deleteBtnSpr->setScale(1.25f);
         auto deleteBtn = CCMenuItemSpriteExtra::create(
-            deleteBtnSpr, this, menu_selector(setupKeyBindsGUI::onDelete));
+            deleteBtnSpr, this, menu_selector(setupKeyBindsGUI::onDelete)
+        );
 
         deleteBtn->setAnchorPoint({0.5, 0.5});
         auto deleteSize = deleteBtn->getScaledContentSize();
@@ -491,18 +578,20 @@ private:
     };
 
     void onAdd(CCObject *sender) {
-        addKeyGUI::open(sender, [this](
-                                    std::pair<std::string, int> actionKeyCode) {
-            auto actionName = actionKeyCode.first;
-            auto actionKey = actionKeyCode.second;
-            if (actionName.empty() || actionKey == -2)
-                return;
-            
-            keybindsAPI::addLevelKeyBind(LevelEditorLayer::get(), actionName,
-                                         actionKey);
-            KeybindCache::reset();
-            this->resetList();
-        });
+        addKeyGUI::open(
+            sender, [this](std::pair<std::string, int> actionKeyCode) {
+                auto actionName = actionKeyCode.first;
+                auto actionKey = actionKeyCode.second;
+                if (actionName.empty() || actionKey == -2)
+                    return;
+
+                keybindsAPI::addLevelKeyBind(
+                    LevelEditorLayer::get(), actionName, actionKey
+                );
+                KeybindCache::reset();
+                this->resetList();
+            }
+        );
     }
 
     void onDelete(CCObject *sender) { log::info("Saborrr deleted"); }

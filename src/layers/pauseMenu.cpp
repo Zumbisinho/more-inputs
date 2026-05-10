@@ -22,13 +22,17 @@ class $modify(MyLayer, PauseLayer)
     {
 
         PauseLayer::customSetup();
+        if (KeybindCache::keybinds.empty()) // If no keybinds on the level = Not added
+            return;
+
 
         auto sideMenu = this->getChildByID("left-button-menu");
 
+        
         if (!sideMenu)
             return;
 
-        if (sideMenu->getChildByID("mi-key-config"))
+        if (sideMenu->getChildByID("key-config"_spr)) // already added
             return;
 
         auto spr = CircleButtonSprite::createWithSpriteFrameName("btnUgly.png"_spr);
@@ -36,7 +40,7 @@ class $modify(MyLayer, PauseLayer)
         auto btn = CCMenuItemSpriteExtra::create(
             spr, this, menu_selector(MyLayer::onClick));
 
-        btn->setID("mi-key-config");
+        btn->setID("key-config"_spr);
 
         sideMenu->addChild(btn);
         sideMenu->setLayout(
