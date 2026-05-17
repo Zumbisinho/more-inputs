@@ -4,7 +4,7 @@ using namespace geode::prelude;
 
 namespace pickupManager {
 
-    // 🔹 Função central: pega o effect manager atual
+
     GJEffectManager* getEffectManager() {
         if (auto pl = PlayLayer::get())
             return pl->m_effectManager;
@@ -17,11 +17,11 @@ namespace pickupManager {
 
     void changePickupId(int pickupId, int value) {
         if (auto em = getEffectManager()) {
-
+            log::info("Recibi e to alterando o {}, com: {}",pickupId, value);
             // reset
             em->addCountToItem(pickupId, -em->countForItem(pickupId));
 
-            // aplica novo valor
+            // set value
             em->addCountToItem(pickupId, value);
         }
     }
@@ -31,7 +31,7 @@ namespace pickupManager {
             return em->countForItem(pickupId);
         }
 
-        return 0; // fallback seguro
+        return 0; 
     }
 
 }

@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
+#include <climits>
 #include "../utils/keybindsAPI.hpp"
 #include "../utils/keycodeToString.hpp"
 #include "../utils/keybindsCache.hpp"
@@ -16,7 +17,7 @@ class $modify(MyLayer, PauseLayer)
 {
     static void onModify(auto &self)
     {
-        Result<> plCustomSetup = self.setHookPriority("PauseLayer::customSetup", INT_MIN);
+        Result<> plCustomSetup = self.setHookPriority("PauseLayer::customSetup", INT_MAX);
     }
     void customSetup()
     {
