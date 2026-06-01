@@ -20,7 +20,7 @@
 #include <Geode/binding/TextArea.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/TextInput.hpp>
-#include <cstddef>
+
 #include <functional>
 #include <string>
 #include <utility>

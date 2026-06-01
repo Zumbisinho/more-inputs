@@ -4,6 +4,7 @@
 #include "Geode/DefaultInclude.hpp"
 #include "Geode/loader/Event.hpp"
 #include "Geode/loader/Log.hpp"
+#include "Geode/loader/Priority.hpp"
 #include "Geode/utils/Keyboard.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/GJBaseGameLayer.hpp>
@@ -51,7 +52,7 @@ $execute {
                 }
             }
             return geode::ListenerResult::Propagate;
-        },67)
+        },Priority::VeryEarly)
         .leak();
     
 }

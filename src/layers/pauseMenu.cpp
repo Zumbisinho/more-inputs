@@ -13,15 +13,11 @@
 
 using namespace geode::prelude;
 
-class $modify(MyLayer, PauseLayer)
+class $modify(MyPauseLayer, PauseLayer)
 {
-    static void onModify(auto &self)
-    {
-        Result<> plCustomSetup = self.setHookPriority("PauseLayer::customSetup", INT_MAX);
-    }
+
     void customSetup()
     {
-
         PauseLayer::customSetup();
         if (KeybindCache::keybinds.empty()) // If no keybinds on the level = Not added
             return;
@@ -39,7 +35,7 @@ class $modify(MyLayer, PauseLayer)
         auto spr = CircleButtonSprite::createWithSpriteFrameName("btnUgly.png"_spr);
 
         auto btn = CCMenuItemSpriteExtra::create(
-            spr, this, menu_selector(MyLayer::onClick));
+            spr, this, menu_selector(MyPauseLayer::onClick));
 
         btn->setID("key-config"_spr);
 
