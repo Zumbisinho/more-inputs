@@ -15,11 +15,17 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
     struct Fields {
         int m_defaultModIdentityPickupId = 0;
         int m_defaultModIdentityValue = 0; // Custom field
+
+        ~Fields(){ // when leaves a level
+            KeybindCache::reset();
+        }
     };
     bool init(GJGameLevel* level, bool noUI) {
         if (!LevelEditorLayer::init(level, noUI)) return false;
         auto& json = getConfig();
 
+        if(!KeybindCache::initialized)
+            KeybindCache::init(this);
         m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
         m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(0);
         return true;
@@ -35,4 +41,5 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
 		log::info("{} {}",id,value);
         pickupManager::changePickupId(id,value);
     }
+    
 };

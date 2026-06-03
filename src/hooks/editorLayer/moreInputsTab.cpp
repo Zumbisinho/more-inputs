@@ -62,5 +62,5 @@ class $modify(MyEditorUI, EditorUI) {
         setupKeyBindsGUI::open(scene, keys);
     };
 
-
+    
 };

@@ -51,13 +51,15 @@ public:
     static DropDownList *create(
         std::string labelName, float size, std::vector<std::string> itemList
     );
+    int m_curIndex;
+    void setSelected(int index);
+    std::vector<std::string> m_itemList;
+
 
 protected:
     bool m_isOpen;
     CCLabelBMFont *m_label;
     CCSprite *m_curArrow;
-    int m_curIndex;
-    std::vector<std::string> m_itemList;
     CCScale9Sprite *m_listWidget;
 
 protected:
@@ -73,9 +75,19 @@ class ToggleOption : public CCMenu {
 public:
     static ToggleOption *
     create(std::string labelName, float size, ToggleOption *showOnCheck);
+    ToggleOption* m_unCheck;
+    bool m_isChecked;
+    void setCheck(bool action){
+        m_isChecked = action;
+        if (action) { // set check
+            m_checkBtn->setSprite(m_sprites.second);
+        }
+        else { // set uncheck
+            m_checkBtn->setSprite(m_sprites.first);
+        }
+    }
 
 protected:
-    bool m_isChecked;
     CCMenuItemSpriteExtra *m_checkBtn;
     std::pair<CCSprite *, CCSprite *> m_sprites;
     ToggleOption *m_onCheck;
@@ -95,6 +107,9 @@ public:
     );
     float getNumber() {
         return numFromString<float>(m_input->getString()).unwrapOr(0);
+    };
+    void setString(std::string string){
+        m_input->setString(string);
     };
 
 protected:

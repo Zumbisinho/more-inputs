@@ -86,7 +86,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
         onPressCounter->m_zOrder = -67;
         onPressCounter->m_scaleX = 0.25f;
         onPressCounter->m_scaleY = 0.25f;
-        onPressCounter->m_isMultiActivate = true;
+        onPressCounter->m_activateGroup = true;
         onPressCounter->m_pickupCount = 1;
         onPressCounter->setScale(0.25f);
 
@@ -94,8 +94,8 @@ class $modify(MyTriggerEditorUI, EditorUI) {
         onReleaseCounter->m_zOrder = -68;
         onReleaseCounter->m_scaleX = 0.25f;
         onReleaseCounter->m_scaleY = 0.25f;
-        onReleaseCounter->m_isMultiActivate = true;
-        onReleaseCounter->m_pickupCount = 1;
+        onReleaseCounter->m_activateGroup = true;
+        onReleaseCounter->m_pickupCount = 0;
         onReleaseCounter->setScale(0.25f);
 
         if (touchMacro) {
@@ -128,7 +128,6 @@ class $modify(MyTriggerEditorUI, EditorUI) {
             return;
 
         if (textGameObject->m_text.starts_with("more_inputs:")) {
-            geode::log::info("Achei o trigger macrado!");
             CCArray *toSelect = CCArray::create();
             toSelect->addObject(macro);
             for (auto obj :
@@ -148,7 +147,6 @@ class $modify(MyTriggerEditorUI, EditorUI) {
                     static_cast<float>(macro->m_positionY)
                 };
                 if (objPosition == macroPosition) {
-                    geode::log::info("Achei o trigger {}", obj->m_zOrder);
                     toSelect->addObject(obj);
                 }
                 if (toSelect->count() == 3)
@@ -175,11 +173,11 @@ class $modify(MyTriggerEditorUI, EditorUI) {
             // soo it is selecting a macro
             for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)){
                 if (trigger->m_objectID == 914) 
-                    macro->macroObj = trigger;
+                    macro->macroObj = static_cast<TextGameObject*>(trigger);
                 if (trigger->m_objectID == 1611 && trigger->m_zOrder == -67) // press
-                    macro->pressObj = trigger;
+                    macro->pressObj = static_cast<CountTriggerGameObject*>(trigger);
                 if (trigger->m_objectID == 1611 && trigger->m_zOrder == -68) // release
-                    macro->releaseObj = trigger;
+                    macro->releaseObj = static_cast<CountTriggerGameObject*>(trigger);
             }
             TouchMacroUI::open(macro);
             return;

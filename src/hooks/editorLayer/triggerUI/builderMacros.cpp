@@ -14,6 +14,7 @@
 #include "Geode/utils/general.hpp"
 #include <Geode/Result.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/FLAlertLayer.hpp>
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -24,6 +25,7 @@ using namespace geode::prelude;
 // triggers
 
 namespace GoffyBuilder {
+
 
 OkButton *OkButton::create(std::function<void()> callback) {
     auto ret = new OkButton();
@@ -81,7 +83,7 @@ CCMenu *DropDownList::dropList(float size) {
     auto wrapper = CCMenu::create();
     wrapper->setLayout(
         ColumnLayout::create()
-            ->setAutoGrowAxis(100)
+            ->setAutoGrowAxis(30)
             ->setAutoScale(false)
             ->setAxisReverse(true)
             ->setCrossAxisLineAlignment(AxisAlignment::Start)
@@ -91,6 +93,10 @@ CCMenu *DropDownList::dropList(float size) {
     float max_width;
 
     for (const std::string &item : m_itemList) {
+        if (item == "_empty") { // ignore empty values
+            index++;
+            continue;
+        }
         auto spr = CCLabelBMFont::create(item.c_str(), "bigFont.fnt");
         spr->setScale(size);
         if (m_curIndex == index) {
@@ -121,7 +127,7 @@ CCMenu *DropDownList::dropList(float size) {
 
 CCScale9Sprite *DropDownList::DropDown(float size) {
     auto list = DropDownList::dropList(size);
-    list->setAnchorPoint({0.5, 0.5});
+    list->setAnchorPoint({0, 0.5});
 
     CCPoint contentSize = {
         list->getScaledContentWidth(),
@@ -130,7 +136,7 @@ CCScale9Sprite *DropDownList::DropDown(float size) {
 
     auto wrapper = CCScale9Sprite::create("GJ_square06.png");
     wrapper->setContentSize(
-        {contentSize.x + 20, contentSize.y + 12}
+        {contentSize.x + 32, contentSize.y + 12}
     ); // padding
 
     wrapper->setColor(ccc3(107, 56, 30));
@@ -142,6 +148,7 @@ CCScale9Sprite *DropDownList::DropDown(float size) {
             ->setAxisReverse(true)
     );
     scrollArea->ignoreAnchorPointForPosition(false);
+    scrollArea->setAnchorPoint({0, 0.5});
 
     auto scrollBar = Scrollbar::create(scrollArea);
     scrollBar->setContentSize({50, 300});
@@ -152,8 +159,10 @@ CCScale9Sprite *DropDownList::DropDown(float size) {
     scrollArea->m_contentLayer->updateLayout();
     scrollArea->scrollToTop();
 
-    wrapper->addChildAtPosition(scrollArea, Anchor::Center);
-    wrapper->addChildAtPosition(scrollBar, Anchor::Right, {-7, 0});
+    wrapper->addChildAtPosition(scrollArea, Anchor::Left, {8, 0});
+    wrapper->addChildAtPosition(scrollBar, Anchor::Right, {-8, 0});
+
+    wrapper->updateLayout();
     return wrapper;
 }
 
@@ -169,7 +178,7 @@ void DropDownList::onItemSelect(CCObject *sender) {
 
     m_curIndex = itemIndex;
     // ! Sorry if you are reading this because this is the WORST way to
-    // reference, looks like roblox code
+    // reference, looks like roblox code // ? Not anymore
     if (m_label) {
         m_label->setString(m_itemList[itemIndex].c_str());
 
@@ -256,6 +265,10 @@ bool DropDownList::init(
     return true;
 };
 void DropDownList::onClick(CCObject *sender) {
+    if (m_itemList.size() <=
+        1) // not even worth rendering a dropdown for 1 item
+        return;
+
     geode::log::warn("DropDown!");
     if (!m_isOpen) {
         m_curArrow->setRotation(180);
@@ -270,6 +283,25 @@ void DropDownList::onClick(CCObject *sender) {
         m_listWidget->removeMeAndCleanup();
     }
 }
+void DropDownList::setSelected(int index){
+    m_curIndex = index;
+    if (m_label) { // update the layout
+        m_label->setString(m_itemList[index].c_str());
+
+        auto wrapper = m_label->getParent();
+        wrapper->updateLayout();
+
+        auto bg = wrapper->getParent();
+        bg->setContentSize(wrapper->getScaledContentSize() * 1.1f);
+        bg->updateLayout();
+
+        auto btn = bg->getParent();
+        btn->updateLayout();
+
+        this->updateLayout();
+    }
+    
+};
 
 ToggleOption *ToggleOption::create(
     std::string labelName, float size, ToggleOption *showOnCheck
@@ -301,12 +333,12 @@ bool ToggleOption::init(
 
     auto uncheckSpr =
         CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
-    uncheckSpr->setScale(size + 0.2);
+    uncheckSpr->setScale(0.75);
 
     if (!m_sprites.second) { // might be the WORSE way to prevent a leak
         auto checkSpr =
             CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
-        checkSpr->setScale(size + 0.2);
+        checkSpr->setScale(0.75);
 
         uncheckSpr->retain();
         checkSpr->retain();
@@ -332,20 +364,25 @@ bool ToggleOption::init(
 };
 
 void ToggleOption::onCheck(CCObject *sender) {
-    if (m_isChecked) {
+    if (m_isChecked) { // OnUncheck
         m_isChecked = false;
         m_checkBtn->setSprite(m_sprites.first);
         if (m_onCheck) {
             m_onCheck->setVisible(false);
             m_onCheck->setEnabled(false);
-        }
-    } else {
+        };
+
+    } else { // OnCheck
         m_isChecked = true;
         m_checkBtn->setSprite(m_sprites.second);
         if (m_onCheck) {
             m_onCheck->setVisible(true);
             m_onCheck->setEnabled(true);
         }
+        if (m_unCheck) {
+            m_unCheck->m_isChecked = false;
+            m_unCheck->m_checkBtn->setSprite(m_sprites.first);
+        };
     }
 
     return;
