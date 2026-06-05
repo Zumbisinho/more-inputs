@@ -31,7 +31,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
             auto array = CCArray::create();
             auto spr = spriteFromObjectString(
-                "1,914,31,bW9yZV9pbnB1dHM6ZWRpdG9yIHRyaWdnZXI=",
+                "1,914,31,bW9yZV9pbnB1dHM6IC0x",
                 false,
                 false,
                 0,
@@ -39,7 +39,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
                 nullptr,
                 nullptr
             ); // obj id and text in base64, this thing translates to
-               // more-inputs:editor trigger
+               // more_inputs: -1
             spr->setScale(
                 std::min(
                     32.f / spr->getContentHeight(),
@@ -168,7 +168,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
             if (!trigger->getChildByIDRecursive("touch-macro"_spr))
                 continue;
-            auto macro = new touchMacro();
+            auto macro = new macroTriggers::touchMacro();
 
             // soo it is selecting a macro
             for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)){

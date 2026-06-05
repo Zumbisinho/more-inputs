@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../utils/keybindsCache.hpp"
 #include "../../../utils/macroClasses.hpp"
+#include "../../textGameObject.hpp"
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
@@ -11,15 +12,17 @@
 #include <Geode/Geode.hpp>
 #include <Geode/binding/InfoAlertButton.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
+#include <fmt/format.h>
 #include <string>
 #include <utility>
 #include <vector>
+
 
 using namespace geode::prelude;
 
 class TouchMacroUI : public Popup {
 public:
-    static TouchMacroUI *create(touchMacro *touchMacroCluster) {
+    static TouchMacroUI *create(macroTriggers::touchMacro *touchMacroCluster) {
         auto ret = new TouchMacroUI;
         if (ret && ret->init(touchMacroCluster)) {
             ret->autorelease();
@@ -28,18 +31,18 @@ public:
         delete ret;
         return nullptr;
     };
-    static void open(touchMacro *touchMacroCluster) {
+    static void open(macroTriggers::touchMacro *touchMacroCluster) {
         auto layer = create(touchMacroCluster);
         layer->m_noElasticity = true;
         layer->show();
     }
 
 protected:
-    touchMacro *m_macroCluster;
+    macroTriggers::touchMacro *m_macroCluster;
     std::vector<CCObject *> m_widgets;
 
 private:
-    bool init(touchMacro *touchMacroCluster) {
+    bool init(macroTriggers::touchMacro *touchMacroCluster) {
         geode::log::warn("{}", touchMacroCluster->macroObj->m_text);
         if (!Popup::init(440.f, 280.f))
             return false;
@@ -206,8 +209,9 @@ private:
         );
 
         // ? Loading params from string
-        auto config =
-            touchMacro::triggerStrToConfig(touchMacroCluster->macroObj->m_text);
+        auto config = macroTriggers::triggerStrToConfig(
+            touchMacroCluster->macroObj->m_text
+        );
         if (!config.empty()) {
             actionDropDown->setSelected(config[0]);
             pressNI->setString(std::to_string(config[1]));
@@ -248,7 +252,7 @@ private:
             static_cast<GoffyBuilder::ToggleOption *>(m_widgets[6])
                 ->m_isChecked;
 
-        m_macroCluster->macroObj->m_text = touchMacro::configToTriggerStr(
+        m_macroCluster->macroObj->m_text = macroTriggers::configToTriggerStr(
             action,
             pressGroupId,
             releaseGroupId,
@@ -262,8 +266,6 @@ private:
                 ->m_itemList[action];
         // change the triggers
         int actionId = KeybindCache::actionNameToID[actionName];
-
-
 
         auto press = m_macroCluster->pressObj;
         auto release = m_macroCluster->releaseObj;
@@ -286,5 +288,20 @@ private:
         // ? Disarm
         press->m_multiActivate = !disarmOnFirst;
         release->m_multiActivate = !disarmOnFirst;
+
+        // ? Update groupLabel
+        auto groupWidget = static_cast<TouchMacroGameObject *>(m_macroCluster->macroObj)->m_fields->m_groupLabel;
+        std::string groupLabel = fmt::format(
+            "{}/{}",
+            m_macroCluster->getPressGroup(),
+            m_macroCluster->getReleaseGroup()
+        ); // 6/7
+        float oldWidth = groupWidget->getScaledContentWidth();
+        groupWidget->setString(groupLabel.c_str());
+        float newWidth = groupWidget->getScaledContentWidth(); 
+
+        float fixedScale = (oldWidth / newWidth) * groupWidget->getScale();
+
+        groupWidget->setScale(fixedScale);
     }
 };
