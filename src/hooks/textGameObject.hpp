@@ -5,7 +5,6 @@
 #include "Geode/modify/TextGameObject.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 
-
 using namespace geode::prelude;
 
 class $modify(TouchMacroGameObject, TextGameObject) {
@@ -18,5 +17,5 @@ class $modify(TouchMacroGameObject, TextGameObject) {
     void customObjectSetup(
         gd::vector<gd::string> &values, gd::vector<void *> &exists
     );
-    void updateTextObject(gd::string text, bool defaultFont);
+    void updateTextObject(gd::string text, bool defaultFont) ;
 };
