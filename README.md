@@ -1,7 +1,7 @@
 # More Inputs Mod
 
 <p align="center">
-  <img src="resources/menuArt/iconMIP.png" alt="Accessibility Text" width="800">
+  <img src="resources/menuArt/iconMIP.png" alt="Accessibility Text" width="400">
 </p>
 
 A mod that adds more inputs to the game via <ca>actions</c>.
