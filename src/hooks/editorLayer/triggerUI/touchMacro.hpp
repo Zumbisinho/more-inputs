@@ -69,7 +69,7 @@ private:
             "\n<cj>Action:</c> determines which player input this trigger will "
             "listen for."
 
-            "\n<co>Disarm On First Key<:/c> causes the trigger to deactivate "
+            "\n<co>Disarm On First Key</c> causes the trigger to deactivate "
             "itself after the first valid input is detected.",
             1
         );

@@ -16,16 +16,10 @@
         "alphalaneous.level-storage-api": ">=v1.0.0",
         "alphalaneous.editortab_api" : ">=2.1.5"
     },
-    "settings": {
-        "test-key": {
-            "type": "keybind",
-            "name": "Change Counter 3 Debug",
-            "default": "H"
-        }
-    },
     "resources": {
         "spritesheets": {
-            "Btns": ["resources/*.png"]
+            "Btns": ["resources/*.png"],
+            "MenuArt" : ["resources/MenuArt/*.png"]
         },
         "files": [
             "resources/constrains.json"

@@ -1,2 +1,3 @@
 # 1.0.0
-- Edit this file to change your mod's changelog.
+- Public release of the mod, idk what to put here, *initial commit?*
+- Removed ByeBrine
