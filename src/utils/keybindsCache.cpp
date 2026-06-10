@@ -1,5 +1,4 @@
 #include "keybindsCache.hpp"
-#include "Geode/loader/Log.hpp"
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -55,10 +54,7 @@ void init(CCLayer *layer) {
     };
 
     initialized = true;
-    geode::log::info("keybinds: {} keybindsAndAction: {} keyToActionID: {} "
-                     "actionNametoID: {}",
-                     keybinds, keybindsAndAction, keyToActionIds,
-                     actionNameToID);
+    
 };
 
 void reset() {
@@ -67,11 +63,10 @@ void reset() {
     actionNameToID.clear();
     keybinds.clear();
     keybindsAndAction.clear();
-    geode::log::warn("Resetado o cache");
+
 };
 void changeLocalKey(std::string actionName, int newKeyCode) {
-    geode::log::info("keyToActionIds OLD : {} {}", keyToActionIds,
-                     keybindsAndAction);
+    
     int oldKeyCode = std::ranges::find(keybindsAndAction, actionName,
                                        &std::pair<std::string, int>::first)
                          ->second;
@@ -89,8 +84,7 @@ void changeLocalKey(std::string actionName, int newKeyCode) {
     keybinds.insert(newKeyCode);
     keyToActionIds[newKeyCode].push_back(actionID);
     insertOrUpdate(keybindsAndAction,actionName,newKeyCode);
-    geode::log::info("keyToActionIds NEW : {} {}", keyToActionIds,
-                     keybindsAndAction);
+   
 };
 
 } // namespace KeybindCache

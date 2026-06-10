@@ -1,7 +1,6 @@
 #include "../../layers/editor/setupGUI.hpp"
 #include "Geode/cocos/cocoa/CCArray.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/utils/cocos.hpp"
 #include <Geode/Enums.hpp>
 #include <Geode/Geode.hpp>

@@ -1,6 +1,5 @@
 #include "keybindsAPI.hpp"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
-#include "Geode/loader/Log.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <string>
@@ -8,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-// ! IDENTIFICAR URGENTE COMO DETECTA JSON VAZIO
+
 
 using namespace geode::prelude;
 
@@ -44,7 +43,6 @@ void addKeyToJson(
         return;
     if (replaceEmpty) {
         std::string emptyActionName = containsValue((*json)["keybinds"], -67);
-        log::info("AddKeyToJson, empty: {}", emptyActionName);
         if (emptyActionName != "") // replaces empty section
         {
             editKeybind(json, emptyActionName, actionName, actionKeyCode);
@@ -70,7 +68,7 @@ void editKeybind(
             newObj["keybinds"][newAction] = newKeyCode;
             asFounded = true;
         } else {
-            newObj["keybinds"][key] = value.asInt().unwrap();
+            newObj["keybinds"][key] = value.asInt().unwrapOr(-1); // error
         }
     }
 
@@ -107,7 +105,7 @@ getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
     for (const auto [action, keycode] : keybinds) {
         if (keycode == -67 && ignoreEmpty)
             continue;
-        std::pair<std::string, int> pair = {action, keycode.asInt().unwrap()};
+        std::pair<std::string, int> pair = {action, keycode.asInt().unwrapOr(-1)};
         keys.push_back(pair);
     };
     return keys;
@@ -137,12 +135,7 @@ void editLevelKeyBind(
 ) {
     auto savedDict =
         alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
-    log::info(
-        "edotLevelKey {} / isObj {} | isNull {}",
-        savedDict.dump(),
-        savedDict.isObject(),
-        savedDict.isNull()
-    );
+
     // 2 cases, same or different actionName
     if (oldActionName == newActionAndKey.first)
         addKeyToJson(

@@ -8,7 +8,6 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
@@ -175,7 +174,7 @@ protected:
             m_callback(toReturn);
 
         this->onClose(nullptr);
-        delete this; // close for good :1
+        this->removeMeAndCleanup(); // close for good :1
     }
 
 public:
@@ -411,7 +410,6 @@ private:
         if (!KeybindCache::initialized)
             KeybindCache::init(LevelEditorLayer::get());
         auto keybinds = KeybindCache::keybindsAndAction;
-        geode::log::info("reseting list | kbs : {}", keybinds);
         m_contentLayer->removeAllChildrenWithCleanup(true);
         bool keyTipDeleted = false;
         m_noKeysTip->setVisible(true);

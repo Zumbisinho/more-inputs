@@ -17,7 +17,6 @@ namespace pickupManager {
 
     void changePickupId(int pickupId, int value) {
         if (auto em = getEffectManager()) {
-            log::info("Recibi e to alterando o {}, com: {}",pickupId, value);
             // reset
             em->addCountToItem(pickupId, -em->countForItem(pickupId));
 

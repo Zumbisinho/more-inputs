@@ -1,9 +1,8 @@
-#include "Geode/modify/TextGameObject.hpp"
+
 #include "../utils/macroClasses.hpp"
 #include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "textGameObject.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
@@ -49,7 +48,6 @@ void TouchMacroGameObject::setupCustomTrigger() {
     } else
         groupString = "0/0";
 
-    geode::log::warn("{} str {}", groupString, config);
     auto groupLabel = CCLabelBMFont::create(groupString.c_str(), "bigFont.fnt");
 
     groupLabel->setPosition(triggerContainer->getContentSize() * 0.5f);

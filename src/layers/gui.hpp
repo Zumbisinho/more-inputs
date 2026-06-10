@@ -1,6 +1,5 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
-#include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "customLabels/keybindLabel.hpp"
 #include <Geode/Geode.hpp>
 #include <string>

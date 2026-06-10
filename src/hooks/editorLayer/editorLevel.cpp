@@ -33,12 +33,12 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
     
 	void onPlaytest() {
         LevelEditorLayer::onPlaytest();
-
+        if (m_fields->m_defaultModIdentityPickupId == -1 || m_fields->m_defaultModIdentityValue == -1)
+            return;
         int id = m_fields->m_defaultModIdentityPickupId;
         int value = m_fields->m_defaultModIdentityValue;
 
         KeybindCache::init(this);
-		log::info("{} {}",id,value);
         pickupManager::changePickupId(id,value);
     }
     

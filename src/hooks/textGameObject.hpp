@@ -1,5 +1,4 @@
 #pragma once
-#include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/modify/TextGameObject.hpp"

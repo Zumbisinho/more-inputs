@@ -1,5 +1,4 @@
 #pragma once
-#include "Geode/loader/Log.hpp"
 #include "Geode/utils/general.hpp"
 #include "keybindsCache.hpp"
 #include <Geode/Geode.hpp>

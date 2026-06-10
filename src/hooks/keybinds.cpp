@@ -3,7 +3,6 @@
 #include "../utils/pickupManager.hpp"
 #include "Geode/DefaultInclude.hpp"
 #include "Geode/loader/Event.hpp"
-#include "Geode/loader/Log.hpp"
 #include "Geode/loader/Priority.hpp"
 #include "Geode/utils/Keyboard.hpp"
 #include <Geode/Geode.hpp>
@@ -17,7 +16,6 @@ $execute {
     KeyboardInputEvent()
         .listen(+[](const geode::KeyboardInputData &event) {
             if (event.action == KeyboardInputData::Action::Repeat) {
-                log::info("ta repidindo");
                 return geode::ListenerResult::Propagate;
             };
             auto editorLayer = LevelEditorLayer::get();
@@ -35,12 +33,6 @@ $execute {
             // KeybindCache::keyToActionIds.contains(keyAsInt));
             if (KeybindCache::keybinds.contains(keyAsInt)) {
                 for (const int actionID : actions->second) {
-                    geode::log::info(
-                        "Acionando na key: {}, actionId: {}, taSolto {}",
-                        keyToString(keyAsInt),
-                        actionID,
-                        event.action != KeyboardInputData::Action::Release
-                    );
                     Loader::get()->queueInMainThread([=] {
                         pickupManager::changePickupId(
                             actionID,

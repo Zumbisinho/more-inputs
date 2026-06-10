@@ -5,7 +5,6 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "builderMacros.hpp"
@@ -43,7 +42,6 @@ protected:
 
 private:
     bool init(macroTriggers::touchMacro *touchMacroCluster) {
-        geode::log::warn("{}", touchMacroCluster->macroObj->m_text);
         if (!Popup::init(440.f, 280.f))
             return false;
         this->setTitle("Edit Touch Macro");
@@ -231,7 +229,6 @@ private:
         return true;
     };
     void onClose(CCObject *sender) override {
-        Popup::onClose(sender);
         auto DropDown = static_cast<GoffyBuilder::DropDownList *>(m_widgets[0]);
         auto action = DropDown->m_curIndex;
 
@@ -303,5 +300,7 @@ private:
         float fixedScale = (oldWidth / newWidth) * groupWidget->getScale();
 
         groupWidget->setScale(fixedScale);
+
+        Popup::onClose(sender);
     }
 };

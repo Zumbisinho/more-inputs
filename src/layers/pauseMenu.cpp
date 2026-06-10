@@ -1,12 +1,10 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
-#include <climits>
 #include "../utils/keybindsAPI.hpp"
 #include "../utils/keycodeToString.hpp"
 #include "../utils/keybindsCache.hpp"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
-#include "Geode/loader/Log.hpp"
 #include "gui.hpp"
 
 
@@ -53,7 +51,6 @@ class $modify(MyPauseLayer, PauseLayer)
     };
     void onClick(CCObject * obj)
     {
-        geode::log::info("PauseMenu on the keybindsShit and Initiazled : {} {}",KeybindCache::keybindsAndAction, KeybindCache::initialized);
         if (!KeybindCache::keybindsAndAction.empty())
         {
             KeyBindsLocalConfigGui::open(obj,KeybindCache::keybindsAndAction);

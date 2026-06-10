@@ -5,7 +5,6 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "Geode/ui/Scrollbar.hpp"
@@ -269,7 +268,6 @@ void DropDownList::onClick(CCObject *sender) {
         1) // not even worth rendering a dropdown for 1 item
         return;
 
-    geode::log::warn("DropDown!");
     if (!m_isOpen) {
         m_curArrow->setRotation(180);
         m_isOpen = true;
@@ -470,7 +468,6 @@ bool NumericInput::init(
     m_side = ExtraInputWidget;
     switch (ExtraInputWidget) {
         case ExtraInputWidget::Arrows: {
-            log::warn("Arrow");
             numberInput->setCommonFilter(CommonFilter::Uint);
             auto leftSpr =
                 CCSprite::createWithSpriteFrameName("edit_leftBtn_001.png");
@@ -507,7 +504,6 @@ bool NumericInput::init(
             //  TimeSlider = 4, 0.00 to 10.00
             //  RangeSlider = 5,-1.00 to 1.00
             //  U_RangeSlider = 6, 0.00 to 1.00
-            log::warn("Slider");
 
             auto slider = SliderNode::create(
                 [this](SliderNode *idk, float value) {
@@ -578,13 +574,11 @@ bool NumericInput::init(
 
             numberInput->setCallback([this](const std::string cur) {
                 m_supressSlider = true;
-                geode::log::warn("{}", cur);
                 float pos = std::clamp(
                     numFromString<float>(cur).unwrapOr(0),
                     m_minSlider,
                     m_maxSlider
                 );
-                geode::log::warn("{}", cur);
                 if (pos == m_maxSlider)
                     m_slider->setValue(1);
                 else if (pos == m_minSlider)
@@ -594,13 +588,11 @@ bool NumericInput::init(
                         (pos - m_minSlider) / (m_maxSlider - m_minSlider);
                     m_slider->setValue(relativePos);
                 };
-                geode::log::warn("{}", cur);
                 m_supressSlider = false;
             });
             break;
         }
         case ExtraInputWidget::None: {
-            log::warn("None");
             inputWrapper->addChild(numberInput);
             // nothing happends, idk why i maded this case
             break;
