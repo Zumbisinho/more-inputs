@@ -29,7 +29,7 @@ class $modify(MyEditorUI, EditorUI) {
                 std::vector<Ref<CCNode>> buttons;
 
                 auto btn = getSpriteButton(
-                    "addKeyMIProt.png"_spr,
+                    "addKeyMIP.png"_spr,
                     menu_selector(MyEditorUI::onSetupBtn),
                     this->m_tabsMenu,
                     0.8f,
@@ -45,7 +45,7 @@ class $modify(MyEditorUI, EditorUI) {
                 return alpha::editor_tabs::createEditButtonBar(buttons);
             },
             [] { // ? Setup to Place the tabImg
-                return CCSprite::createWithSpriteFrameName("btnUgly.png"_spr);
+                return CCSprite::createWithSpriteFrameName("btn.png"_spr);
             }
         );
         return true;

@@ -32,7 +32,7 @@ class $modify(MyPauseLayer, PauseLayer)
         if (sideMenu->getChildByID("key-config"_spr)) // already added
             return;
 
-        auto spr = CircleButtonSprite::createWithSpriteFrameName("btnUgly.png"_spr);
+        auto spr = CircleButtonSprite::createWithSpriteFrameName("btn.png"_spr);
 
         auto btn = CCMenuItemSpriteExtra::create(
             spr, this, menu_selector(MyPauseLayer::onClick));
