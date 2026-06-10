@@ -31,3 +31,10 @@ Current i dont have any way to recieve money via donations, but i accept your co
 - **Geode dev-chat** - thanks for all the help that i received from those good developers
 - **GitHub actions** - macOs running out of minutes for my account
 - **Dj Zvitor Original** - The best DJ on the planet
+
+# For the Index Mods
+
+This mod works similar to the infinite inputs, because i started developing it before knowing about this mod, soo after finding out i asked to IAndy HD3(The dev) if i can upload it to index without being "stoled", so this is the message:
+
+<img src="https://i.imgur.com/bWW5OEX.png">
+[Geode SDK/dev chat/msg](https://discord.com/channels/911701438269386882/1469699961016025250/1503881025183551571)
