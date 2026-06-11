@@ -40,7 +40,6 @@ protected:
             m_callback(keyCode);
 
         this->onClose(nullptr);
-        this->removeMeAndCleanup();
     }
     void onClose(CCObject *sender) override {
         m_isAlive = false; // kbdispathcher doesnt wanna get killed for some reason

@@ -174,7 +174,6 @@ protected:
             m_callback(toReturn);
 
         this->onClose(nullptr);
-        this->removeMeAndCleanup(); // close for good :1
     }
 
 public:
