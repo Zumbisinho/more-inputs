@@ -108,6 +108,7 @@ protected:
 
         auto nameInput = TextInput::create(220.f, "Action Name", "bigFont.fnt");
         nameInput->setAnchorPoint({0.f, 0.f});
+        nameInput->setMaxCharCount(20);
         m_textInput = nameInput;
 
         auto keyDefaultSpr = CCLabelBMFont::create("None", "bigFont.fnt");
@@ -168,6 +169,11 @@ protected:
         std::pair<std::string, int> toReturn;
         int kC = m_keyCode;
         std::string actionName = m_textInput->getString();
+
+        if (kC <= -1 || actionName == ""){
+            return;
+        };
+            
         toReturn = {actionName, kC};
 
         if (m_callback)
