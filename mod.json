@@ -8,7 +8,7 @@
     },
     "id": "zumbisinho.more-inputs",
     "name": "more-inputs",
-    "version": "v1.0.11",
+    "version": "v1.0.111",
     "developer": "Zumbisinho",
     "description": "A mod that adds custom inputs",
     "dependencies": {
@@ -24,5 +24,11 @@
         "files": [
             "resources/constrains.json"
         ]
-    }
+    },
+    "tags": [
+        "editor",
+        "gameplay",
+        "offline",
+        "utility"
+    ]
 }
