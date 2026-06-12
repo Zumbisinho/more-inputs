@@ -8,6 +8,8 @@
 
 - Clicking on Touch Macro with anything selected
 - Not being able to input after adding keys to the level
+- Action label not having a limit to chars
+- You can create actions without keys
 
 
 # To be Refactored
