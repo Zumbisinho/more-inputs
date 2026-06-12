@@ -1,5 +1,6 @@
 #include "keybindsAPI.hpp"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
+#include "Geode/loader/Log.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <string>
@@ -88,7 +89,7 @@ std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer) {
     for (const auto [action, keycode] : *keybinds) {
         keyRaw.insert(keycode);
     };
-
+    
     return keyRaw;
 }
 
