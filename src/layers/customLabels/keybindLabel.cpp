@@ -43,6 +43,13 @@ bool KeyBindsSection::init(
     auto keyName = CCLabelBMFont::create(m_keyName.c_str(), "bigFont.fnt");
     keyName->setAnchorPoint({0.f, 0.5f});
     keyName->setContentWidth(size.width / 2);
+    if (m_keyName.size() > 20)
+    {
+        auto abreviated = m_keyName.substr(0,20) + "...";
+        keyName->setString(abreviated.c_str());
+    };
+
+
     m_actionNameLabel = keyName;
 
     auto keyBindsBtns = CCMenu::create();
