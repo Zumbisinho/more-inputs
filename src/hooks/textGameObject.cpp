@@ -1,12 +1,13 @@
 
+#include "textGameObject.hpp"
 #include "../utils/macroClasses.hpp"
 #include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/ui/Layout.hpp"
-#include "textGameObject.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <fmt/format.h>
+
 
 using namespace geode::prelude;
 
@@ -41,18 +42,23 @@ void TouchMacroGameObject::setupCustomTrigger() {
 
             groupString = fmt::format(
                 "{}/{}",
-                macroTriggers::triggerStrToConfig(m_text)[1], // pressGroup Id
-                macroTriggers::triggerStrToConfig(m_text)[2]  // releaseGroup Id
+                pressGroupId,  // pressGroup Id
+                releaseGroupId // releaseGroup Id
             );
         };
     } else
         groupString = "0/0";
 
     auto groupLabel = CCLabelBMFont::create(groupString.c_str(), "bigFont.fnt");
+    triggerContainer->setContentSize(groupLabel->getContentSize());
 
     groupLabel->setPosition(triggerContainer->getContentSize() * 0.5f);
+    
     m_fields->m_groupLabel = groupLabel;
 
+    triggerContainer->addChildAtPosition(
+        groupLabel, Anchor::Center, {0, 4}
+    ); // centralize with the blue ball from my custom sprite
     addChild(triggerContainer);
 
     auto spr = CCSprite::createWithSpriteFrameName("touch_macro.png"_spr);
@@ -60,7 +66,7 @@ void TouchMacroGameObject::setupCustomTrigger() {
 
     float toScale =
         spr->getScaledContentWidth() / groupLabel->getScaledContentWidth();
-    groupLabel->setScale(toScale * 0.8);
+    groupLabel->setScale(toScale * 1.5);
 
     setContentSize(spr->getContentSize());
     m_width = getContentWidth();
@@ -71,9 +77,6 @@ void TouchMacroGameObject::setupCustomTrigger() {
     triggerContainer->setPosition({getContentWidth() * 0.5f, 10.5f});
 
     addChild(spr);
-    addChildAtPosition(
-        groupLabel, Anchor::Center, {0, -4}
-    ); // centralize with the blue ball from my custom sprite
 
     spr->setColor(getColor());
 };

@@ -21,9 +21,7 @@ protected:
         label->setScale(0.8f);
         m_mainLayer->addChildAtPosition(label, geode::Anchor::Center);
 
-        cocos2d::CCDirector::sharedDirector()
-            ->getKeyboardDispatcher()
-            ->addDelegate(this);
+
         return true;
     }
 
