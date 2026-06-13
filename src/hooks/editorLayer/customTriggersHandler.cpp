@@ -126,6 +126,9 @@ class $modify(MyTriggerEditorUI, EditorUI) {
             if (!trigger->getChildByIDRecursive("touch-macro"_spr))
                 continue;
             auto macro = new macroTriggers::touchMacro();
+            macro->macroObj = nullptr;
+            macro->pressObj = nullptr;
+            macro->releaseObj = nullptr;
 
             // soo it is selecting a macro
             for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)) {
@@ -139,6 +142,11 @@ class $modify(MyTriggerEditorUI, EditorUI) {
                     trigger->m_zOrder == -68) // release
                     macro->releaseObj =
                         static_cast<CountTriggerGameObject *>(trigger);
+            }
+            if (!macro->macroObj || !macro->pressObj || !macro->releaseObj) {
+
+                delete macro;
+                return EditorUI::editObject(sender);
             }
             TouchMacroUI::open(macro);
             return;
@@ -170,21 +178,16 @@ class $modify(MyTriggerEditorUI, EditorUI) {
                 if (obj->m_objectID != 1611)
                     continue;
 
-                CCPoint objPosition = {
-                    static_cast<float>(obj->m_positionX),
-                    static_cast<float>(obj->m_positionY)
-                };
-                CCPoint macroPosition = {
-                    static_cast<float>(macro->m_positionX),
-                    static_cast<float>(macro->m_positionY)
-                };
-                if (objPosition == macroPosition) {
+                if (obj->getPosition().equals(macro->getPosition()) &&
+                    (obj->m_zOrder == -67 || obj->m_zOrder == -68)) {
                     toSelect->addObject(obj);
                 }
-                if (toSelect->count() == 3)
+                if (toSelect->count() == 3) {
+                    selectObjects(toSelect, true);
                     break;
+                }
             };
-            selectObjects(toSelect, true);
+
             if (m_selectedMode == 2) {
                 m_selectedObjectIndex = touchMacroID;
                 updateCreateMenu(true);
