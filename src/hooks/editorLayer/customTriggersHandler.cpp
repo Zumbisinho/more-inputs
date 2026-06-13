@@ -1,22 +1,26 @@
 #include "../../layers/editor/setupGUI.hpp"
+#include "../../utils/macroClasses.hpp"
 #include "Geode/cocos/cocoa/CCArray.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/utils/cocos.hpp"
+#include "triggerUI/touchMacro.hpp"
 #include <Geode/Enums.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/binding/ButtonSprite.hpp>
 #include <Geode/binding/CountTriggerGameObject.hpp>
+#include <Geode/binding/EditorUI.hpp>
 #include <Geode/binding/EffectGameObject.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/TextGameObject.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
-#include "triggerUI/touchMacro.hpp"
-#include "../../utils/macroClasses.hpp"
 
-// TODO: Add Cache to the macro triggers on load and update when needed (Create and delete)
-// TODO: Add a callback when a count trigger is not found (ReCreate it or idk crash the game)
+// TODO: Add Cache to the macro triggers on load and update when needed (Create
+// and delete)
+// TODO: Add a callback when a count trigger is not found (ReCreate it or idk
+// crash the game)
 
 constexpr int touchMacroID = 14671; // 15000 limit
 
@@ -25,40 +29,40 @@ using namespace geode::prelude;
 class $modify(MyTriggerEditorUI, EditorUI) {
     CreateMenuItem *getCreateBtn(int id, int bg) {
         switch (id) {
-        case touchMacroID: {
-            auto btn = getCreateBtn(1, 4);
+            case touchMacroID: {
+                auto btn = getCreateBtn(1, 4);
 
-            auto array = CCArray::create();
-            auto spr = spriteFromObjectString(
-                "1,914,31,bW9yZV9pbnB1dHM6IC0x",
-                false,
-                false,
-                0,
-                array,
-                nullptr,
-                nullptr
-            ); // obj id and text in base64, this thing translates to
-               // more_inputs: -1
-            spr->setScale(
-                std::min(
-                    32.f / spr->getContentHeight(),
-                    32.f / spr->getContentWidth()
-                )
-            );
-            auto defaultBtn =
-                static_cast<ButtonSprite *>(btn->getNormalImage());
-            if (auto toHide = defaultBtn->m_subSprite)
-                toHide->setVisible(false);
-            defaultBtn->addChild(spr);
-            spr->setPosition({20, 21});
+                auto array = CCArray::create();
+                auto spr = spriteFromObjectString(
+                    "1,914,31,bW9yZV9pbnB1dHM6IC0x",
+                    false,
+                    false,
+                    0,
+                    array,
+                    nullptr,
+                    nullptr
+                ); // obj id and text in base64, this thing translates to
+                   // more_inputs: -1
+                spr->setScale(
+                    std::min(
+                        32.f / spr->getContentHeight(),
+                        32.f / spr->getContentWidth()
+                    )
+                );
+                auto defaultBtn =
+                    static_cast<ButtonSprite *>(btn->getNormalImage());
+                if (auto toHide = defaultBtn->m_subSprite)
+                    toHide->setVisible(false);
+                defaultBtn->addChild(spr);
+                spr->setPosition({20, 21});
 
-            btn->m_objectID = touchMacroID;
-            btn->setTag(touchMacroID);
+                btn->m_objectID = touchMacroID;
+                btn->setTag(touchMacroID);
 
-            return btn;
-        }
-        default:
-            return EditorUI::getCreateBtn(id, bg); // Default
+                return btn;
+            }
+            default:
+                return EditorUI::getCreateBtn(id, bg); // Default
         }
     };
     void onCreateObject(int id) {
@@ -74,12 +78,12 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
         CCPoint pos = touchMacro->getPosition();
 
-        auto onPressCounter = static_cast<CountTriggerGameObject*>(this->m_editorLayer->createObject(
-            1611, pos, false
-        )); // creates the counters
-        auto onReleaseCounter = static_cast<CountTriggerGameObject*>(this->m_editorLayer->createObject(
-            1611, pos, false
-        )); // creates the counters
+        auto onPressCounter = static_cast<CountTriggerGameObject *>(
+            this->m_editorLayer->createObject(1611, pos, false)
+        ); // creates the counters
+        auto onReleaseCounter = static_cast<CountTriggerGameObject *>(
+            this->m_editorLayer->createObject(1611, pos, false)
+        ); // creates the counters
 
         onPressCounter->m_zLayer = ZLayer::B5;
         onPressCounter->m_zOrder = -67;
@@ -111,16 +115,45 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
         this->selectObjects(toSelect, true);
     }
-    void clickOnPosition(CCPoint position) {
-        EditorUI::clickOnPosition(position);
-        if (m_selectedMode == 2)
-            if (m_selectedObjectIndex != 914)
-                return;
 
-        auto nodePos =
-            m_editorLayer->m_objectLayer->convertToNodeSpace(position);
+    void editObject(CCObject *sender) {
+        if (m_selectedObjects->count() != 3)
+            return EditorUI::editObject(sender);
+        for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)) {
+            if (trigger->m_objectID != 914)
+                continue;
 
-        auto macro = m_editorLayer->objectAtPosition(nodePos);
+            if (!trigger->getChildByIDRecursive("touch-macro"_spr))
+                continue;
+            auto macro = new macroTriggers::touchMacro();
+
+            // soo it is selecting a macro
+            for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)) {
+                if (trigger->m_objectID == 914)
+                    macro->macroObj = static_cast<TextGameObject *>(trigger);
+                if (trigger->m_objectID == 1611 &&
+                    trigger->m_zOrder == -67) // press
+                    macro->pressObj =
+                        static_cast<CountTriggerGameObject *>(trigger);
+                if (trigger->m_objectID == 1611 &&
+                    trigger->m_zOrder == -68) // release
+                    macro->releaseObj =
+                        static_cast<CountTriggerGameObject *>(trigger);
+            }
+            TouchMacroUI::open(macro);
+            return;
+        }
+
+        EditorUI::editObject(sender);
+    };
+
+    void updateButtons() {
+        if (m_selectedObjects->count() > 1 || !m_selectedObject ||
+            m_selectedObject->m_objectID != 914) {
+            EditorUI::updateButtons();
+            return;
+        }
+        auto macro = m_selectedObject;
         auto textGameObject = typeinfo_cast<TextGameObject *>(macro);
 
         if (!textGameObject)
@@ -156,33 +189,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
                 m_selectedObjectIndex = touchMacroID;
                 updateCreateMenu(true);
             }
-        }
+        };
+        EditorUI::updateButtons();
     }
-    void editObject(CCObject *sender) {
-        if (m_selectedObjects->count() != 3)
-            return EditorUI::editObject(sender);
-        for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)) {
-            if (trigger->m_objectID != 914)
-                continue;
-
-            if (!trigger->getChildByIDRecursive("touch-macro"_spr))
-                continue;
-            auto macro = new macroTriggers::touchMacro();
-
-            // soo it is selecting a macro
-            for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)){
-                if (trigger->m_objectID == 914) 
-                    macro->macroObj = static_cast<TextGameObject*>(trigger);
-                if (trigger->m_objectID == 1611 && trigger->m_zOrder == -67) // press
-                    macro->pressObj = static_cast<CountTriggerGameObject*>(trigger);
-                if (trigger->m_objectID == 1611 && trigger->m_zOrder == -68) // release
-                    macro->releaseObj = static_cast<CountTriggerGameObject*>(trigger);
-            }
-            TouchMacroUI::open(macro);
-            return;
-
-        }
-
-        EditorUI::editObject(sender);
-    };
 };
