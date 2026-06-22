@@ -367,7 +367,7 @@ private:
                 if (btn2) {
                     keybindsAPI::editLevelKeyBind(
                         LevelEditorLayer::get(),
-                        m_oldActionName,
+                        {m_oldActionName,KeybindCache::actionNameToID[m_oldActionName]},
                         {m_oldActionName, -67},
                         false
                     ); // worst way to do it but its how i do it
@@ -458,7 +458,7 @@ private:
                             newActionName, newKeyCode
                         };
                         keybindsAPI::editLevelKeyBind(
-                            LevelEditorLayer::get(), actionName, newPair, false
+                            LevelEditorLayer::get(), {actionName,KeybindCache::actionNameToID[actionName]}, newPair, false
                         );
                         KeybindCache::reset();
                     };

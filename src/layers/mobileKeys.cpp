@@ -109,14 +109,6 @@ class $modify(MobileKeys, PlayLayer) {
         auto overlay = CCMenu::create();
         overlay->setContentSize(screenSize);
 
-        auto testBtn = MobileButton::create("Alemão", false, {200, 100},3414);
-
-        auto testSprBtn =
-            MobileButton::create("iconMIP.png"_spr, true, {200, 100},3415);
-        testSprBtn->setAnchorPoint({0, 1});
-        overlay->addChildAtPosition(testSprBtn, Anchor::TopLeft, {16, -16});
-        overlay->addChildAtPosition(testBtn, Anchor::BottomLeft, {16, 16});
-
         this->addChild(overlay);
 
         return true;
