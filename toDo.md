@@ -6,6 +6,8 @@
 - Add cache when selecting custom triggers
 - Automatic UI system for lazy ass people
 - Add text to mobile button or image (enable hue, rot, offset, scale and wrap)
+- Add a auto UI system in the 2.x.x.cpp to auto alloc the next button with auto layout
+- Add a way to convert old to new keys
 
 
 # To be Fixed
@@ -18,7 +20,7 @@
 
 # To be Refactored
 
-- Keybinds saving System
+- ~~Keybinds saving System~~
 - Custom triggers
 
 

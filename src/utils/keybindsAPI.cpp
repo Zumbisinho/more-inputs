@@ -1,20 +1,21 @@
 #include "keybindsAPI.hpp"
-#include "Geode/cocos/cocoa/CCGeometry.h"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
 #include "Geode/loader/Log.hpp"
 #include "Geode/utils/VersionInfo.hpp"
+#include "Geode/utils/general.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
+#include "keybindsCache.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
-#include <array>
+#include <cstddef>
 #include <matjson.hpp>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 // Las grandes versiones del hpps
 #include "keybindsAPIVersions/1.x.x.hpp"
 #include "keybindsAPIVersions/2.x.x.hpp"
-#include "keybindsCache.hpp"
 
 using namespace geode::prelude;
 
@@ -24,19 +25,143 @@ using namespace geode::prelude;
 
 namespace keybindsAPI {
 // ? helper functions
-auto curVersion = Mod::get()->getVersion();
+
+matjson::Value formatInJson(const KeybindValue *values) {
+    auto newObj = matjson::Value::object();
+    auto posArr = matjson::Value::array();
+    posArr.push(values->pos.x);
+    posArr.push(values->pos.y);
+    auto sizeArr = matjson::Value::array();
+    sizeArr.push(values->contentSize.width);
+    sizeArr.push(values->contentSize.height);
+
+    newObj["name"] = values->name;
+    newObj["keyCode"] = values->keyCode;
+    newObj["isSpr"] = values->isSpr;
+    newObj["position"] = posArr;
+    newObj["contentSize"] = sizeArr;
+    newObj["buttonLabel"] = values->buttonLabel;
+
+    return newObj;
+};
+std::string versionStr = Mod::get()->getVersion().toVString();
+matjson::Value getDefaultJson() {
+    matjson::Value keybinds = matjson::Value::object();
+
+    matjson::Value templateJson = matjson::Value::object();
+    templateJson["version"] = versionStr;
+    templateJson["keybinds"] = keybinds;
+
+    return templateJson;
+};
+std::string containsValue(const matjson::Value &obj, int target) {
+    if (!obj.isObject())
+        return "";
+
+    for (auto const &[actionName, value] : obj) {
+        if (value.isNumber() && value.asInt().unwrapOr(0) == target) {
+            return actionName;
+        }
+    }
+    return "";
+}
 
 VersionInfo getLevelVersion(CCLayer *layer) {
     auto configJson =
         alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
-    if (auto ver = configJson["version"].asString().unwrapOr("");
-        ver.size() != 0) {
+    if (auto ver = configJson["version"].asString().unwrapOr(""); ver.size() != 0) {
         return VersionInfo::parse(ver).unwrap();
     };
     return VersionInfo::parse("v0.0.0").unwrap();
 };
+struct IDAndPos {
+    int actionId;
+    int pos;
+};
 
-// ! This need a better aprouch, like a list idk version theshold
+
+IDAndPos getNextFreeActionId(matjson::Value *json) {
+    if ((*json)["keybinds"].isObject() == false)
+        return {0, 0};
+    int lastId = -1;
+    int index = -1;
+    log::warn("{}", json->dump());
+    for (auto const &[key, value] : (*json)["keybinds"]) {
+        log::info("Cur {}", key);
+        index++;
+        int actionId = numFromString<int>(key).unwrapOr(0);
+        log::info("CurConverted {}", actionId);
+        if (lastId == -1) {
+            lastId = actionId;
+            continue;
+        };
+        if (int dif = actionId - lastId; dif != 1) {
+            return {lastId + 1, index};
+        } else {
+            lastId = actionId;
+        }
+    };
+    if (lastId != -1)            // was in the loop
+        return {lastId + 1, -1}; // last
+    else                         // first interraction
+        return {KeybindCache::startId + 1, 0};
+};
+
+void addKeyToJson(
+    matjson::Value *json, KeybindValue *keySettings
+
+) {
+    if ((*json)["keybinds"].isObject() == false)
+        return;
+    ;
+    IDAndPos nextFree = getNextFreeActionId(json);
+    log::warn("NextFree: {} {}", nextFree.actionId, nextFree.pos);
+    if (nextFree.actionId == 0)
+        return; // Error that can be supress
+
+    if (nextFree.pos == 0 ||
+        nextFree.pos == -1) { // first interraction or last pos
+        (*json)["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
+        geode::log::warn("AddKeyToJson : {}", json->dump());
+        return;
+    }
+
+    size_t idx = 0;
+    matjson::Value newObj = getDefaultJson();
+    for (auto const &[key, value] : (*json)["keybinds"]) {
+        int actionId = numFromString<int>(key).unwrapOr(0);
+        if (idx == nextFree.pos)
+            newObj["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
+        else
+            newObj["keybinds"][actionId] = value;
+        idx++;
+    };
+    *json = newObj;
+    geode::log::warn("AddKeyToJson : {}", json->dump());
+}
+void editKeybind(
+    matjson::Value *json, const KeybindValue *newKeySettings, int actionId
+) {
+    log::warn("Edit keybinds Id: {}",actionId);
+    if (!json || !json->isObject()) // how do you even get here?
+        return;
+
+    matjson::Value newObj = getDefaultJson();
+    bool asFounded = false;
+    for (auto const &[key, value] : (*json)["keybinds"]) {
+        int curActionId = numFromString<int>(key).unwrapOr(0);
+        if (curActionId == actionId && !asFounded) {
+            newObj["keybinds"][key] = formatInJson(newKeySettings);
+            asFounded = true;
+        } else {
+            newObj["keybinds"][key] = value;
+        }
+    }
+    if (!asFounded)
+        return;
+
+    *json = newObj;
+}
 
 std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer) {
     switch (getLevelVersion(layer).getMajor()) {
@@ -53,48 +178,85 @@ std::vector<std::pair<std::string, int>>
 getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
     switch (getLevelVersion(layer).getMajor()) {
         case 2: {
-            return KeyAPIv2::getLevelKeyBinds(layer,false); // i gonna remove the 2 param
+            return KeyAPIv2::getLevelKeyBinds(
+                layer, false
+            ); // i gonna remove the 2 param
         };
         case 1: {
-            return KeyAPIv1::getLevelKeyBinds(layer,ignoreEmpty);
+            return KeyAPIv1::getLevelKeyBinds(layer, ignoreEmpty);
         };
     }
     return {};
 };
+std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
+    std::vector<KeyFullSettings> keys;
 
-void addLevelKeyBind(LevelEditorLayer *layer, std::string key, int def){
     switch (getLevelVersion(layer).getMajor()) {
         case 2: {
-            KeyAPIv2::addLevelKeyBind(layer,key,def); // i gonna edit the 2 param
-        };
+            auto keybinds =
+                alpha::level_storage::getSavedValue<matjson::Value>(layer, "config")["keybinds"].as<std::unordered_map<std::string, KeybindValue>>().unwrapOrDefault();
+            if (keybinds.size() == 0)
+                return keys;
+            for (const auto &[key, value] : keybinds) {
+                geode::log::warn("{} {} {} {} {}", key, value.keyCode, value.buttonLabel, value.contentSize, value.name);
+                int curActionId = numFromString<int>(key).unwrapOr(0);
+                keys.push_back({curActionId, value});
+            };
+            return keys;
+        }
         case 1: {
-            KeyAPIv1::addLevelKeyBind(layer,key,def);
+            auto keybinds = KeyAPIv1::getLevelKeyBinds(layer, false);
+            int idx = KeybindCache::startId;
+            for (const auto [actionName, keycode] : keybinds) {
+                if (keycode == -67) { // empty
+                    idx++;
+                    continue;
+                }
+                auto dummy = createPcValue(actionName, keycode);
+                keys.push_back({idx, dummy});
+            };
         };
-    }
+    };
+    return keys;
 };
+void addLevelKeyBind(LevelEditorLayer *layer, KeybindValue *keySettings) {
+    auto savedDict =
+        alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
+    if (savedDict["keybinds"].size() == 0) {
+        savedDict = getDefaultJson();
+    }
+
+    addKeyToJson(&savedDict, keySettings);
+    alpha::level_storage::setSavedValue(layer, "config", savedDict);
+    return;
+}
 void editLevelKeyBind(
     LevelEditorLayer *layer,
-    std::pair<std::string, int>actionNameAndId,
-    std::pair<std::string, int> newActionAndKey,
-    bool replaceEmpty
-){
-    switch (getLevelVersion(layer).getMajor()) {
-        case 2: { // uses actionId
-            KeyAPIv2::editLevelKeyBind(layer,actionNameAndId.second,newActionAndKey,replaceEmpty); // i gonna remove the 4 param
-        };
-        case 1: { // uses actionName
-            KeyAPIv1::editLevelKeyBind(layer,actionNameAndId.first,newActionAndKey,replaceEmpty); 
-        };
-    }
+    int actionID,
+    const KeybindValue *newKeySettings
+) {
+    auto savedDict =
+        alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
+    editKeybind(&savedDict, newKeySettings, actionID);
+    alpha::level_storage::setSavedValue(layer, "config", savedDict);
+
+    return;
 }
-void deleteKeybindsFromLevel(LevelEditorLayer *layer){
-    switch (getLevelVersion(layer).getMajor()) {
-        case 2: {
-            KeyAPIv2::deleteKeybindsFromLevel(layer); // i gonna remove nothing
-        };
-        case 1: {
-            KeyAPIv1::deleteKeybindsFromLevel(layer);
-        };
+
+void deleteLevelKeybind(LevelEditorLayer *layer, int actionID) {
+    auto savedDict =
+        alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
+    auto newObj = getDefaultJson();
+    for (auto const &[key, value] : savedDict["keybinds"]) {
+        int curActionId = numFromString<int>(key).unwrapOr(0);
+        if (curActionId == actionID) {
+            continue;
+        }
+        newObj["keybinds"][key] = value;
     }
+    alpha::level_storage::setSavedValue(layer, "config", newObj);
+};
+void deleteKeybindsFromLevel(LevelEditorLayer *layer) {
+    alpha::level_storage::setSavedValue(layer, "config", {});
 };
 } // namespace keybindsAPI

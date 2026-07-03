@@ -12,7 +12,6 @@
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <matjson.hpp>
 
-
 constexpr int touchMacroID = 14671; // 15000 limit
 
 using namespace geode::prelude;
@@ -56,11 +55,9 @@ class $modify(MyEditorUI, EditorUI) {
         auto editorLayer = LevelEditorLayer::get();
 
         auto scene = CCDirector::sharedDirector()->getRunningScene();
-        auto keys = keybindsAPI::getLevelKeyBinds(
-            playLayer ? (CCLayer *)playLayer : (CCLayer *)editorLayer, true
+        auto keys = keybindsAPI::getLevelKeySettings(
+            playLayer ? (CCLayer *)playLayer : (CCLayer *)editorLayer
         );
-        setupKeyBindsGUI::open(scene, keys);
+        setupKeyBindsGUI::open(keys);
     };
-
-    
 };

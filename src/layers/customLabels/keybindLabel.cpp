@@ -2,16 +2,18 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
+#include "Geode/loader/Log.hpp"
 #include <string>
 
 KeyBindsSection *KeyBindsSection::create(
-    const std::string &KeyName, const int DefaultKey, const CCSize &size,
-    const std::function<void(CCObject*,std::string,int,CCLabelBMFont *)> callback
-    ) {
-    
-    auto ret = new KeyBindsSection();
+    const keybindsAPI::KeyFullSettings* key,
+    const CCSize &size = {60.f, 67.f},
+    const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings)> callback = nullptr
+) {
+    geode::log::warn("\nItem {}: {} {}",key->first,key->second.name,key->second.keyCode);
+    auto ret = new KeyBindsSection(key);
 
-    if (ret && ret->init(KeyName, DefaultKey, size, callback)) {
+    if (ret && ret->init(key, size, callback)) {
         ret->autorelease();
         return ret;
     }
@@ -21,41 +23,43 @@ KeyBindsSection *KeyBindsSection::create(
 }
 
 bool KeyBindsSection::init(
-    const std::string &KeyName = "", const int DefaultKey = 0,
+    const keybindsAPI::KeyFullSettings *key,
     const CCSize &size = {60.f, 67.f},
-    const std::function<void(CCObject*,std::string,int,CCLabelBMFont *)> callback = nullptr)
-    {
+    const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings)> callback = nullptr
+) {
     if (!CCMenu::init())
         return false;
-
-    m_keyName = KeyName;
-    m_callback = callback;
+    if (!key)
+        return false;
     
-    m_defaultKey = keyToString(DefaultKey);
-    m_keyCode = DefaultKey;
+    log::warn("actionId = {}", m_keySetting.first);
+    log::warn("keycode = {}", m_keySetting.second.keyCode);
+    // ! Ponteiro invalido, ta copiando o nada e allocando um gazetals de memoria, arrumar isso
+    auto keyString = m_keySetting.second.name;
+    m_callback = callback;
+
+    m_defaultKey = keyToString(m_keySetting.second.keyCode);
     ccColor3B bgColor;
 
     this->setLayout(
-        RowLayout::create()->setAxisAlignment(AxisAlignment::Between));
+        RowLayout::create()->setAxisAlignment(AxisAlignment::Between)
+    );
     this->setContentSize(
-        {size.width - 20, size.height}); // gap for the list borders
+        {size.width - 20, size.height}
+    ); // gap for the list borders
 
-    auto keyName = CCLabelBMFont::create(m_keyName.c_str(), "bigFont.fnt");
+    auto keyName = CCLabelBMFont::create(keyString.c_str(), "bigFont.fnt");
     keyName->setAnchorPoint({0.f, 0.5f});
     keyName->setContentWidth(size.width / 2);
-    if (m_keyName.size() > 20)
-    {
-        auto abreviated = m_keyName.substr(0,20) + "...";
+    if (keyString.size() > 20) {
+        auto abreviated = keyString.substr(0, 20) + "...";
         keyName->setString(abreviated.c_str());
     };
-
 
     m_actionNameLabel = keyName;
 
     auto keyBindsBtns = CCMenu::create();
-    keyBindsBtns->setLayout(RowLayout::create()
-                                ->setAxisAlignment(AxisAlignment::End)
-                                ->setGap(10.f));
+    keyBindsBtns->setLayout(RowLayout::create()->setAxisAlignment(AxisAlignment::End)->setGap(10.f));
 
     auto keyDefaultSpr =
         CCLabelBMFont::create(m_defaultKey.c_str(), "bigFont.fnt");
@@ -69,7 +73,8 @@ bool KeyBindsSection::init(
         CCSprite::createWithSpriteFrameName("accountBtn_settings_001.png");
     SettingsSpr->setScale(0.5f);
     auto SettingsBtn = CCMenuItemSpriteExtra::create(
-        SettingsSpr, this, menu_selector(KeyBindsSection::onSettingsBtn));
+        SettingsSpr, this, menu_selector(KeyBindsSection::onSettingsBtn)
+    );
     SettingsBtn->setAnchorPoint({0.5f, 0.5f});
 
     keyBindsBtns->addChild(SettingsBtn);
@@ -87,6 +92,5 @@ bool KeyBindsSection::init(
 };
 void KeyBindsSection::onSettingsBtn(CCObject *sender) {
     if (m_callback)
-        m_callback(sender, m_keyName,m_keyCode,m_defaultKeyLabel);
-    
+        m_callback(sender, m_keySetting);
 };

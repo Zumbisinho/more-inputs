@@ -53,7 +53,7 @@ class $modify(MyPauseLayer, PauseLayer)
     {
         if (!KeybindCache::keybindsAndAction.empty())
         {
-            KeyBindsLocalConfigGui::open(obj,KeybindCache::keybindsAndAction);
+            KeyBindsLocalConfigGui::open(obj,KeybindCache::keySettings);
             return;
         }
         
@@ -61,7 +61,7 @@ class $modify(MyPauseLayer, PauseLayer)
         auto playLayer = PlayLayer::get();
         auto editorLayer = LevelEditorLayer::get();
 
-        auto keys = keybindsAPI::getLevelKeyBinds(playLayer ? (CCLayer*)playLayer: (CCLayer*)editorLayer,true);
+        auto keys = keybindsAPI::getLevelKeySettings(playLayer ? (CCLayer*)playLayer: (CCLayer*)editorLayer);
 
         KeyBindsLocalConfigGui::open(obj,keys);
         return;

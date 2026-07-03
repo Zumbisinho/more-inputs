@@ -1,47 +1,39 @@
 #pragma once
+#include "../../utils/keybindsCache.hpp"
+#include "../../utils/keycodeToString.hpp"
+#include "../keyEdit.hpp"
+#include "Geode/cocos/cocoa/CCObject.h"
 #include <Geode/Geode.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <functional>
 #include <string>
-#include "../../utils/keycodeToString.hpp"
-#include "../../utils/keybindsCache.hpp"
-#include "../keyEdit.hpp"
-#include "Geode/cocos/cocoa/CCObject.h"
-
 
 using namespace geode::prelude;
 
 class KeyBindsSection : public CCMenu {
 protected:
-    std::string m_keyName;
+    keybindsAPI::KeyFullSettings m_keySetting;
     std::string m_defaultKey;
-    CCLabelBMFont* m_defaultKeyLabel;
-    CCLabelBMFont* m_actionNameLabel;
+    CCLabelBMFont *m_defaultKeyLabel;
+    CCLabelBMFont *m_actionNameLabel;
 
-    int m_keyCode;
-    std::function<void(CCObject*,std::string,int,CCLabelBMFont *)> m_callback;
-    std::function<void(CCObject*,CCMenu*)> m_deleteCB;
+    std::function<void(CCObject *, const keybindsAPI::KeyFullSettings )> m_callback;
+    std::function<void(CCObject *, CCMenu *)> m_deleteCB;
+
+    KeyBindsSection(const keybindsAPI::KeyFullSettings* initKey) : m_keySetting(*initKey){};
 
     bool init(
-        const std::string& KeyName,
-        const int DefaultKey,
-        const CCSize& size,
-        const std::function<void(CCObject*,std::string,int,CCLabelBMFont *)> callback
-        
-        
+        const keybindsAPI::KeyFullSettings *key,
+        const CCSize &size,
+        const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings )> callback
     );
 
 public:
-    
-    static KeyBindsSection* create(
-        const std::string& KeyName,
-        const int DefaultKey,
-        const CCSize& size,
-        const std::function<void(CCObject*,std::string,int,CCLabelBMFont *)> callback
-        
-        
+    static KeyBindsSection *create(
+        const keybindsAPI::KeyFullSettings *key,
+        const CCSize &size,
+        const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings )> callback
     );
 
-    void onSettingsBtn(CCObject* sender);
+    void onSettingsBtn(CCObject *sender);
 };
-

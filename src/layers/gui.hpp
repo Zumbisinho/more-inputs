@@ -2,6 +2,7 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "customLabels/keybindLabel.hpp"
 #include <Geode/Geode.hpp>
+#include <Geode/binding/KeyframeObject.hpp>
 #include <string>
 
 using namespace geode::prelude;
@@ -11,7 +12,7 @@ using namespace geode::prelude;
 class KeyBindsLocalConfigGui : public geode::Popup {
 public:
     static KeyBindsLocalConfigGui *
-    create(std::vector<std::pair<std::string, int>> const keybinds) {
+    create(std::vector<keybindsAPI::KeyFullSettings> const keybinds) {
         auto ret = new KeyBindsLocalConfigGui;
         if (ret && ret->init(keybinds)) {
             ret->autorelease();
@@ -21,13 +22,13 @@ public:
         return nullptr;
     };
     static void open(CCObject *,
-                     std::vector<std::pair<std::string, int>> keyBindsDict) {
+                     std::vector<keybindsAPI::KeyFullSettings> keyBindsDict) {
         auto layer = create(keyBindsDict);
         layer->show();
     }
 
 private:
-    bool init(std::vector<std::pair<std::string, int>> const keyBindsDict) {
+    bool init(const std::vector<keybindsAPI::KeyFullSettings> keyBindsDict) {
         if (!Popup::init(440.f, 280.f))
             return false;
 
@@ -78,23 +79,16 @@ private:
         listLabel->addChildAtPosition(scrollArea, geode::Anchor::TopLeft);
         m_mainLayer->addChildAtPosition(bg, geode::Anchor::Center);
 
-        for (const auto &[key, def] : keyBindsDict) {
-            if (def == -67) // empty spik
-                continue;
+        for (const keybindsAPI::KeyFullSettings &item : keyBindsDict) {
             auto label = KeyBindsSection::create(
-                key, def, {contentSize.width, 20.f},
-                [this](CCObject *sender, std::string keyName, int keyCode,CCLabelBMFont * defKeyLabel) {
+                &item, {contentSize.width, 20.f},
+                [this](CCObject *sender, const keybindsAPI::KeyFullSettings newKey) {
                     keyEdit::setKeyPopup::open(
-                        sender, [this, keyName, defKeyLabel](int keyCode) {
+                        sender, [this, newKey](int keyCode) {
                             if (keyCode == -2)
                                 return;
 
-                            KeybindCache::changeLocalKey(keyName, keyCode);
-
-                            if (defKeyLabel) {
-                                defKeyLabel->setString(
-                                    keyToString(keyCode).c_str());
-                            }
+                            KeybindCache::changeLocalKey(newKey.second.name, keyCode);
                         });
                 });
             content->addChild(label);

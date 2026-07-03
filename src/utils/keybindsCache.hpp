@@ -4,6 +4,7 @@
 #include "getJson.hpp"
 #include "keybindsAPI.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
+#include <vector>
 
 namespace KeybindCache {
     extern bool initialized;
@@ -13,7 +14,7 @@ namespace KeybindCache {
     inline std::vector<std::pair<std::string, int>> keybindsAndAction;
     inline std::map<int,std::vector<int>> keyToActionIds;
     inline std::map<std::string,int> actionNameToID;
-
+    inline std::vector<keybindsAPI::KeyFullSettings> keySettings;
     void init(CCLayer* layer);
     void reset();
     void changeLocalKey(std::string actionName, int newKeyCode);

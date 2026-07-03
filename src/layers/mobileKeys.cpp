@@ -12,7 +12,6 @@
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <string>
-#include <urlmon.h>
 #include "../utils/pickupManager.hpp"
 
 using namespace geode::prelude;

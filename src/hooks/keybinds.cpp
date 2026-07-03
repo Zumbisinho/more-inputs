@@ -11,7 +11,6 @@
 #include <Geode/binding/PlayLayer.hpp>
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 
-
 $execute {
     KeyboardInputEvent()
         .listen(+[](const geode::KeyboardInputData &event) {
@@ -28,11 +27,9 @@ $execute {
             auto layer = !GJBaseGameLayer::get();
             int keyAsInt = static_cast<int>(event.key);
             auto actions = KeybindCache::keyToActionIds.find(keyAsInt);
-            // geode::log::info("actions: {}, ta dentro?
-            // {}",KeybindCache::keyToActionIds,
-            // KeybindCache::keyToActionIds.contains(keyAsInt));
+            geode::log::info("actions: {}, ta dentro? {}",KeybindCache::keyToActionIds,KeybindCache::keyToActionIds.contains(keyAsInt));
             if (KeybindCache::keybinds.contains(keyAsInt)) {
-                for (const int actionID : actions->second) {
+                for (const int& actionID : actions->second) {
                     Loader::get()->queueInMainThread([=] {
                         pickupManager::changePickupId(
                             actionID,
@@ -43,8 +40,6 @@ $execute {
                     });
                 }
             }
-            return geode::ListenerResult::Propagate;
-        },Priority::VeryEarly)
+            return geode::ListenerResult::Propagate; }, Priority::VeryEarly)
         .leak();
-    
 }

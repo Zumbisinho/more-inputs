@@ -36,10 +36,12 @@ void init(CCLayer *layer) {
     actionNameToID.clear();
     keybinds.clear();
     keybindsAndAction.clear();
+    keySettings.clear();
 
     keybinds = keybindsAPI::getLevelKeyBindsRaw(layer);
     keybinds.erase(-67);
     keybindsAndAction = keybindsAPI::getLevelKeyBinds(layer,false);
+    keySettings = keybindsAPI::getLevelKeySettings(layer);
 
     startId = json["startKeyPickupId"].asInt().unwrapOr(0);
     value = json["keyPressedValue"].asInt().unwrapOr(0);
@@ -63,6 +65,7 @@ void reset() {
     actionNameToID.clear();
     keybinds.clear();
     keybindsAndAction.clear();
+    keySettings.clear();
 
 };
 void changeLocalKey(std::string actionName, int newKeyCode) {

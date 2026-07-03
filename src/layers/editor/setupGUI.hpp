@@ -8,6 +8,7 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
@@ -30,6 +31,9 @@ using namespace geode::prelude;
 // TODO: Add popup to edit key - fr bro i am whating dor that
 // TODO : add the fucking popup key, and a callback for it - added, what do you
 // want more? "a integration", **The big Zz**
+// TODO: make the UI works, the keybinds and addKey, after that, work on delete
+// shit and edit localKBs
+// TODO: make a callback for the editor, to edit name/key and delete
 namespace wrapperLabel {
 inline CCMenu *
 create(CCNode *target, float size, std::string text, AxisAlignment side) {
@@ -74,10 +78,8 @@ create(CCNode *target, float size, std::string text, AxisAlignment side) {
     return container;
 }
 }; // namespace wrapperLabel
-// TODO: make the UI works, the keybinds and addKey, after that, work on delete
-// shit and edit localKBs
 
-// TODO: make a callback for the editor, to edit name/key and delete
+// ? This is a temp function because i need to implement mobile Ui edit
 
 class addKeyGUI : public geode::Popup {
 protected:
@@ -170,10 +172,10 @@ protected:
         int kC = m_keyCode;
         std::string actionName = m_textInput->getString();
 
-        if (kC <= -1 || actionName == ""){
+        if (kC <= -1 || actionName == "") {
             return;
         };
-            
+
         toReturn = {actionName, kC};
 
         if (m_callback)
@@ -203,22 +205,22 @@ public:
 
 class editKeyGUI : public geode::Popup {
 private:
-    std::function<void(std::string, int)> m_callback;
+    std::function<void(keybindsAPI::KeyFullSettings)> m_callback;
     std::function<void()> m_afterActionCB;
     CCLabelBMFont *m_keyDef;
     int m_keyCode;
+    int m_actionId;
     TextInput *m_textInput;
     std::string m_oldActionName;
 
 public:
     static editKeyGUI *create(
-        std::function<void(std::string, int)> cb,
-        std::string oldActionName,
-        int oldKeyCode,
+        std::function<void(keybindsAPI::KeyFullSettings)> cb,
+        const keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
         auto ret = new editKeyGUI;
-        if (ret && ret->init(cb, oldActionName, oldKeyCode, afterActionCB)) {
+        if (ret && ret->init(cb, keybind, afterActionCB)) {
             ret->autorelease();
             return ret;
         }
@@ -227,26 +229,33 @@ public:
     };
     static void open(
         CCObject *,
-        std::function<void(std::string, int)> cb,
-        std::string oldActionName,
-        int oldKeyCode,
+        std::function<void(keybindsAPI::KeyFullSettings)> cb,
+        const keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
-        auto layer = create(cb, oldActionName, oldKeyCode, afterActionCB);
+        auto layer = create(cb, keybind, afterActionCB);
         layer->show();
     }
 
 private:
     bool init(
-        std::function<void(std::string, int)> cb,
-        std::string oldActionName,
-        int oldKeyCode,
+        std::function<void(keybindsAPI::KeyFullSettings)> cb,
+        const keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
         if (!Popup::init(360.f, 160.f))
             return false;
-        m_keyCode = oldKeyCode;
+        // ! Erro dnv mesma merda o ponteiro sematou
+
+        const keybindsAPI::KeyFullSettings* m_keySetting = &keybind;
+
+        log::info("keybind ptr = {}", fmt::ptr(m_keySetting));
+        std::string oldActionName = m_keySetting->second.name;
+        int oldKeyCode = m_keySetting->second.keyCode;
+
         m_oldActionName = oldActionName;
+        m_keyCode = oldKeyCode;
+        m_actionId = m_keySetting->first;
         m_callback = cb;
         m_afterActionCB = afterActionCB;
         this->setTitle("Edit " + oldActionName + " Action");
@@ -341,15 +350,19 @@ private:
         if (m_keyCode == -2) // ESC
             return;
 
+        // needs rework for mobile port
         std::string actionName = m_textInput->getString();
 
+        auto tempKey = keybindsAPI::createPcValue(actionName,m_keyCode);
+        keybindsAPI::KeyFullSettings tempFullKey = {m_actionId,tempKey};
         if (actionName.empty())
             return;
 
         if (m_callback)
-            m_callback(actionName, m_keyCode);
+            m_callback(tempFullKey);
         if (m_afterActionCB)
             m_afterActionCB();
+
         this->onClose(nullptr);
     }
     void onDelete(CCObject *sender) {
@@ -365,12 +378,7 @@ private:
             "Yes",
             [this](auto popup, bool btn2) {
                 if (btn2) {
-                    keybindsAPI::editLevelKeyBind(
-                        LevelEditorLayer::get(),
-                        {m_oldActionName,KeybindCache::actionNameToID[m_oldActionName]},
-                        {m_oldActionName, -67},
-                        false
-                    ); // worst way to do it but its how i do it
+                    keybindsAPI::deleteLevelKeybind(LevelEditorLayer::get(), m_actionId);
                     KeybindCache::reset();
                     if (m_afterActionCB)
                         m_afterActionCB();
@@ -390,12 +398,12 @@ private:
     // Create a popup that is like the add popup, but can edit // name/key, with
     // the same actionID, and delete - delete just set // the key and actionName
     // to _empty = -67 //! Very bad aprouch but i am lazy to rewrite all
-    std::function<void(CCObject *, std::string, int, CCLabelBMFont *)> m_editCB;
+    std::function<void(CCObject *, const keybindsAPI::KeyFullSettings)> m_editCB;
     TextArea *m_noKeysTip;
 
 public:
     static setupKeyBindsGUI *
-    create(std::vector<std::pair<std::string, int>> const &keybinds) {
+    create(std::vector<keybindsAPI::KeyFullSettings> const &keybinds) {
         auto ret = new setupKeyBindsGUI;
         if (ret && ret->init(keybinds)) {
             ret->autorelease();
@@ -405,8 +413,8 @@ public:
         return nullptr;
     };
     static void
-    open(CCObject *, std::vector<std::pair<std::string, int>> keyBindsDict) {
-        auto layer = create(keyBindsDict);
+    open(std::vector<keybindsAPI::KeyFullSettings> const &keybinds) {
+        auto layer = create(keybinds);
         layer->show();
     }
 
@@ -414,19 +422,21 @@ private:
     void resetList() {
         if (!KeybindCache::initialized)
             KeybindCache::init(LevelEditorLayer::get());
-        auto keybinds = KeybindCache::keybindsAndAction;
+
+        auto keybinds = KeybindCache::keySettings;
         m_contentLayer->removeAllChildrenWithCleanup(true);
+        geode::log::warn("Size {}\nItem {}: {} {}",keybinds.size(),keybinds[0].first,keybinds[0].second.name,keybinds[0].second.keyCode);
         bool keyTipDeleted = false;
         m_noKeysTip->setVisible(true);
-        for (const auto &[key, def] : keybinds) {
-            if (def == -67) // empty value
-                continue;
+
+        for (const auto &[actionId, key] : keybinds) {
             if (!keyTipDeleted) {
                 m_noKeysTip->setVisible(false);
                 keyTipDeleted = true;
             };
+            const keybindsAPI::KeyFullSettings keyFullSetting = {actionId,key};
             auto Label = KeyBindsSection::create(
-                key, def, {m_contentSize.width, 20.f}, m_editCB
+                &keyFullSetting, {m_contentSize.width, 20.f}, m_editCB
             );
             m_contentLayer->addChild(Label);
         };
@@ -437,38 +447,29 @@ private:
         );
         m_scrollArea->scrollToTop();
     }
-    bool init(std::vector<std::pair<std::string, int>> const &keyBindsDict) {
+    bool init(std::vector<keybindsAPI::KeyFullSettings> const &keybinds) {
         if (!Popup::init(440.f, 280.f))
             return false;
 
         this->setTitle("Setup level Keybinds");
-        const std::function<void(CCObject *, std::string, int, CCLabelBMFont *)>
-            Editcallback = [this, keyBindsDict](
-                               CCObject *sender,
-                               std::string actionName,
-                               int oldKeyCode,
-                               CCLabelBMFont *keyBtn
-                           ) {
-                const std::function<void(std::string, int)> onEdit =
-                    [this,
-                     actionName,
-                     keyBindsDict](std::string newActionName, int newKeyCode) {
-                        // Needs logic here
-                        std::pair<std::string, int> newPair = {
-                            newActionName, newKeyCode
-                        };
+        const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings oldKey)>
+            Editcallback = [this](
+                    CCObject *sender,
+                    const keybindsAPI::KeyFullSettings oldKey
+                ) {
+                const std::function<void(keybindsAPI::KeyFullSettings)> onEdit =
+                    [this,oldKey](keybindsAPI::KeyFullSettings newKey) {
                         keybindsAPI::editLevelKeyBind(
-                            LevelEditorLayer::get(), {actionName,KeybindCache::actionNameToID[actionName]}, newPair, false
+                            LevelEditorLayer::get(), newKey.first, &newKey.second
                         );
                         KeybindCache::reset();
                     };
-
+                
                 editKeyGUI::open(
                     sender,
                     onEdit,
-                    actionName,
-                    oldKeyCode,
-                    [this, keyBindsDict]() { this->resetList(); }
+                    oldKey,
+                    [this]() { this->resetList(); }
                 );
             };
         m_editCB = Editcallback;
@@ -536,11 +537,12 @@ private:
         m_noKeysTip = noKeysTip;
         scrollArea->addChildAtPosition(noKeysTip, Anchor::Center);
 
-        if (!keyBindsDict.empty()) {
+        if (!keybinds.empty()) {
             m_noKeysTip->setVisible(false);
-            for (const auto &[key, def] : keyBindsDict) {
+            for (const auto &[actionId, kbValue] : keybinds) {
+                keybindsAPI::KeyFullSettings convert = {actionId,kbValue};
                 auto Label = KeyBindsSection::create(
-                    key, def, {contentSize.width, 20.f}, m_editCB
+                    &convert, {contentSize.width, 20.f}, m_editCB
                 );
                 content->addChild(Label);
             }
@@ -582,17 +584,19 @@ private:
 
         return true;
     };
-
+    // needs to add support to mobile
     void onAdd(CCObject *sender) {
         addKeyGUI::open(
             sender, [this](std::pair<std::string, int> actionKeyCode) {
                 auto actionName = actionKeyCode.first;
                 auto actionKey = actionKeyCode.second;
                 if (actionName.empty() || actionKey == -2)
-                    return;
-
+                return;
+            auto keySetting = keybindsAPI::createPcValue(actionName, actionKey);
+            
+            geode::log::warn("Keycode from the OnAdd{}",keySetting.keyCode);
                 keybindsAPI::addLevelKeyBind(
-                    LevelEditorLayer::get(), actionName, actionKey
+                    LevelEditorLayer::get(), &keySetting
                 );
                 KeybindCache::reset();
                 this->resetList();
