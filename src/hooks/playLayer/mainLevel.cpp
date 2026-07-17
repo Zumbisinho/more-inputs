@@ -23,6 +23,11 @@ class $modify(MyPlayLayer, PlayLayer) {
         m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(-1);
         m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(-1);
 
+        int id = m_fields->m_defaultModIdentityPickupId;
+        int value = m_fields->m_defaultModIdentityValue;
+        KeybindCache::init(this);
+        pickupManager::changePickupId(id,value);
+
         return true;
     }
     void startGame() {

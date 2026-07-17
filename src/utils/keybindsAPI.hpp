@@ -108,7 +108,7 @@ public:
 // ? helper functions
 using KeyFullSettings = std::pair<int, const KeybindValue>;
 inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode) {
-    return keybindsAPI::KeybindValue::parse(name, keyCode, false, ccp(0, 0), CCSize{200, 100}, name);
+    return keybindsAPI::KeybindValue::parse(name, keyCode, false, ccp(0, 0), CCSize{50, 50}, name);
 };
 
 

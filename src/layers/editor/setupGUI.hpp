@@ -3,11 +3,17 @@
 #include "../../utils/keycodeToString.hpp"
 #include "../customLabels/keybindLabel.hpp"
 #include "../keyEdit.hpp"
+#include "../mobile/editMobileKeys.hpp"
+#include "../mobile/mobileKeys.hpp"
+#include "Geode/cocos/CCDirector.h"
 #include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCScene.h"
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
+#include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
@@ -247,7 +253,7 @@ private:
             return false;
         // ! Erro dnv mesma merda o ponteiro sematou
 
-        const keybindsAPI::KeyFullSettings* m_keySetting = &keybind;
+        const keybindsAPI::KeyFullSettings *m_keySetting = &keybind;
 
         log::info("keybind ptr = {}", fmt::ptr(m_keySetting));
         std::string oldActionName = m_keySetting->second.name;
@@ -333,8 +339,35 @@ private:
         deleteBtn->setPosition({deleteSize.width / 4, deleteSize.height / 4});
         m_buttonMenu->addChild(deleteBtn);
 
+        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
+        mobileEditSpr->setScale(0.25);
+        auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(editKeyGUI::onMobileEdit));
+        
+        mobileEditBtn->setAnchorPoint({0.5,0.5});
+
+        m_buttonMenu->addChildAtPosition(mobileEditBtn,Anchor::TopRight,{-4,-4});
+
         return true;
     }
+    
+    void onMobileEdit(CCObject *sender) {
+        auto layer = EditMobileKeys::create();
+        int tempPos = 0;
+        for (auto &keybind : KeybindCache::keySettings){
+            auto name = keybind.second.name;
+            bool isSpr = keybind.second.isSpr;
+            CCSize size = keybind.second.contentSize;
+            int pickupId = keybind.first;
+
+            auto btn = MobileButton::create(name,isSpr,size,pickupId);
+            btn->setPosition({tempPos*50.f,((tempPos++ % 4) + 1) * 20.f});
+            layer->addNode(btn,pickupId != m_actionId);
+        };
+
+        CCScene::get()->addChild(layer);
+        
+    }
+
     void onKeyDef(CCObject *sender) {
         keyEdit::setKeyPopup::open(sender, [this](int keyCode) {
             std::string toDisplay;
@@ -353,8 +386,8 @@ private:
         // needs rework for mobile port
         std::string actionName = m_textInput->getString();
 
-        auto tempKey = keybindsAPI::createPcValue(actionName,m_keyCode);
-        keybindsAPI::KeyFullSettings tempFullKey = {m_actionId,tempKey};
+        auto tempKey = keybindsAPI::createPcValue(actionName, m_keyCode);
+        keybindsAPI::KeyFullSettings tempFullKey = {m_actionId, tempKey};
         if (actionName.empty())
             return;
 
@@ -425,7 +458,8 @@ private:
 
         auto keybinds = KeybindCache::keySettings;
         m_contentLayer->removeAllChildrenWithCleanup(true);
-        geode::log::warn("Size {}\nItem {}: {} {}",keybinds.size(),keybinds[0].first,keybinds[0].second.name,keybinds[0].second.keyCode);
+        if (keybinds.size() != 0)
+            geode::log::warn("Size {}\nItem {}: {} {}", keybinds.size(), keybinds[0].first, keybinds[0].second.name, keybinds[0].second.keyCode);
         bool keyTipDeleted = false;
         m_noKeysTip->setVisible(true);
 
@@ -434,7 +468,7 @@ private:
                 m_noKeysTip->setVisible(false);
                 keyTipDeleted = true;
             };
-            const keybindsAPI::KeyFullSettings keyFullSetting = {actionId,key};
+            const keybindsAPI::KeyFullSettings keyFullSetting = {actionId, key};
             auto Label = KeyBindsSection::create(
                 &keyFullSetting, {m_contentSize.width, 20.f}, m_editCB
             );
@@ -454,17 +488,17 @@ private:
         this->setTitle("Setup level Keybinds");
         const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings oldKey)>
             Editcallback = [this](
-                    CCObject *sender,
-                    const keybindsAPI::KeyFullSettings oldKey
-                ) {
+                               CCObject *sender,
+                               const keybindsAPI::KeyFullSettings oldKey
+                           ) {
                 const std::function<void(keybindsAPI::KeyFullSettings)> onEdit =
-                    [this,oldKey](keybindsAPI::KeyFullSettings newKey) {
+                    [this, oldKey](keybindsAPI::KeyFullSettings newKey) {
                         keybindsAPI::editLevelKeyBind(
                             LevelEditorLayer::get(), newKey.first, &newKey.second
                         );
                         KeybindCache::reset();
                     };
-                
+
                 editKeyGUI::open(
                     sender,
                     onEdit,
@@ -540,7 +574,7 @@ private:
         if (!keybinds.empty()) {
             m_noKeysTip->setVisible(false);
             for (const auto &[actionId, kbValue] : keybinds) {
-                keybindsAPI::KeyFullSettings convert = {actionId,kbValue};
+                keybindsAPI::KeyFullSettings convert = {actionId, kbValue};
                 auto Label = KeyBindsSection::create(
                     &convert, {contentSize.width, 20.f}, m_editCB
                 );
@@ -591,10 +625,10 @@ private:
                 auto actionName = actionKeyCode.first;
                 auto actionKey = actionKeyCode.second;
                 if (actionName.empty() || actionKey == -2)
-                return;
-            auto keySetting = keybindsAPI::createPcValue(actionName, actionKey);
-            
-            geode::log::warn("Keycode from the OnAdd{}",keySetting.keyCode);
+                    return;
+                auto keySetting = keybindsAPI::createPcValue(actionName, actionKey);
+
+                geode::log::warn("Keycode from the OnAdd{}", keySetting.keyCode);
                 keybindsAPI::addLevelKeyBind(
                     LevelEditorLayer::get(), &keySetting
                 );

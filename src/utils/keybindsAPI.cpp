@@ -79,7 +79,6 @@ struct IDAndPos {
     int pos;
 };
 
-
 IDAndPos getNextFreeActionId(matjson::Value *json) {
     if ((*json)["keybinds"].isObject() == false)
         return {0, 0};
@@ -122,19 +121,19 @@ void addKeyToJson(
     if (nextFree.pos == 0 ||
         nextFree.pos == -1) { // first interraction or last pos
         (*json)["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
-        geode::log::warn("AddKeyToJson : {}", json->dump());
+        geode::log::warn("AddKeyToJson 0 or -1 condition : {}", json->dump());
         return;
     }
 
     size_t idx = 0;
     matjson::Value newObj = getDefaultJson();
     for (auto const &[key, value] : (*json)["keybinds"]) {
-        int actionId = numFromString<int>(key).unwrapOr(0);
-        if (idx == nextFree.pos)
+        if (idx++ == nextFree.pos) {
+            geode::log::warn("Item {} é a posição, mudando", key);
             newObj["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
-        else
-            newObj["keybinds"][actionId] = value;
-        idx++;
+        };
+        newObj["keybinds"][key] = value;
+        geode::log::warn("Item {}, {}", key, newObj.dump());
     };
     *json = newObj;
     geode::log::warn("AddKeyToJson : {}", json->dump());
@@ -142,7 +141,7 @@ void addKeyToJson(
 void editKeybind(
     matjson::Value *json, const KeybindValue *newKeySettings, int actionId
 ) {
-    log::warn("Edit keybinds Id: {}",actionId);
+    log::warn("Edit keybinds Id: {}", actionId);
     if (!json || !json->isObject()) // how do you even get here?
         return;
 
@@ -206,14 +205,14 @@ std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
         }
         case 1: {
             auto keybinds = KeyAPIv1::getLevelKeyBinds(layer, false);
-            int idx = KeybindCache::startId;
+            int idx = KeybindCache::startId + 1;
             for (const auto [actionName, keycode] : keybinds) {
                 if (keycode == -67) { // empty
                     idx++;
                     continue;
                 }
                 auto dummy = createPcValue(actionName, keycode);
-                keys.push_back({idx, dummy});
+                keys.push_back({idx++, dummy});
             };
         };
     };

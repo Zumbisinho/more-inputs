@@ -5,6 +5,7 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "Geode/ui/Scrollbar.hpp"
@@ -15,6 +16,7 @@
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/FLAlertLayer.hpp>
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -78,7 +80,7 @@ DropDownList *DropDownList::create(
 };
 
 CCMenu *DropDownList::dropList(float size) {
-    // index: 3-text 2-selectedBg 1-bg
+    // button Z-order : 3-text 2-selectedBg 1-bg
     auto wrapper = CCMenu::create();
     wrapper->setLayout(
         ColumnLayout::create()
@@ -92,13 +94,14 @@ CCMenu *DropDownList::dropList(float size) {
     float max_width;
 
     for (const std::string &item : m_itemList) {
+        geode::log::warn("Item N{} do dropdown é {}",index,item);
         if (item == "_empty") { // ignore empty values
             index++;
             continue;
         }
         auto spr = CCLabelBMFont::create(item.c_str(), "bigFont.fnt");
         spr->setScale(size);
-        if (m_curIndex == index) {
+        if (m_curIndex == index) { // if selected
             spr->setFntFile("goldFont.fnt");
             spr->setScale(size + 0.15f);
         };
@@ -202,7 +205,9 @@ bool DropDownList::init(
 ) {
     if (!CCMenu::init())
         return false;
+    geode::log::warn("{}",itemList);
     m_itemList = itemList;
+    geode::log::warn("{}",m_itemList);
     this->setContentSize({200.f, 60.f});
     this->setLayout(
         ColumnLayout::create()
@@ -217,11 +222,19 @@ bool DropDownList::init(
     label->setScale(size - 0.1);
     label->setZOrder(2);
     label->setAnchorPoint({0, 0});
+
     auto curArrow = CCSprite::createWithSpriteFrameName("edit_downBtn_001.png");
     curArrow->setScale(size);
     m_curArrow = curArrow;
+    if (m_itemList.size() == 1) // disables render because it wont open anyways
+        curArrow->setVisible(false);
+        
+    geode::log::warn("itemList.size = {}", itemList.size());
+    geode::log::warn("m_itemList.size = {}", m_itemList.size());
+    geode::log::warn("{}, {}",itemList,itemList[0]);
+    geode::log::warn("{}, {}",m_itemList,m_itemList[0]);
 
-    auto curLabel = CCLabelBMFont::create(itemList[0].c_str(), "bigFont.fnt");
+    auto curLabel = CCLabelBMFont::create(m_itemList[0].c_str(), "bigFont.fnt");
     curLabel->setScale(size);
     curLabel->setZOrder(2);
 

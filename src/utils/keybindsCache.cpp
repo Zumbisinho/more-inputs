@@ -38,13 +38,14 @@ void init(CCLayer *layer) {
     keybindsAndAction.clear();
     keySettings.clear();
 
+    startId = json["startKeyPickupId"].asInt().unwrapOr(0);
+    value = json["keyPressedValue"].asInt().unwrapOr(0);
+    
     keybinds = keybindsAPI::getLevelKeyBindsRaw(layer);
     keybinds.erase(-67);
     keybindsAndAction = keybindsAPI::getLevelKeyBinds(layer,false);
     keySettings = keybindsAPI::getLevelKeySettings(layer);
-
-    startId = json["startKeyPickupId"].asInt().unwrapOr(0);
-    value = json["keyPressedValue"].asInt().unwrapOr(0);
+    
     int index = 0;
     for (const auto &[key, value] : keybindsAndAction) {
         index++;

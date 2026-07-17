@@ -5,6 +5,7 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "builderMacros.hpp"
@@ -161,14 +162,16 @@ private:
         if (!KeybindCache::initialized)
             KeybindCache::init(LevelEditorLayer::get());
 
-        auto keybinds = KeybindCache::keybindsAndAction;
+        auto keybinds = KeybindCache::keySettings;
         std::vector<std::string> actionList;
 
         if (keybinds.empty()) {
             actionList.push_back("Not found any keybinds!");
         } else {
-            for (std::pair<std::string, int> action : keybinds) {
-                actionList.push_back(action.first);
+            for (auto& action : keybinds) {
+                actionList.push_back(action.second.name);
+                geode::log::info("Keybinds TouchUI name: {}\n Dict: {}",action.second.name,actionList);
+
             };
         }
 

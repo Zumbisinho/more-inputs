@@ -5,8 +5,7 @@
 - Add a splash art from the icon to the Tab
 - Add cache when selecting custom triggers
 - Automatic UI system for lazy ass people
-- Add text to mobile button or image (enable hue, rot, offset, scale and wrap)
-- Add a auto UI system in the 2.x.x.cpp to auto alloc the next button with auto layout
+- _Add text to mobile button or image (enable hue, rot, offset, scale and wrap) to 2.0.1_
 - Add a way to convert old to new keys
 
 
@@ -16,6 +15,9 @@
 - ~~Not being able to input after adding keys to the level~~
 - ~~Action label not having a limit to chars~~
 - ~~You can create actions without keys~~
+- ~~Adding a key out of order wipes out the remaing keys.~~
+- ~~Swithing with a old level to a new one fucks touch trigger UI | *touchmacro.hpp ~171*~~ 
+- ~~Removing the last key left crashes the game.~~
 
 
 # To be Refactored
