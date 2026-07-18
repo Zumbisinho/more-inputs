@@ -24,8 +24,8 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
         if (!LevelEditorLayer::init(level, noUI)) return false;
         auto& json = getConfig();
 
-        if(!KeybindCache::initialized)
-            KeybindCache::init(this);
+        KeybindCache::reset();
+        KeybindCache::init(this);
         m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
         m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(0);
         return true;

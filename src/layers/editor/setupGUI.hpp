@@ -360,9 +360,20 @@ private:
             int pickupId = keybind.first;
 
             auto btn = MobileButton::create(name,isSpr,size,pickupId);
+            btn->setAnchorPoint({0.5,0.5});
             btn->setPosition({tempPos*50.f,((tempPos++ % 4) + 1) * 20.f});
             layer->addNode(btn,pickupId != m_actionId);
+            layer->addSnap({btn->getPosition(),20,{0,255,255,128}});
+
         };
+        auto screenSize = CCDirector::sharedDirector()->getWinSize();
+
+        auto centerSnapLine = EditMobileKeys::CrossSnapLines{
+            ccp(screenSize.width / 2.f, screenSize.height / 2.f),
+            20,
+            ccc4(255,0,0,128)
+        };
+        layer->addSnap(centerSnapLine);
 
         CCScene::get()->addChild(layer);
         

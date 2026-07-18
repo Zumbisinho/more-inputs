@@ -1,4 +1,5 @@
 #include "mobileKeys.hpp"
+#include <algorithm>
 
 using namespace geode::prelude;
 
@@ -53,6 +54,7 @@ bool MobileButton::init(std::string buttomLabel, bool isSpriteFrameName, CCSize 
         auto innerText =
             CCLabelBMFont::create(buttomLabel.c_str(), "bigFont.fnt");
         float toScale = (spr->getScaledContentWidth() - 10) / innerText->getScaledContentWidth();
+        toScale = std::min(1.25f,toScale); // max scale to 5 non-normal scale
 
         innerText->setScale(toScale * 4); // 1 to normal scale
         innerText->setOpacity(128);       // 0.5
