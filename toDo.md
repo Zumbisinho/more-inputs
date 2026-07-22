@@ -5,7 +5,7 @@
 - Add a splash art from the icon to the Tab
 - Add a cache when selecting custom triggers
 - Add a Automatic UI system for lazy ass people
-- _Add a text to mobile button or image (enable hue, rot, offset, scale and wrap) to 2.0.1_
+- _Add a text to mobile button or image (enable hue, rot, offset, scale and wrap) moved to 2.0.1_
 - Add a way to convert old to new keys
 - ~~Add the key config to the mobile button~~
 - ~~Add way to select what button you wanna edit on editmobilebuttons~~
@@ -22,6 +22,7 @@
 - ~~Adding a key out of order wipes out the remaing keys.~~
 - ~~Swithing with a old level to a new one fucks touch trigger UI | *touchmacro.hpp ~171*~~ 
 - ~~Removing the last key left crashes the game.~~
+- Saving the level sometimes ruins the keybind mobile layout
 
 
 # To be Refactored

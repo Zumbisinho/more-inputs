@@ -23,6 +23,7 @@ class $modify(MobileKeys, PlayLayer) {
         CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
 
         auto overlay = CCMenu::create();
+        overlay->setID("MobileKey-Overlay"_spr);
         overlay->setContentSize(screenSize);
         overlay->setAnchorPoint({0, 0});
         overlay->setPosition(0, 0);
@@ -30,10 +31,11 @@ class $modify(MobileKeys, PlayLayer) {
         this->addChild(overlay);
         int index = 0;
         for (auto key : KeybindCache::keySettings) {
-            geode::log::warn("{}", key.first);
-            auto settings = key.second;
             auto mobileKey = MobileButton::create(&key);
-            mobileKey->setPosition({index++ * 50.f, 0});
+            CCPoint relativePos = mobileKey->getKey()->second.pos;
+
+            mobileKey->setPosition(MobileButton::relativePosToCanva(relativePos));
+            mobileKey->setAnchorPoint({0.5,0.5});
             overlay->addChild(mobileKey);
         };
         return true;

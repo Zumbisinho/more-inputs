@@ -163,11 +163,7 @@ public:
             m_scrollLayer->m_contentLayer->setContentHeight(m_contentLayer->getContentHeight());
             m_scrollLayer->scrollToTop();
 
-            
-
-            
-
-            addChild(node);
+    
         };
         if (!isLocked) {
             toDragNodes.push_back(node);

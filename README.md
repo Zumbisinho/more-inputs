@@ -13,6 +13,8 @@ A mod that adds more inputs to the game via <ca>actions</c>.
 - **Action-Oriented**: Any inputs are from actions, making it more standardized 
 - **Touch Macro**: The custom trigger on the new tab that hooks actions to group Ids
 - **Vanilla-Friendly**: Any custom trigger is just a cluster of vanilla triggers, the only thing that is being added is a connection between the level and client 
+- **Mobile Support**: Full support to mobile players and creators.
+- **Local-Edit Keybinds**: Edit the keybinds of any level to your preferences. 
 
 ## Usage
 

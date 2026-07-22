@@ -48,4 +48,8 @@ public:
     bool getLocked(bool state) {
         return m_looked;
     };
+    static CCPoint relativePosToCanva(CCPoint relativePos) {
+        auto screenSize = CCDirector::sharedDirector()->getWinSize();
+        return ccp(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
+    };
 };
