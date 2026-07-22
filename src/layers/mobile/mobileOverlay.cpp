@@ -32,7 +32,7 @@ class $modify(MobileKeys, PlayLayer) {
         for (auto key : KeybindCache::keySettings) {
             geode::log::warn("{}", key.first);
             auto settings = key.second;
-            auto mobileKey = MobileButton::create(settings.buttonLabel, settings.isSpr, settings.contentSize, key.first);
+            auto mobileKey = MobileButton::create(&key);
             mobileKey->setPosition({index++ * 50.f, 0});
             overlay->addChild(mobileKey);
         };

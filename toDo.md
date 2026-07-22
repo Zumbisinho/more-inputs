@@ -3,10 +3,14 @@
 - Mobile Button Port
 - Add a trigger that detect if the mod is loaded
 - Add a splash art from the icon to the Tab
-- Add cache when selecting custom triggers
-- Automatic UI system for lazy ass people
-- _Add text to mobile button or image (enable hue, rot, offset, scale and wrap) to 2.0.1_
+- Add a cache when selecting custom triggers
+- Add a Automatic UI system for lazy ass people
+- _Add a text to mobile button or image (enable hue, rot, offset, scale and wrap) to 2.0.1_
 - Add a way to convert old to new keys
+- ~~Add the key config to the mobile button~~
+- ~~Add way to select what button you wanna edit on editmobilebuttons~~
+- Add a enable/disable Snap button
+- Add a side menu to config text label, size and input a image
 
 
 # To be Fixed

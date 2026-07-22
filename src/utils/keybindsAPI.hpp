@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Geode/loader/Log.hpp"
+#include "Geode/loader/Setting.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <matjson.hpp>
@@ -28,7 +29,7 @@ struct MobileKey {
 };
 
 struct KeybindValue {
-
+    KeybindValue() = default;
 private:
     // ? helper functions
     
@@ -106,7 +107,7 @@ public:
     };
 };
 // ? helper functions
-using KeyFullSettings = std::pair<int, const KeybindValue>;
+using KeyFullSettings = std::pair<int, KeybindValue>;
 inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode) {
     return keybindsAPI::KeybindValue::parse(name, keyCode, false, ccp(0, 0), CCSize{50, 50}, name);
 };

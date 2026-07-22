@@ -27,6 +27,7 @@
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/TextInput.hpp>
 
+#include <cstddef>
 #include <functional>
 #include <string>
 #include <utility>
@@ -218,11 +219,12 @@ private:
     int m_actionId;
     TextInput *m_textInput;
     std::string m_oldActionName;
+    keybindsAPI::KeyFullSettings m_keySetting;
 
 public:
     static editKeyGUI *create(
         std::function<void(keybindsAPI::KeyFullSettings)> cb,
-        const keybindsAPI::KeyFullSettings keybind,
+        keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
         auto ret = new editKeyGUI;
@@ -236,7 +238,7 @@ public:
     static void open(
         CCObject *,
         std::function<void(keybindsAPI::KeyFullSettings)> cb,
-        const keybindsAPI::KeyFullSettings keybind,
+        keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
         auto layer = create(cb, keybind, afterActionCB);
@@ -246,22 +248,21 @@ public:
 private:
     bool init(
         std::function<void(keybindsAPI::KeyFullSettings)> cb,
-        const keybindsAPI::KeyFullSettings keybind,
+        keybindsAPI::KeyFullSettings keybind,
         std::function<void()> afterActionCB
     ) {
         if (!Popup::init(360.f, 160.f))
             return false;
         // ! Erro dnv mesma merda o ponteiro sematou
 
-        const keybindsAPI::KeyFullSettings *m_keySetting = &keybind;
+        m_keySetting = keybind;
 
-        log::info("keybind ptr = {}", fmt::ptr(m_keySetting));
-        std::string oldActionName = m_keySetting->second.name;
-        int oldKeyCode = m_keySetting->second.keyCode;
+        std::string oldActionName = keybind.second.name;
+        int oldKeyCode = keybind.second.keyCode;
 
         m_oldActionName = oldActionName;
         m_keyCode = oldKeyCode;
-        m_actionId = m_keySetting->first;
+        m_actionId = keybind.first;
         m_callback = cb;
         m_afterActionCB = afterActionCB;
         this->setTitle("Edit " + oldActionName + " Action");
@@ -339,45 +340,10 @@ private:
         deleteBtn->setPosition({deleteSize.width / 4, deleteSize.height / 4});
         m_buttonMenu->addChild(deleteBtn);
 
-        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
-        mobileEditSpr->setScale(0.25);
-        auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(editKeyGUI::onMobileEdit));
-        
-        mobileEditBtn->setAnchorPoint({0.5,0.5});
-
-        m_buttonMenu->addChildAtPosition(mobileEditBtn,Anchor::TopRight,{-4,-4});
 
         return true;
     }
-    
-    void onMobileEdit(CCObject *sender) {
-        auto layer = EditMobileKeys::create();
-        int tempPos = 0;
-        for (auto &keybind : KeybindCache::keySettings){
-            auto name = keybind.second.name;
-            bool isSpr = keybind.second.isSpr;
-            CCSize size = keybind.second.contentSize;
-            int pickupId = keybind.first;
 
-            auto btn = MobileButton::create(name,isSpr,size,pickupId);
-            btn->setAnchorPoint({0.5,0.5});
-            btn->setPosition({tempPos*50.f,((tempPos++ % 4) + 1) * 20.f});
-            layer->addNode(btn,pickupId != m_actionId);
-            layer->addSnap({btn->getPosition(),20,{0,255,255,128}});
-
-        };
-        auto screenSize = CCDirector::sharedDirector()->getWinSize();
-
-        auto centerSnapLine = EditMobileKeys::CrossSnapLines{
-            ccp(screenSize.width / 2.f, screenSize.height / 2.f),
-            20,
-            ccc4(255,0,0,128)
-        };
-        layer->addSnap(centerSnapLine);
-
-        CCScene::get()->addChild(layer);
-        
-    }
 
     void onKeyDef(CCObject *sender) {
         keyEdit::setKeyPopup::open(sender, [this](int keyCode) {
@@ -397,13 +363,14 @@ private:
         // needs rework for mobile port
         std::string actionName = m_textInput->getString();
 
-        auto tempKey = keybindsAPI::createPcValue(actionName, m_keyCode);
-        keybindsAPI::KeyFullSettings tempFullKey = {m_actionId, tempKey};
+        auto oldKeySettings = m_keySetting.second;
+
+        auto newKeyValue = keybindsAPI::KeybindValue::parse(actionName, m_keyCode, oldKeySettings.isSpr, oldKeySettings.pos, oldKeySettings.contentSize, oldKeySettings.buttonLabel);
         if (actionName.empty())
             return;
 
         if (m_callback)
-            m_callback(tempFullKey);
+            m_callback({m_actionId, newKeyValue});
         if (m_afterActionCB)
             m_afterActionCB();
 
@@ -624,11 +591,43 @@ private:
         auto deleteSize = deleteBtn->getScaledContentSize();
         deleteBtn->setPosition({deleteSize.width / 4, deleteSize.height / 4});
 
+        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
+        mobileEditSpr->setScale(0.25);
+        auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(setupKeyBindsGUI::onMobileEdit));
+
+        mobileEditBtn->setAnchorPoint({0.5, 0.5});
+        mobileEditBtn->setPosition(
+            {windowSize.width - mobileEditBtn->getContentWidth() / 4,
+             windowSize.height - mobileEditBtn->getContentHeight() / 4}
+        );
+
+
         m_buttonMenu->addChild(addBtn);
         m_buttonMenu->addChild(deleteBtn);
+        m_buttonMenu->addChild(mobileEditBtn);
 
         return true;
     };
+    
+    void onMobileEdit(CCObject *sender) {
+        auto layer = EditMobileKeys::create();
+        size_t index = 0;
+        for (auto &keybind : KeybindCache::keySettings) {
+            CCPoint relativePos = keybind.second.pos;
+            CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+
+            auto btn = MobileButton::create(&keybind);
+            btn->setAnchorPoint({0.5, 0.5});
+            btn->setPosition(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
+            layer->addNode(btn, index++ != 0,true);
+            layer->calcSnaps();
+        };
+        
+
+        CCScene::get()->addChild(layer);
+    }
+
+    
     // needs to add support to mobile
     void onAdd(CCObject *sender) {
         addKeyGUI::open(

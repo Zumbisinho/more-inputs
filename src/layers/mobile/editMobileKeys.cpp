@@ -1,11 +1,23 @@
 #include "editMobileKeys.hpp"
+#include "GUI/CCControlExtension/CCScale9Sprite.h"
 #include "Geode/cocos/CCDirector.h"
+#include "Geode/cocos/actions/CCActionEase.h"
+#include "Geode/cocos/actions/CCActionInterval.h"
 #include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
+#include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/draw_nodes/CCDrawNode.h"
+#include "Geode/cocos/label_nodes/CCLabelBMFont.h"
+#include "Geode/cocos/menu_nodes/CCMenu.h"
+#include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/cocos/support/CCPointExtension.h"
 #include "Geode/loader/Log.hpp"
+#include "Geode/ui/Layout.hpp"
+#include "Geode/ui/ScrollLayer.hpp"
 #include "ccTypes.h"
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <algorithm>
 
 using namespace geode::prelude;
 
@@ -37,6 +49,29 @@ void EditMobileKeys::drawCross(CCPoint center, ccColor4B color) {
     m_drawLayer->drawSegment(yFrom, yTo, thickness, toColor4F(color));
 };
 
+void EditMobileKeys::calcSnaps(){
+    auto screenSize = CCDirector::sharedDirector()->getWinSize();
+
+    auto centerSnapLine = EditMobileKeys::CrossSnapLines{
+            ccp(screenSize.width / 2.f, screenSize.height / 2.f),
+            20,
+            ccc4(255, 0, 0, 128)
+        };
+    this->addSnap(centerSnapLine);
+
+    for (auto& node : toEdit){
+        if (node.first == m_curEditing.first) // ignore the editing node
+            continue;
+        auto snapLine = EditMobileKeys::CrossSnapLines{
+            node.first->getPosition(),
+            15,
+            ccc4(0, 195, 255, 128)
+        };
+        
+        this->addSnap(snapLine);
+    };
+};
+
 bool EditMobileKeys::init() {
     if (!CCLayerColor::initWithColor({45, 158, 176, 255}))
         return false;
@@ -45,7 +80,7 @@ bool EditMobileKeys::init() {
     auto drawLayer = CCDrawNode::create();
     m_drawLayer = drawLayer;
     drawLayer->setContentSize(screenSize);
-    drawLayer->setPosition({0,0});
+    drawLayer->setPosition({0, 0});
     addChild(drawLayer);
 
     this->setTouchEnabled(true);
@@ -56,7 +91,106 @@ bool EditMobileKeys::init() {
     this->setPosition({0, 0});
     this->setAnchorPoint({0, 0});
 
+    auto saveKey = GoffyBuilder::OkButton::create([this]() {
+        saveKeybinds();
+        removeMeAndCleanup();
+    });
+
+    saveKey->setPosition(screenSize.width / 2, 24);
+    saveKey->setAnchorPoint({0.5, 0.5});
+    addChild(saveKey);
+
+    // select menu
+
+    auto selectMenu = CCScale9Sprite::create("GJ_square06.png");
+    selectMenu->setContentSize({240.f, 300.f});
+    selectMenu->setColor(ccc3(0, 45, 63));
+    selectMenu->setAnchorPoint({0, 0});
+    selectMenu->setZOrder(10);  
+    m_selectMenu = selectMenu;
+
+    std::string levelName = LevelEditorLayer::get()->m_level->m_levelName;
+
+    auto selectMenuTitle = CCLabelBMFont::create((levelName + " Keybinds").c_str(), "bigFont.fnt");
+    selectMenuTitle->setScale(std::min(0.75f, 220.f / selectMenuTitle->getContentWidth()));
+    selectMenuTitle->setAnchorPoint({0.5, 1});
+    selectMenuTitle->setPosition({120, 300 - 5});
+
+    selectMenu->addChild(selectMenuTitle);
+
+    auto selectMenuScrollLayer = ScrollLayer::create({240, 300 - selectMenuTitle->getContentHeight() - 20}, true, true);
+    selectMenuScrollLayer->setAnchorPoint({0, 0});
+    selectMenuScrollLayer->setPosition({0, 10});
+    m_scrollLayer = selectMenuScrollLayer;
+
+    selectMenu->addChild(selectMenuScrollLayer);
+
+    auto selectMenuContent = CCMenu::create();
+    selectMenuContent->setContentSize({230, 100});
+    selectMenuContent->setAnchorPoint({0, 0});
+    selectMenuContent->setPosition({5, 0});
+    selectMenuContent->setLayout(ColumnLayout::create()->setAutoScale(false)->setGap(5)->setAxisAlignment(AxisAlignment::Start)->setAxisReverse(true)->setAutoGrowAxis(80));
+    
+
+    m_contentLayer = selectMenuContent;
+
+    selectMenuScrollLayer->m_contentLayer->addChild(selectMenuContent);
+    selectMenuScrollLayer->m_contentLayer->setContentHeight(
+        selectMenuContent->getContentHeight()
+    );
+    selectMenuScrollLayer->scrollToTop();
+
+    auto selectMenuButtonWrapper = CCMenu::create();
+    selectMenuButtonWrapper->setAnchorPoint({0, 1});
+    selectMenuButtonWrapper->setPosition({238, 290});
+
+    auto selectMenuButtonSpr = CCSprite::createWithSpriteFrameName("selectMenuTemplateMIP.png"_spr);
+    selectMenuButtonSpr->setScale(0.2);
+
+    auto selectMenuButton = CCMenuItemSpriteExtra::create(
+        selectMenuButtonSpr,
+        this,
+        menu_selector(EditMobileKeys::onMenuOpen)
+    );
+    
+    selectMenuButton->m_animationEnabled = false;
+    selectMenuButton->setAnchorPoint({0,1});
+    
+    selectMenuButtonWrapper->setContentSize(selectMenuButton->getContentSize());
+
+    auto selectMenuButtonArrow = CCSprite::createWithSpriteFrameName("navArrowBtn_001.png");
+    selectMenuButtonArrow->setScale(0.6);
+    selectMenuButtonArrow->setOpacity(128);
+    selectMenuButtonArrow->setAnchorPoint({0.5, 0.5});
+    m_selectArrow = selectMenuButtonArrow;
+
+    selectMenuButton->addChildAtPosition(selectMenuButtonArrow, Anchor::Center);
+    selectMenuButtonWrapper->addChild(selectMenuButton);
+
+    selectMenu->addChild(selectMenuButtonWrapper);
+
+    addChild(selectMenu);
+
+    selectMenu->setPosition({-240, 10});
     return true;
+};
+
+void EditMobileKeys::onMenuOpen(CCObject* sender){
+    int direction = m_isSelectMenuOpen ? -1 : 1;
+    m_selectMenu->runAction(CCEaseExponentialInOut::create(CCMoveBy::create(0.5,ccp(240,0) * direction)));
+    m_isSelectMenuOpen = !m_isSelectMenuOpen;
+    m_selectArrow->setScaleX(-0.6 * direction);
+};
+
+void EditMobileKeys::saveKeybinds() {
+    for (auto &node : toDragNodes) {
+        if (auto keybind = static_cast<MobileButton *>(node); keybind != nullptr) {
+            auto keySettings = keybind->getKey()->second;
+            auto keyPickupId = keybind->getKey()->first;
+            geode::log::warn("Changing key {} to pos {}{}", keybind->getKey()->second.buttonLabel, keybind->getKey()->second.pos.x, keybind->getKey()->second.pos.y);
+            keybindsAPI::editLevelKeyBind(LevelEditorLayer::get(), keyPickupId, &keySettings);
+        };
+    }
 };
 
 void EditMobileKeys::registerWithTouchDispatcher(void) {
@@ -88,7 +222,7 @@ void EditMobileKeys::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {
     curDragging->setPosition(sp + (pTouch->getLocation() - pTouch->getStartLocation()));
     auto centerPos = getCenterOfNode(curDragging);
 
-    if (!this->boundingBox().containsPoint(centerPos)) {  // if the center of the node is not on the screen
+    if (!this->boundingBox().containsPoint(centerPos)) { // if the center of the node is not on the screen
         auto curSize = curDragging->getScaledContentSize();
         auto screenSize = CCDirector::sharedDirector()->getWinSize();
         bool isXAxis = !this->boundingBox().containsPoint(centerPos * ccp(1, 0));
@@ -137,6 +271,11 @@ void EditMobileKeys::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {
     }
 }
 void EditMobileKeys::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent) {
+    if (auto keybind = static_cast<MobileButton *>(curDragging); keybind != nullptr) { // updates internal keyValue
+
+        keybind->getKey()->second.pos = canvaPosToRelative(keybind->getPosition());
+        geode::log::warn("Setting up {} to {},{}", keybind->getKey()->second.name, keybind->getKey()->second.pos.x, keybind->getKey()->second.pos.y);
+    };
     curDragging = nullptr;
     curDrawing = nullptr;
     m_drawLayer->clear();

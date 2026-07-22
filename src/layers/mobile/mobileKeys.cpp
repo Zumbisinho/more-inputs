@@ -1,5 +1,5 @@
 #include "mobileKeys.hpp"
-#include <algorithm>
+
 
 using namespace geode::prelude;
 
@@ -24,10 +24,16 @@ void MobileButton::unselected()  {
     pickupManager::changePickupId(m_keyPickup, 0);
 }
 
-bool MobileButton::init(std::string buttomLabel, bool isSpriteFrameName, CCSize size, int pickupId) {
+bool MobileButton::init(keybindsAPI::KeyFullSettings* key) {
     auto spr = CCScale9Sprite::createWithSpriteFrameName(
         "mobileButtomTemplateMIP.png"_spr
     );
+    std::string buttomLabel = key->second.buttonLabel;
+    bool isSpriteFrameName = key->second.isSpr;
+    CCSize size = key->second.contentSize;
+    int pickupId = key->first;
+    m_key = key;
+
     m_keyPickup = pickupId;
     spr->setInsetLeft(64);
     spr->setInsetRight(64);
