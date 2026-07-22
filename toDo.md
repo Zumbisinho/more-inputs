@@ -9,7 +9,7 @@
 - Add a way to convert old to new keys
 - ~~Add the key config to the mobile button~~
 - ~~Add way to select what button you wanna edit on editmobilebuttons~~
-- Add a enable/disable Snap button
+- ~~Add a enable/disable Snap button~~
 - Add a side menu to config text label, size and input a image
 
 

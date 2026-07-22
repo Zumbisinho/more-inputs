@@ -172,6 +172,27 @@ bool EditMobileKeys::init() {
     addChild(selectMenu);
 
     selectMenu->setPosition({-240, 10});
+
+    // snap toggle
+
+    auto snapWrapper = CCMenu::create();
+
+    auto snapBtn = CCMenuItemToggler::create(
+            CCSprite::createWithSpriteFrameName("warpLockOnBtn_001.png"),
+            CCSprite::createWithSpriteFrameName("warpLockOffBtn_001.png"),
+            this, menu_selector(EditMobileKeys::onSnapLock)
+    );
+    snapWrapper->setContentSize(snapBtn->getContentSize());
+    snapBtn->setOpacity(128);
+    snapWrapper->setPosition({screenSize.width /2 - 50,24});
+    snapBtn->setAnchorPoint({0.5,0.5});
+    snapWrapper->setAnchorPoint({0.5,0.5});
+
+    snapWrapper->addChild(snapBtn);
+    addChild(snapWrapper);
+
+
+
     return true;
 };
 
@@ -247,7 +268,8 @@ void EditMobileKeys::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {
     }
 
     // snap logic
-
+    if (!m_canSnap)
+        return;
     for (auto &snapLine : toSnap) {
         auto whereSnap = snapLine.Snap(curDragging);
 
@@ -288,3 +310,9 @@ void EditMobileKeys::ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent) {
 void EditMobileKeys::keyBackClicked() {
     this->removeMeAndCleanup();
 }
+
+void EditMobileKeys::onSnapLock(CCObject* sender){
+    auto state = static_cast<CCMenuItemToggler*>(sender)->m_toggled;
+
+    m_canSnap = state;
+};

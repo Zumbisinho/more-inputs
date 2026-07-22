@@ -101,6 +101,7 @@ protected:
     ScrollLayer *m_scrollLayer;
     bool m_isSelectMenuOpen = false;
     std::pair<MobileButton *, CCMenuItemSpriteExtra *> m_curEditing;
+    bool m_canSnap = true;
 
 public:
     static constexpr CCPoint NullPoint = ccp(-167, -167);
@@ -221,5 +222,5 @@ public:
 
     void calcSnaps();
 
-    
+    void onSnapLock(CCObject* sender);
 };
