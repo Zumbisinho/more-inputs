@@ -166,8 +166,8 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
         if (!textGameObject)
             return;
-
-        if (textGameObject->m_text.starts_with("more_inputs:")) {
+        auto view = std::string_view(textGameObject->m_text);
+        if (view.starts_with("more_inputs:")) {
             CCArray *toSelect = CCArray::create();
             toSelect->addObject(macro);
             for (auto obj :

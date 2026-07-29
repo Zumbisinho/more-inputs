@@ -13,6 +13,7 @@
 - ~~Add a enable/disable Snap button~~
 - _Add a side menu to config text label, size and input a image moved to 2.1.0_
 - ~~Add the mobile preview to the level editor thing~~
+- Add a keyboard to mobile player add the key
 
 
 # To be Fixed

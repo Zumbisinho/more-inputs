@@ -12,7 +12,8 @@
 using namespace geode::prelude;
 
 void TouchMacroGameObject::setupCustomTrigger() {
-    if (!m_text.starts_with("more_inputs:"))
+    auto view = std::string_view(m_text);
+    if (!view.starts_with("more_inputs:"))
         return;
     // some trigger definitions
     m_isTrigger = true;
