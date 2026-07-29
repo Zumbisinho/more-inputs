@@ -28,6 +28,7 @@
 - ~~Saving the level sometimes ruins the keybind mobile layout~~
 - Remake the mobile button to a good version
 
+- fix it to be playable on my pohne
 
 
 # To be Refactored
