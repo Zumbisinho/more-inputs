@@ -19,7 +19,7 @@
     "resources": {
         "spritesheets": {
             "Btns": ["resources/*.png"],
-            "MenuArt" : ["resources/MenuArt/*.png"]
+            "MenuArt" : ["resources/menuArt/*.png"]
         },
         "files": [
             "resources/constrains.json"
