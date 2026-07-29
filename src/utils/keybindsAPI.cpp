@@ -189,7 +189,7 @@ getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
 };
 std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
     std::vector<KeyFullSettings> keys;
-
+    resetCurButtonIdx();
     switch (getLevelVersion(layer).getMajor()) {
         case 2: {
             auto keybinds =
@@ -211,7 +211,7 @@ std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
                     idx++;
                     continue;
                 }
-                auto dummy = createPcValue(actionName, keycode);
+                auto dummy = createPcValue(actionName, keycode, curButtonIdx);
                 keys.push_back({idx++, dummy});
             };
         };
@@ -258,4 +258,44 @@ void deleteLevelKeybind(LevelEditorLayer *layer, int actionID) {
 void deleteKeybindsFromLevel(LevelEditorLayer *layer) {
     alpha::level_storage::setSavedValue(layer, "config", {});
 };
+
+void convertLevelKeybinds(LevelEditorLayer *layer) {
+    auto savedDict =
+        alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
+    auto newObj = getDefaultJson();
+    auto anotherIndexThing = 0;
+
+    int idx = KeybindCache::startId + 1;
+    for (const auto [actionName, keycode] : savedDict["keybinds"]) {
+        int keycodeInt = keycode.asInt().unwrapOr(-67);
+        if (keycode == -67) { // empty
+            idx++;
+            continue;
+        }
+
+        auto dummy = createPcValue(actionName, keycodeInt, anotherIndexThing);
+        newObj["keybinds"][std::to_string(idx++)] = formatInJson(&dummy);
+    };
+    alpha::level_storage::setSavedValue(layer, "config", newObj);
+    KeybindCache::reset();
+
+};
+
+inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, int &index) {
+
+    auto screenSize = CCDirector::sharedDirector()->getWinSize();
+    int threshold = floor((screenSize.width / 60));
+    geode::log::warn("Agr o index dos buttoms {}", index);
+
+    int buttonRow = floor(index / threshold);
+    float absX = 25 + (index - threshold * buttonRow) * 60;
+
+    float absY = buttonRow != 0 ? screenSize.height + 25 - buttonRow * 60 : 30;
+
+    CCPoint relPos = absToRel(absX, absY);
+
+    index++;
+    return keybindsAPI::KeybindValue::parse(name, keyCode, false, relPos, CCSize{50, 50}, name);
+};
+
 } // namespace keybindsAPI

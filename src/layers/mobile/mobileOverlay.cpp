@@ -1,17 +1,17 @@
-#include "../../utils/pickupManager.hpp"
 #include "../../utils/keybindsCache.hpp"
+#include "../../utils/keybindsAPI.hpp"
+#include "Geode/cocos/CCDirector.h"
 #include "Geode/cocos/base_nodes/CCNode.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
+#include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "mobileKeys.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
-#include "mobileKeys.hpp"
-
-
 
 using namespace geode::prelude;
-
 
 class $modify(MobileKeys, PlayLayer) {
 
@@ -35,9 +35,53 @@ class $modify(MobileKeys, PlayLayer) {
             CCPoint relativePos = mobileKey->getKey()->second.pos;
 
             mobileKey->setPosition(MobileButton::relativePosToCanva(relativePos));
-            mobileKey->setAnchorPoint({0.5,0.5});
+            mobileKey->setAnchorPoint({0.5, 0.5});
             overlay->addChild(mobileKey);
         };
         return true;
     }
+};
+
+class $modify(MobileKeysEditor, LevelEditorLayer) {
+    struct Fields{
+        CCMenu* m_overlay;
+    };
+
+
+    void onPlaytest() {
+        LevelEditorLayer::onPlaytest();
+
+        CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+
+        auto overlay = CCMenu::create();
+        overlay->setID("MobileKey-Overlay"_spr);
+        overlay->setContentSize(screenSize);
+        overlay->setAnchorPoint({0, 0});
+        overlay->setPosition(0, 0);
+
+        int index = 0;
+        for (auto key : KeybindCache::keySettings) {
+            auto mobileKey = MobileButton::create(&key);
+            CCPoint relativePos = mobileKey->getKey()->second.pos;
+
+            mobileKey->setPosition(MobileButton::relativePosToCanva(relativePos));
+            mobileKey->setAnchorPoint({0.5, 0.5});
+            overlay->addChild(mobileKey);
+        };
+
+        m_fields->m_overlay = overlay;
+
+        this->addChild(overlay);
+    };
+
+    void onStopPlaytest() {
+        LevelEditorLayer::onStopPlaytest();
+
+        if (m_fields->m_overlay != nullptr) {
+            m_fields->m_overlay->removeMeAndCleanup();
+            m_fields->m_overlay = nullptr;
+        }
+    };
+
+
 };

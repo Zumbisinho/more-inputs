@@ -1,4 +1,5 @@
 #include "keybindsCache.hpp"
+#include "keybindsAPI.hpp"
 #include <map>
 #include <string>
 #include <unordered_map>

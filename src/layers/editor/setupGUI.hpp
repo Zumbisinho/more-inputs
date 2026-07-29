@@ -22,6 +22,7 @@
 #include "ccTypes.h"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
+#include <Geode/binding/FLAlertLayer.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/TextArea.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
@@ -340,10 +341,8 @@ private:
         deleteBtn->setPosition({deleteSize.width / 4, deleteSize.height / 4});
         m_buttonMenu->addChild(deleteBtn);
 
-
         return true;
     }
-
 
     void onKeyDef(CCObject *sender) {
         keyEdit::setKeyPopup::open(sender, [this](int keyCode) {
@@ -411,6 +410,8 @@ private:
     // to _empty = -67 //! Very bad aprouch but i am lazy to rewrite all
     std::function<void(CCObject *, const keybindsAPI::KeyFullSettings)> m_editCB;
     TextArea *m_noKeysTip;
+    int curMobileButtonIdx = KeybindCache::keySettings.size();
+    
 
 public:
     static setupKeyBindsGUI *
@@ -600,16 +601,39 @@ private:
             {windowSize.width - mobileEditBtn->getContentWidth() / 4,
              windowSize.height - mobileEditBtn->getContentHeight() / 4}
         );
-
+        // convert keys popup
+        if (keybindsAPI::getLevelVersion(LevelEditorLayer::get()).getMajor() == 1) { // old saving system
+            this->scheduleOnce(schedule_selector(setupKeyBindsGUI::showConvertPopup),0.f);
+        }
 
         m_buttonMenu->addChild(addBtn);
         m_buttonMenu->addChild(deleteBtn);
         m_buttonMenu->addChild(mobileEditBtn);
 
+        this->setZOrder(119);
+
         return true;
     };
-    
+    void showConvertPopup(float){
+        createQuickPopup(
+                "Convert keybinds",
+                "This level was built on a <c_>older version</c> of <cc>More Inputs Mod</c>, if you wanna <cg>edit</c> the keybinds, you will need to <cl>convert</c> them. Its all automatic and you will not lose progress <ca>(i think)</c>.",
+                "No",
+                "Yes",
+                [this](auto popup, bool btn2) {
+                    if (btn2) {
+                        keybindsAPI::convertLevelKeybinds(LevelEditorLayer::get());
+                        geode::log::info("Convertendo");
+                    };
+                    onClose(nullptr);
+                }
+                
+            );
+    }
+
     void onMobileEdit(CCObject *sender) {
+        if (!KeybindCache::initialized)
+            KeybindCache::init(LevelEditorLayer::get());
         auto layer = EditMobileKeys::create();
         size_t index = 0;
         for (auto &keybind : KeybindCache::keySettings) {
@@ -619,15 +643,13 @@ private:
             auto btn = MobileButton::create(&keybind);
             btn->setAnchorPoint({0.5, 0.5});
             btn->setPosition(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
-            layer->addNode(btn, index++ != 0,true);
+            layer->addNode(btn, index++ != 0, true);
             layer->calcSnaps();
         };
-        
 
         CCScene::get()->addChild(layer);
     }
 
-    
     // needs to add support to mobile
     void onAdd(CCObject *sender) {
         addKeyGUI::open(
@@ -636,7 +658,8 @@ private:
                 auto actionKey = actionKeyCode.second;
                 if (actionName.empty() || actionKey == -2)
                     return;
-                auto keySetting = keybindsAPI::createPcValue(actionName, actionKey);
+
+                auto keySetting = keybindsAPI::createPcValue(actionName, actionKey, curMobileButtonIdx);
 
                 geode::log::warn("Keycode from the OnAdd{}", keySetting.keyCode);
                 keybindsAPI::addLevelKeyBind(

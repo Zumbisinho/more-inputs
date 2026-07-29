@@ -98,6 +98,7 @@ bool EditMobileKeys::init() {
 
     saveKey->setPosition(screenSize.width / 2, 24);
     saveKey->setAnchorPoint({0.5, 0.5});
+    saveKey->setZOrder(1001);
     addChild(saveKey);
 
     // select menu
@@ -184,6 +185,7 @@ bool EditMobileKeys::init() {
     );
     snapWrapper->setContentSize(snapBtn->getContentSize());
     snapBtn->setOpacity(128);
+    snapBtn->setZOrder(1000);
     snapWrapper->setPosition({screenSize.width /2 - 50,24});
     snapBtn->setAnchorPoint({0.5,0.5});
     snapWrapper->setAnchorPoint({0.5,0.5});
@@ -204,8 +206,8 @@ void EditMobileKeys::onMenuOpen(CCObject* sender){
 };
 
 void EditMobileKeys::saveKeybinds() {
-    for (auto &node : toDragNodes) {
-        if (auto keybind = static_cast<MobileButton *>(node); keybind != nullptr) {
+    for (auto &node : toEdit) {
+        if (auto keybind = node.first; keybind != nullptr) {
             auto keySettings = keybind->getKey()->second;
             auto keyPickupId = keybind->getKey()->first;
             geode::log::warn("Changing key {} to pos {}{}", keybind->getKey()->second.buttonLabel, keybind->getKey()->second.pos.x, keybind->getKey()->second.pos.y);

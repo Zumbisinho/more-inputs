@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Geode/loader/Log.hpp"
-#include "Geode/loader/Setting.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <matjson.hpp>
@@ -14,6 +13,14 @@ using namespace geode::prelude;
 
 namespace keybindsAPI {
 // ? helper functions
+
+inline int curButtonIdx = 0;
+VersionInfo getLevelVersion(CCLayer *layer);
+
+inline void resetCurButtonIdx() {
+    curButtonIdx = 0;
+    log::warn("Resetado");
+};
 
 struct MobileKey {
     bool isSpr;
@@ -30,9 +37,11 @@ struct MobileKey {
 
 struct KeybindValue {
     KeybindValue() = default;
+
+
 private:
     // ? helper functions
-    
+
     using JSONArray = std::vector<matjson::Value>;
     template <typename returnType>
     returnType getOr(matjson::Value json, returnType defaultValue) {
@@ -49,7 +58,7 @@ private:
             if (result.isOk())
                 toReturn.push_back(result.unwrap());
         };
-        if (toReturn.size() == 0){
+        if (toReturn.size() == 0) {
             toReturn.push_back(defaultValue[0].as<returnType>().unwrapOrDefault());
             toReturn.push_back(defaultValue[1].as<returnType>().unwrapOrDefault());
         }
@@ -84,7 +93,7 @@ public:
     // ? Debug
     //~KeybindValue(){
     //    log::info("Object Killed: {}",this->name);
-    //    //__debugbreak(); 
+    //    //__debugbreak();
     //};
     static KeybindValue parse(std::string name, int keyCode, bool isSpr, CCPoint pos, CCSize contentSize, std::string buttonLabel) {
         auto dummy = matjson::Value::object();
@@ -108,10 +117,13 @@ public:
 };
 // ? helper functions
 using KeyFullSettings = std::pair<int, KeybindValue>;
-inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode) {
-    return keybindsAPI::KeybindValue::parse(name, keyCode, false, ccp(0, 0), CCSize{50, 50}, name);
+// just convert from numeric Position to a ratio from the screen size
+inline CCPoint absToRel(float x, float y) {
+    auto screenSize = CCDirector::sharedDirector()->getWinSize();
+    return ccp(x / screenSize.width, y / screenSize.height);
 };
 
+inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode,int& index);
 
 std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer);
 std::vector<std::pair<std::string, int>> getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty);
@@ -126,17 +138,21 @@ void editLevelKeyBind(
 void deleteLevelKeybind(LevelEditorLayer *layer, int actionID);
 
 void deleteKeybindsFromLevel(LevelEditorLayer *layer);
+
+void convertLevelKeybinds(LevelEditorLayer *layer);
 } // namespace keybindsAPI
+
+
 
 namespace matjson {
 
 template <>
 struct Serialize<keybindsAPI::KeybindValue> {
-    static Result<keybindsAPI::KeybindValue> fromJson(Value const& value) {
+    static Result<keybindsAPI::KeybindValue> fromJson(Value const &value) {
         return Ok(keybindsAPI::KeybindValue(value));
     }
 
-    static Value toJson(keybindsAPI::KeybindValue const& value) {
+    static Value toJson(keybindsAPI::KeybindValue const &value) {
         auto json = Value::object();
 
         auto pos = Value::array();
@@ -158,4 +174,4 @@ struct Serialize<keybindsAPI::KeybindValue> {
     }
 };
 
-}
+} // namespace matjson
