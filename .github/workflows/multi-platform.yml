@@ -18,13 +18,13 @@ jobs:
         - name: macOS
           os: macos-latest
 
-        ## - name: Android32 ## TODO : Add a mobile port with screen buttons and shit
-        ##   os: ubuntu-latest
-        ##   target: Android32
-
-        ## - name: Android64
-        ##   os: ubuntu-latest
-        ##   target: Android64
+        - name: Android32 
+          os: ubuntu-latest
+          target: Android
+          
+        - name: Android64
+          os: ubuntu-latest
+          target: Android64
 
         ## - name: iOS
         ##   os: macos-latest

@@ -17,6 +17,7 @@
 #include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
+#include "Geode/ui/PopupManager.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "Geode/ui/Scrollbar.hpp"
 #include "ccTypes.h"
@@ -27,6 +28,7 @@
 #include <Geode/binding/TextArea.hpp>
 #include <Geode/ui/BasedButtonSprite.hpp>
 #include <Geode/ui/TextInput.hpp>
+
 
 #include <cstddef>
 #include <functional>
@@ -603,19 +605,8 @@ private:
         );
         // convert keys popup
         if (keybindsAPI::getLevelVersion(LevelEditorLayer::get()).getMajor() == 1) { // old saving system
-            this->scheduleOnce(schedule_selector(setupKeyBindsGUI::showConvertPopup),0.f);
-        }
-
-        m_buttonMenu->addChild(addBtn);
-        m_buttonMenu->addChild(deleteBtn);
-        m_buttonMenu->addChild(mobileEditBtn);
-
-        this->setZOrder(119);
-
-        return true;
-    };
-    void showConvertPopup(float){
-        createQuickPopup(
+            PopupManager::get()
+                .quickPopup(
                 "Convert keybinds",
                 "This level was built on a <c_>older version</c> of <cc>More Inputs Mod</c>, if you wanna <cg>edit</c> the keybinds, you will need to <cl>convert</c> them. Its all automatic and you will not lose progress <ca>(i think)</c>.",
                 "No",
@@ -627,9 +618,19 @@ private:
                     };
                     onClose(nullptr);
                 }
-                
-            );
-    }
+            ).showQueue();
+
+        }
+
+        m_buttonMenu->addChild(addBtn);
+        m_buttonMenu->addChild(deleteBtn);
+        m_buttonMenu->addChild(mobileEditBtn);
+
+        this->setZOrder(119);
+
+        return true;
+    };
+    
 
     void onMobileEdit(CCObject *sender) {
         if (!KeybindCache::initialized)
