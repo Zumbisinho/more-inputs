@@ -16,6 +16,7 @@
 - Add a keyboard to mobile player add the key
 
 
+
 # To be Fixed
 
 - ~~Clicking on Touch Macro with anything selected~~
@@ -28,8 +29,13 @@
 - ~~Saving the level sometimes ruins the keybind mobile layout~~
 - Remake the mobile button to a good version
 
-- fix it to be playable on my pohne
+- ~~fix it to be playable on my pohne~~
+- rehide the text on the custo trigger because i need to debug
+- somethimes the group text is the iscreatebtncall, even if the button is not from the tab
 
+# Cur doing
+
+- Full implement the sprite thing
 
 # To be Refactored
 

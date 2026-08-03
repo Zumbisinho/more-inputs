@@ -1,5 +1,5 @@
 #include "../../layers/editor/setupGUI.hpp"
-#include "../../utils/macroClasses.hpp"
+#include "../../utils/customTriggers.hpp"
 #include "Geode/cocos/cocoa/CCArray.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include "Geode/loader/Log.hpp"
@@ -11,11 +11,14 @@
 #include <Geode/binding/CountTriggerGameObject.hpp>
 #include <Geode/binding/EditorUI.hpp>
 #include <Geode/binding/EffectGameObject.hpp>
+#include <Geode/binding/GJBaseGameLayer.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/TextGameObject.hpp>
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/LevelEditorLayer.hpp>
+#include <Geode/modify/EffectGameObject.hpp>
+
 
 // TODO: Add Cache to the macro triggers on load and update when needed (Create
 // and delete)
@@ -104,7 +107,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
         if (touchMacro) {
             auto textObj = static_cast<TextGameObject *>(touchMacro);
             textObj->updateTextObject(
-                "more_inputs:", false
+                "more_inputs:0 0 0 0 0 0", false
             ); // template, idk what params i gonna add later
         }
         CCArray *toSelect = CCArray::create();
@@ -115,7 +118,7 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
         this->selectObjects(toSelect, true);
     }
-
+    // needs refactor NOW
     void editObject(CCObject *sender) {
         if (m_selectedObjects->count() != 3)
             return EditorUI::editObject(sender);
@@ -125,26 +128,20 @@ class $modify(MyTriggerEditorUI, EditorUI) {
 
             if (!trigger->getChildByIDRecursive("touch-macro"_spr))
                 continue;
-            auto macro = new macroTriggers::touchMacro();
-            macro->macroObj = nullptr;
-            macro->pressObj = nullptr;
-            macro->releaseObj = nullptr;
+            auto macro = new customTriggers::TouchMacroTrigger;
 
             // soo it is selecting a macro
             for (auto trigger : CCArrayExt<GameObject *>(m_selectedObjects)) {
                 if (trigger->m_objectID == 914)
-                    macro->macroObj = static_cast<TextGameObject *>(trigger);
+                    macro->mainObject = static_cast<TextGameObject *>(trigger);
                 if (trigger->m_objectID == 1611 &&
                     trigger->m_zOrder == -67) // press
-                    macro->pressObj =
-                        static_cast<CountTriggerGameObject *>(trigger);
+                    macro->pressObj = static_cast<CountTriggerGameObject *>(trigger);
                 if (trigger->m_objectID == 1611 &&
                     trigger->m_zOrder == -68) // release
-                    macro->releaseObj =
-                        static_cast<CountTriggerGameObject *>(trigger);
+                    macro->releaseObj = static_cast<CountTriggerGameObject *>(trigger);
             }
-            if (!macro->macroObj || !macro->pressObj || !macro->releaseObj) {
-
+            if (!macro->mainObject || !macro->pressObj || !macro->releaseObj) {
                 delete macro;
                 return EditorUI::editObject(sender);
             }
@@ -194,5 +191,15 @@ class $modify(MyTriggerEditorUI, EditorUI) {
             }
         };
         EditorUI::updateButtons();
+    }
+};
+
+class $modify(CustomTriggerCommand, EffectGameObject) {
+    
+    void triggerObject(GJBaseGameLayer* layer, int unk, const gd::vector<int> * remapKeys) {
+        log::info("Trigger {} {} executado", m_objectID,m_controlID);
+
+        EffectGameObject::triggerObject(layer, unk, remapKeys);
+        
     }
 };

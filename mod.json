@@ -30,5 +30,10 @@
         "gameplay",
         "offline",
         "utility"
-    ]
+    ],
+    "links": {
+        "source": "https://github.com/Zumbisinho/more-inputs",
+        "community": "https://discord.gg/XW8cm36KxE"
+
+    }
 }

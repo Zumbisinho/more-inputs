@@ -1,6 +1,6 @@
 #pragma once
+#include "../../../utils/customTriggers.hpp"
 #include "../../../utils/keybindsCache.hpp"
-#include "../../../utils/macroClasses.hpp"
 #include "../../textGameObject.hpp"
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
@@ -22,7 +22,7 @@ using namespace geode::prelude;
 
 class TouchMacroUI : public Popup {
 public:
-    static TouchMacroUI *create(macroTriggers::touchMacro *touchMacroCluster) {
+    static TouchMacroUI *create(customTriggers::TouchMacroTrigger *touchMacroCluster) {
         auto ret = new TouchMacroUI;
         if (ret && ret->init(touchMacroCluster)) {
             ret->autorelease();
@@ -31,18 +31,18 @@ public:
         delete ret;
         return nullptr;
     };
-    static void open(macroTriggers::touchMacro *touchMacroCluster) {
+    static void open(customTriggers::TouchMacroTrigger *touchMacroCluster) {
         auto layer = create(touchMacroCluster);
         layer->m_noElasticity = true;
         layer->show();
     }
 
 protected:
-    macroTriggers::touchMacro *m_macroCluster;
+    customTriggers::TouchMacroTrigger *m_macroCluster;
     std::vector<CCObject *> m_widgets;
 
 private:
-    bool init(macroTriggers::touchMacro *touchMacroCluster) {
+    bool init(customTriggers::TouchMacroTrigger *touchMacroCluster) {
         if (!Popup::init(440.f, 280.f))
             return false;
         this->setTitle("Edit Touch Macro");
@@ -168,10 +168,9 @@ private:
         if (keybinds.empty()) {
             actionList.push_back("Not found any keybinds!");
         } else {
-            for (auto& action : keybinds) {
+            for (auto &action : keybinds) {
                 actionList.push_back(action.second.name);
-                geode::log::info("Keybinds TouchUI name: {}\n Dict: {}",action.second.name,actionList);
-
+                geode::log::info("Keybinds TouchUI name: {}\n Dict: {}", action.second.name, actionList);
             };
         }
 
@@ -208,26 +207,29 @@ private:
              multiTriggered,
              disarmOnFirst}
         );
-
-        // ? Loading params from string
-        auto config = macroTriggers::triggerStrToConfig(
-            touchMacroCluster->macroObj->m_text
-        );
-        if (!config.empty()) {
-            actionDropDown->setSelected(config[0]);
-            pressNI->setString(std::to_string(config[1]));
-            releaseNI->setString(std::to_string(config[2]));
-
-            touchTriggered->setCheck(config[3]);
-            spawnTriggered->setCheck(config[4]);
-            multiTriggered->setCheck(config[5]);
-            if (config[3] == 1 || config[4] == 1) {
-                multiTriggered->setVisible(
-                    true
-                ); // show if any of the things blah blah blah
-            }
-            disarmOnFirst->setCheck(config[6]);
+        auto pos = touchMacroCluster->mainObject->m_text.find(':');
+        std::string onlyConfig;
+        if (pos != std::string::npos) {
+            onlyConfig = touchMacroCluster->mainObject->m_text.substr(pos + 1);
         }
+        // ? Loading params from string
+        m_macroCluster->loadFromTriggerStr(
+            onlyConfig
+        );
+
+        actionDropDown->setSelected(m_macroCluster->actionIndex);
+        pressNI->setString(std::to_string(m_macroCluster->pressGroupId));
+        releaseNI->setString(std::to_string(m_macroCluster->releaseGroupId));
+
+        touchTriggered->setCheck(m_macroCluster->touchTriggered);
+        spawnTriggered->setCheck(m_macroCluster->spawnTriggered);
+        multiTriggered->setCheck(m_macroCluster->multiTriggered);
+        if (m_macroCluster->touchTriggered == 1 || m_macroCluster->spawnTriggered == 1) {
+            multiTriggered->setVisible(
+                true
+            ); // show if any of the things blah blah blah
+        }
+        disarmOnFirst->setCheck(m_macroCluster->disarmOnFirst);
 
         return true;
     };
@@ -235,32 +237,24 @@ private:
         auto DropDown = static_cast<GoffyBuilder::DropDownList *>(m_widgets[0]);
         auto action = DropDown->m_curIndex;
 
-        int pressGroupId =
+        m_macroCluster->pressGroupId =
             static_cast<GoffyBuilder::NumericInput *>(m_widgets[1])
                 ->getNumber();
-        int releaseGroupId =
+        m_macroCluster->releaseGroupId =
             static_cast<GoffyBuilder::NumericInput *>(m_widgets[2])
                 ->getNumber();
 
-        auto touch = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[3])
-                         ->m_isChecked;
-        auto spawn = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[4])
-                         ->m_isChecked;
-        auto multi = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[5])
-                         ->m_isChecked;
-        auto disarmOnFirst =
+        m_macroCluster->touchTriggered = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[3])
+                                             ->m_isChecked;
+        m_macroCluster->spawnTriggered = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[4])
+                                             ->m_isChecked;
+        m_macroCluster->multiTriggered = static_cast<GoffyBuilder::ToggleOption *>(m_widgets[5])
+                                             ->m_isChecked;
+        m_macroCluster->disarmOnFirst =
             static_cast<GoffyBuilder::ToggleOption *>(m_widgets[6])
                 ->m_isChecked;
 
-        m_macroCluster->macroObj->m_text = macroTriggers::configToTriggerStr(
-            action,
-            pressGroupId,
-            releaseGroupId,
-            touch,
-            spawn,
-            multi,
-            disarmOnFirst
-        );
+        m_macroCluster->mainObject->m_text = "more_inputs: " + m_macroCluster->configToTriggerStr();
         auto actionName =
             static_cast<GoffyBuilder::DropDownList *>(m_widgets[0])
                 ->m_itemList[action];
@@ -273,36 +267,44 @@ private:
         press->m_itemID = actionId;
         release->m_itemID = actionId;
         // ? group
-        press->m_targetGroupID = pressGroupId;
-        release->m_targetGroupID = releaseGroupId;
+        press->m_targetGroupID = m_macroCluster->pressGroupId;
+        release->m_targetGroupID = m_macroCluster->releaseGroupId;
 
         // ! all thoses variations
-        press->m_isTouchTriggered = touch;
-        press->m_isSpawnTriggered = spawn;
-        press->m_isMultiTriggered = multi;
+        press->m_isTouchTriggered = m_macroCluster->touchTriggered;
+        press->m_isSpawnTriggered = m_macroCluster->spawnTriggered;
+        press->m_isMultiTriggered = m_macroCluster->multiTriggered;
 
-        release->m_isTouchTriggered = touch;
-        release->m_isSpawnTriggered = spawn;
-        release->m_isMultiTriggered = multi;
+        release->m_isTouchTriggered = m_macroCluster->touchTriggered;
+        release->m_isSpawnTriggered = m_macroCluster->spawnTriggered;
+        release->m_isMultiTriggered = m_macroCluster->multiTriggered;
 
         // ? Disarm
-        press->m_multiActivate = !disarmOnFirst;
-        release->m_multiActivate = !disarmOnFirst;
+        press->m_multiActivate = !m_macroCluster->disarmOnFirst;
+        release->m_multiActivate = !m_macroCluster->disarmOnFirst;
 
         // ? Update groupLabel
-        auto groupWidget = static_cast<TouchMacroGameObject *>(m_macroCluster->macroObj)->m_fields->m_groupLabel;
-        std::string groupLabel = fmt::format(
-            "{}/{}",
-            m_macroCluster->getPressGroup(),
-            m_macroCluster->getReleaseGroup()
-        ); // 6/7
+        auto trigger = static_cast<CustomTriggerGameObject *>(m_macroCluster->mainObject);
+        auto pos = trigger->m_text.find(':');
+        std::string strippedConfig;
+        if (pos != std::string::npos) {
+            strippedConfig = trigger->m_text.substr(pos + 1);
+        }
+        auto triggerObj = customTriggers::TouchMacroTrigger::create();
+        triggerObj->loadFromTriggerStr(strippedConfig);
+
+        auto groupWidget = trigger->m_fields->m_groupLabel;
+        std::string groupLabel = triggerObj->getFormatedGroupLabel();
+        
         float oldWidth = groupWidget->getScaledContentWidth();
         groupWidget->setString(groupLabel.c_str());
-        float newWidth = groupWidget->getScaledContentWidth(); 
+        float newWidth = groupWidget->getScaledContentWidth();
 
         float fixedScale = (oldWidth / newWidth) * groupWidget->getScale();
 
         groupWidget->setScale(fixedScale);
+
+        delete m_macroCluster;
 
         Popup::onClose(sender);
     }

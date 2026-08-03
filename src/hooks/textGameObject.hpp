@@ -1,12 +1,11 @@
 #pragma once
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
-#include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/modify/TextGameObject.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 
 using namespace geode::prelude;
 
-class $modify(TouchMacroGameObject, TextGameObject) {
+class $modify(CustomTriggerGameObject, TextGameObject) {
     struct Fields {
         CCLabelBMFont *m_groupLabel;
     };

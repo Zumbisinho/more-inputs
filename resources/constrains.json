@@ -4,5 +4,6 @@
     "defaultModIdentityValue" : 8734,
     "keyPressedValue" : 1,
     "keyReleasedValue" : 0,
-    "keyBindsIdentityMaterialId" : 6148
+    "keyBindsIdentityControlId" : 6148,
+    "keyBindsIdentityStartMaterialId" : 6424
 }

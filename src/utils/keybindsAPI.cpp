@@ -284,11 +284,11 @@ void convertLevelKeybinds(LevelEditorLayer *layer) {
 inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, int &index) {
 
     auto screenSize = CCDirector::sharedDirector()->getWinSize();
-    int threshold = floor((screenSize.width / 60));
+    int threshold = floor((screenSize.width / 60)) -3; // to not overdraw on the plataform move thing
     geode::log::warn("Agr o index dos buttoms {}", index);
 
     int buttonRow = floor(index / threshold);
-    float absX = 25 + (index - threshold * buttonRow) * 60;
+    float absX = screenSize.width - 25 - (index - threshold * buttonRow) * 60;
 
     float absY = buttonRow != 0 ? screenSize.height + 25 - buttonRow * 60 : 30;
 
