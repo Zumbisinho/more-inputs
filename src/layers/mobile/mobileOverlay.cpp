@@ -21,6 +21,7 @@ class $modify(MobileKeys, PlayLayer) {
         KeybindCache::init(this);
 
         CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+        KeybindCache::mobileKeyNodes.clear();
 
         auto overlay = CCMenu::create();
         overlay->setID("MobileKey-Overlay"_spr);
@@ -31,12 +32,19 @@ class $modify(MobileKeys, PlayLayer) {
         this->addChild(overlay);
         int index = 0;
         for (auto key : KeybindCache::keySettings) {
+
             auto mobileKey = MobileButton::create(&key);
             CCPoint relativePos = mobileKey->getKey()->second.pos;
 
             mobileKey->setPosition(MobileButton::relativePosToCanva(relativePos));
             mobileKey->setAnchorPoint({0.5, 0.5});
             overlay->addChild(mobileKey);
+            KeybindCache::mobileKeyNodes[key.first] = mobileKey; // actionId = pointer to the node
+
+            if (auto toHide =KeybindCache::mobileKeysToHideOnInit;!toHide.empty())
+                if (std::ranges::contains(toHide,key.first))
+                    mobileKey->setVisible(false);
+            
         };
         return true;
     }
@@ -53,6 +61,8 @@ class $modify(MobileKeysEditor, LevelEditorLayer) {
 
         CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
 
+        KeybindCache::mobileKeyNodes.clear();
+
         auto overlay = CCMenu::create();
         overlay->setID("MobileKey-Overlay"_spr);
         overlay->setContentSize(screenSize);
@@ -67,6 +77,11 @@ class $modify(MobileKeysEditor, LevelEditorLayer) {
             mobileKey->setPosition(MobileButton::relativePosToCanva(relativePos));
             mobileKey->setAnchorPoint({0.5, 0.5});
             overlay->addChild(mobileKey);
+            KeybindCache::mobileKeyNodes[key.first] = mobileKey; // actionId = pointer to the node
+
+            if (auto toHide =KeybindCache::mobileKeysToHideOnInit;!toHide.empty())
+                if (std::ranges::contains(toHide,key.first))
+                    mobileKey->setVisible(false);
         };
 
         m_fields->m_overlay = overlay;

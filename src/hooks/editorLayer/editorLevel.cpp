@@ -3,6 +3,7 @@
 #include "../../utils/pickupManager.hpp"
 #include "../../utils/getJson.hpp"
 #include "../../utils/keybindsCache.hpp"
+#include "../../utils/levelCache.hpp"
 
 // TODO Encode keysbinds via some shit with object encoding (Or just lazy json on text label Exact what i'm gonna do!)
 
@@ -18,6 +19,7 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
 
         ~Fields(){ // when leaves a level
             KeybindCache::reset();
+            LevelCache::reset();
         }
     };
     bool init(GJGameLevel* level, bool noUI) {
@@ -26,6 +28,7 @@ class $modify(MyPlayLayer, LevelEditorLayer) {
 
         KeybindCache::reset();
         KeybindCache::init(this);
+        LevelCache::init(this);
         m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
         m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(0);
         return true;

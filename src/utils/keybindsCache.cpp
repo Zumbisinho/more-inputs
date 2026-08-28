@@ -68,6 +68,8 @@ void reset() {
     keybinds.clear();
     keybindsAndAction.clear();
     keySettings.clear();
+    mobileKeyNodes.clear();
+    mobileKeysToHideOnInit.clear();
 
 };
 void changeLocalKey(std::string actionName, int newKeyCode) {

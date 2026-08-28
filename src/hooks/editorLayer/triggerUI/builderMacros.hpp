@@ -52,6 +52,10 @@ public:
         std::string labelName, float size, std::vector<std::string> itemList
     );
     int m_curIndex;
+    std::function<void()> m_selectCB;
+    void setSelectCallBack(std::function<void()> CallBack){
+        m_selectCB = CallBack;
+    };
     void setSelected(int index);
     std::vector<std::string> m_itemList;
 

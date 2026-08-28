@@ -1,196 +1,130 @@
 #pragma once
 
-#include "Geode/cocos/CCDirector.h"
+#include "../hooks/editorLayer/triggerUI/actionDropdown.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
-#include "Geode/cocos/cocoa/CCObject.h"
-#include "Geode/cocos/sprite_nodes/CCSprite.h"
+#include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/loader/Mod.hpp"
 #include "Geode/loader/ModEvent.hpp"
-#include "Geode/ui/Layout.hpp"
-#include "Geode/ui/Popup.hpp"
-#include "Geode/utils/general.hpp"
+#include "keybindsCache.hpp"
+#include "macro.hpp"
+#include "smjs.object-collab/include/EditorPopupConfig.hpp"
+#include "smjs.object-collab/include/ObjectAPI.hpp"
+#include "smjs.object-collab/include/ObjectInfo.hpp"
+#include "smjs.object-collab/include/ObjectTraits.hpp"
+#include "smjs.object-collab/include/Property.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/CountTriggerGameObject.hpp>
 #include <Geode/binding/EffectGameObject.hpp>
 #include <Geode/binding/GameObject.hpp>
+#include <Geode/binding/LevelEditorLayer.hpp>
+#include <Geode/binding/PlayLayer.hpp>
 #include <Geode/binding/TextGameObject.hpp>
-#include <algorithm>
 #include <fmt/format.h>
-#include <memory>
+#include <smjs.object-collab/include/object_collab.hpp>
 #include <string>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
 
 using namespace geode::prelude;
+using namespace object_collab::prelude;
+using namespace MacroTriggers;
 
 namespace customTriggers {
 
-class CustomTrigger{
-protected:
-    bool logEnabled = true;
+class $macro(TouchMacroTrigger) {
+public:
+    setMacroId("touch-trigger"_spr);
+    int m_actionIndex = 0;
+    int m_pressGroupId = 0;
+    int m_releaseGroupId = 0;
+    bool m_disarmOnFirst = false;
+    bool m_multiActivate = !m_disarmOnFirst;
+    std::string m_formatedTriggerLabel = "0/0";
+    MacroAuxiliarTrigger<CountTriggerGameObject, 1611> m_pressCount;
+    MacroAuxiliarTrigger<CountTriggerGameObject, 1611> m_releaseCount;
 
-    template <class... Args>
-    void ZLogInfo(fmt::format_string<Args...> fmt, Args &&...args) const {
-        if (logEnabled) {
-            geode::log::info(fmt, std::forward<Args>(args)...);
-        }
-    };
+    void customInit() override {
+        // invisible colo
+        // Aux Trigger Init
+        if (!KeybindCache::initialized)
+            KeybindCache::init(LevelEditorLayer::get() ? (CCLayer *)LevelEditorLayer::get() : (CCLayer *)PlayLayer::get());
 
-    template <typename... Args>
-    std::string formatValues(int objId, Args &&...args) const {
-        std::string toReturn = fmt::format("{} {}", objId, fmt::join(std::array{fmt::format("{}", static_cast<int>(std::forward<Args>(args)))...}, " "));
-        ZLogInfo("{}", toReturn);
-        return toReturn;
+        m_pressCount.addInitProps(
+            $Alter(m_zOrder, -67),
+            $Alter(m_activateGroup, true),
+            $Alter(m_pickupCount, 1),
+            $Alter(m_scaleX, 0.25f),
+            $Alter(m_scaleY, 0.25f)
+
+        );
+
+        m_releaseCount.addInitProps(
+            $Alter(m_zOrder, -68),
+            $Alter(m_activateGroup, true),
+            $Alter(m_pickupCount, 0),
+            $Alter(m_scaleX, 0.25f),
+            $Alter(m_scaleY, 0.25f)
+        );
+
+        createTriggers(m_pressCount, m_releaseCount);
     }
 
-    template <typename T>
-    void parseOne(std::stringstream &ss, T &value) const {
-        std::string token;
+    TouchMacroTrigger(ObjectInfo *info) : MacroTriggers::macroTrigger(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
+        // add the triggers to the vec
+        m_auxTriggers.push_back(&m_pressCount);
+        m_auxTriggers.push_back(&m_releaseCount);
 
-        if (!(ss >> token))
-            return;
-        ZLogInfo("String : {}, Token: {}", ss.str(), token);
+        m_pressCount.addDynamicProps(
+            $Alter(m_itemID, !KeybindCache::keySettings.empty() ? KeybindCache::keySettings[*&m_actionIndex].first : 0),
+            $Alter(m_targetGroupID, *&m_pressGroupId),
+            $Alter(m_multiActivate, *&m_multiActivate),
+            $Alter(m_isTouchTriggered, *&m_isTouchTriggered),
+            $Alter(m_isSpawnTriggered, *&m_isSpawnTriggered),
+            $Alter(m_isMultiTriggered, *&m_isMultiTriggered)
+        );
 
-        if constexpr (std::is_same_v<T, int>) {
-            value = numFromString<int>(token).unwrapOrDefault();
-        } else if constexpr (std::is_same_v<T, bool>) {
-            value = numFromString<int>(token).unwrapOrDefault() != 0;
-        } else if constexpr (std::is_same_v<T, float>) {
-            value = numFromString<float>(token).unwrapOrDefault();
-        } else if constexpr (std::is_same_v<T, double>) {
-            value = numFromString<double>(token).unwrapOrDefault();
-        } else if constexpr (std::is_same_v<T, std::string>) {
-            value = token;
-        }
-    }
-
-    template <typename... Args>
-    bool parseValues(std::string_view str, bool &createBtn, int &objId, Args &...args) const {
-
-        if (str.empty()) {
-            createBtn = false;
-            return false;
-        }
-        std::stringstream ss((std::string(str)));
-
-        parseOne(ss, objId); // get obj id
-
-        if (std::string_view sv = ss.str(); sv == "-1") {
-            createBtn = true;
-            ZLogInfo("CreateBtn {}", str);
-            return true;
-        }
-
-        // Expande o pack:
-        (parseOne(ss, args), ...);
-
-        createBtn = false;
-        return true;
-    }
-    template <typename... Args>
-    std::string formatGroup(std::string_view formatString, Args &&...args) const {
-        if (isCreateBtnCall)
-            return "";
-        return fmt::vformat(
-            formatString,
-            fmt::make_format_args(std::forward<Args>(args)...)
+        m_releaseCount.addDynamicProps(
+            $Alter(m_itemID, !KeybindCache::keySettings.empty() ? KeybindCache::keySettings[*&m_actionIndex].first : 0),
+            $Alter(m_targetGroupID, *&m_releaseGroupId),
+            $Alter(m_multiActivate, *&m_multiActivate),
+            $Alter(m_isTouchTriggered, *&m_isTouchTriggered),
+            $Alter(m_isSpawnTriggered, *&m_isSpawnTriggered),
+            $Alter(m_isMultiTriggered, *&m_isMultiTriggered)
         );
     }
 
-public:
-    TextGameObject *mainObject;
-    int customObjID = 0;
-    bool isCreateBtnCall;
-    const char *macroSpriteStr = "";
-    CCPoint groupLabelOffset;
-
-    static std::unique_ptr<CustomTrigger> create() {
-        auto ret = std::make_unique<CustomTrigger>();
-        if (ret && ret->init()) {
-            return ret;
-        };
-        return nullptr;
-    };
-
-    virtual std::string configToTriggerStr() {
-        return "";
-    };
-    virtual bool loadFromTriggerStr(std::string_view str) {
-        return parseValues(str, isCreateBtnCall, customObjID);
-    };
-
-    void setSpriteStr(const char *sprStr, CCPoint groupLabelOffset) {
-        this->macroSpriteStr = sprStr;
-        this->groupLabelOffset = groupLabelOffset;
-    };
-    const char *getSpriteStr() {
-        return macroSpriteStr;
-    };
-    virtual std::string getFormatedGroupLabel() {
-        return "";
+    static TouchMacroTrigger *create(ObjectInfo *info) {
+        return new TouchMacroTrigger(info);
     }
+    static PopupConfig getEditConfig(const Selected &selected);
 
-    virtual bool init() {
-        return true;
-    };
+    void postEditorInit() override;
+
+    // void bulkApplyDynamicProps() override {
+    //     m_pressCount.applyDynamicProps();
+    //     m_releaseCount.applyDynamicProps();
+    //     log::warn("Adrs: {},{}",m_pressCount.m_obj,m_releaseCount.m_obj);
+    // };
+
+    std::string format();
 };
 
-class MacroTrigger : public CustomTrigger {
+class $object(EditKeybindTrigger, EffectGameObject) {
 public:
-    virtual std::vector<GameObject *> getAllObjs() {
-        return {nullptr};
-    };
+    int m_actionIndex = 0;
+    bool m_disableKey = false;
+
+    EditKeybindTrigger(ObjectInfo *info) : CustomObject(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
+    }
+
+    static EditKeybindTrigger *create(ObjectInfo *info) {
+        return new EditKeybindTrigger(info);
+    }
+
+    static PopupConfig getEditConfig(const Selected &selected);
+
+    void postEditorInit() override;
+    void triggerObject(GJBaseGameLayer *layer, int uniqueID, const gd::vector<int> *remapKeys) override;
 };
-
-class TouchMacroTrigger : public MacroTrigger {
-public:
-    static std::unique_ptr<TouchMacroTrigger> create() {
-        auto ret = std::make_unique<TouchMacroTrigger>();
-        if (ret && ret->init()) {
-            return ret;
-        };
-        return nullptr;
-    };
-
-    bool init() override {
-        this->setSpriteStr("touch_macro.png"_spr, {0, 4});
-        this->customObjID = 1;
-        return true;
-    }
-
-    CountTriggerGameObject *pressObj;
-    CountTriggerGameObject *releaseObj;
-
-    int actionIndex = 0;
-    int pressGroupId = 0;
-    int releaseGroupId = 0;
-    bool touchTriggered = false;
-    bool spawnTriggered = false;
-    bool multiTriggered = false;
-    bool disarmOnFirst = false;
-
-    std::string configToTriggerStr() override {
-        return formatValues(customObjID, actionIndex, pressGroupId, releaseGroupId, touchTriggered, spawnTriggered, multiTriggered, disarmOnFirst);
-    };
-    bool loadFromTriggerStr(std::string_view str) override {
-        return parseValues(str, isCreateBtnCall, customObjID, actionIndex, pressGroupId, releaseGroupId, touchTriggered, spawnTriggered, multiTriggered, disarmOnFirst);
-    }
-    std::vector<GameObject *> getAllObjs() override {
-        return {mainObject, pressObj, releaseObj};
-    };
-    std::string getFormatedGroupLabel() override {
-        return formatGroup("{}/{}", pressGroupId, releaseGroupId);
-    }
-};
-
-// The thing that like that ohhh saves ohhhh uhhh idk like saves the thing to implement therefor
-void addCustomTrigger(std::unique_ptr<CustomTrigger> trigger, geode::Mod *mod = geode::Mod::get());
-
-static constexpr int startCustomId = 20000; // ! Update if robrob works at 100x speed and create more objs
-inline std::unordered_map<
-    std::string,
-    std::vector<std::unique_ptr<CustomTrigger>>>
-    customTriggersPerMod;
 
 } // namespace customTriggers
+// clang-format off

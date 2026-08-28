@@ -24,6 +24,7 @@ using namespace geode::prelude;
 
 // ? this is a goffy set of custom widgets that mimics the componets of RobTop
 // triggers
+// ! sadly this module is now pretty much obsulete, because the Build-In Object Collab UI builder.
 
 namespace GoffyBuilder {
 
@@ -94,7 +95,6 @@ CCMenu *DropDownList::dropList(float size) {
     float max_width;
 
     for (const std::string &item : m_itemList) {
-        geode::log::warn("Item N{} do dropdown é {}",index,item);
         if (item == "_empty") { // ignore empty values
             index++;
             continue;
@@ -198,6 +198,10 @@ void DropDownList::onItemSelect(CCObject *sender) {
     }
     m_curArrow->setRotation(0);
     m_isOpen = false;
+
+    if (m_selectCB){
+        m_selectCB();
+    }
 };
 
 bool DropDownList::init(
@@ -310,6 +314,10 @@ void DropDownList::setSelected(int index){
         btn->updateLayout();
 
         this->updateLayout();
+
+        if (m_selectCB){
+            m_selectCB();
+        };
     }
     
 };

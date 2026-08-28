@@ -1,5 +1,6 @@
 #include "../../layers/editor/setupGUI.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
+#include "Geode/loader/Log.hpp"
 #include "Geode/utils/cocos.hpp"
 #include <Geode/Enums.hpp>
 #include <Geode/Geode.hpp>
@@ -11,8 +12,9 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <alphalaneous.editortab_api/include/EditorTabAPI.hpp>
 #include <matjson.hpp>
-
-constexpr int touchMacroID = 14671; // 15000 limit
+#include "../../utils/customTriggers.hpp"
+#include "smjs.object-collab/include/ObjectAPI.hpp"
+#include <smjs.object-collab/include/object_collab.hpp>
 
 using namespace geode::prelude;
 
@@ -37,10 +39,13 @@ class $modify(MyEditorUI, EditorUI) {
 
                 );
 
-                auto touchMacro = getCreateBtn(touchMacroID, 1);
+                auto touchMacro = ObjectAPI::getCustomObject("touch-trigger-macro"_spr)->setupCreateMenuItem();
+                auto editKeybind = ObjectAPI::getCustomObject("edit-keybind-trigger"_spr)->setupCreateMenuItem();
+
 
                 buttons.push_back(btn);
                 buttons.push_back(touchMacro);
+                buttons.push_back(editKeybind);
                 return alpha::editor_tabs::createEditButtonBar(buttons);
             },
             [] { // ? Setup to Place the tabImg

@@ -48,6 +48,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         
         pickupManager::changePickupId(id,value);
+    };
+    void onExit() {
+        PlayLayer::onExit();
+        KeybindCache::reset();
     }
-    
 };

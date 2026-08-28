@@ -1,11 +1,11 @@
 # To be Added
 
-- Mobile Button Port
-- Add a trigger that detect if the mod is loaded
+- ~~Mobile Button Port~~
+- ~~Add a trigger that detect if the mod is loaded~~ *the object collab already does that*
 - Add a splash art from the icon to the Tab
-- Add a cache when selecting custom triggers
+- ~~Add a cache when selecting custom triggers~~ *new api for doing that*
 - ~~Add a Automatic UI system for lazy ass people~~
-- Add a trigget to enable/disable a key (most for mobiles)
+- ~~Add a trigget to enable/disable a key (most for mobiles)~~ *almost that, just need to disable from pc*
 - _Add a text to mobile button or image (enable hue, rot, offset, scale and wrap) moved to 2.1.0_
 - ~~Add a way to convert old to new keys~~
 - ~~Add the key config to the mobile button~~
@@ -14,6 +14,9 @@
 - _Add a side menu to config text label, size and input a image moved to 2.1.0_
 - ~~Add the mobile preview to the level editor thing~~
 - Add a keyboard to mobile player add the key
+- Add the edit local mobile buttons
+- ~~hook the EditorUI::editObject to temp remove the aux triggers from the m_selectedObjects soo the ObjectCollabApi only process the customtriggers, and right after realocate the objs to the m_selectedObjs~~
+- ~~every time you select a macro or a aux trigger, it selects all (link control or something);~~
 
 
 
@@ -30,17 +33,13 @@
 - Remake the mobile button to a good version
 
 - ~~fix it to be playable on my pohne~~
-- rehide the text on the custo trigger because i need to debug
-- somethimes the group text is the iscreatebtncall, even if the button is not from the tab
-
-# Cur doing
-
-- Full implement the sprite thing
+- ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
+- free control ids when deleting macros.
 
 # To be Refactored
 
 - ~~Keybinds saving System~~
-- Custom triggers
+- ~~Custom triggers~~ *object collab + macro trigger = holy coding*
 
 
 
