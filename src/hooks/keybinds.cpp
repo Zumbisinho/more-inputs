@@ -9,7 +9,7 @@
 #include <Geode/binding/GJBaseGameLayer.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/PlayLayer.hpp>
-#include <Geode/modify/CCKeyboardDispatcher.hpp>
+
 
 $execute {
     KeyboardInputEvent()
