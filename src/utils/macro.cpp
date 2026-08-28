@@ -4,7 +4,6 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/support/data_support/ccCArray.h"
 #include "Geode/loader/Log.hpp"
-#include "Geode/platform/windows.hpp"
 #include "levelCache.hpp"
 #include "smjs.object-collab/include/ObjectAPI.hpp"
 #include "smjs.object-collab/include/object_collab.hpp"
