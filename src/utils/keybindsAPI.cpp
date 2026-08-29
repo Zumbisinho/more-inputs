@@ -193,7 +193,7 @@ std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
     switch (getLevelVersion(layer).getMajor()) {
         case 2: {
             auto keybinds =
-                alpha::level_storage::getSavedValue<matjson::Value>(layer, "config")["keybinds"].as<std::unordered_map<std::string, KeybindValue>>().unwrapOrDefault();
+                alpha::level_storage::getSavedValue<matjson::Value>(layer, "config")["keybinds"].as<std::map<std::string, KeybindValue>>().unwrapOrDefault();
             if (keybinds.size() == 0)
                 return keys;
             for (const auto &[key, value] : keybinds) {

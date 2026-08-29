@@ -26,7 +26,7 @@ std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer) {
         return keyRaw;
 
     auto keybinds =
-        configJson["keybinds"].as<std::unordered_map<std::string,keybindsAPI::KeybindValue>>();
+        configJson["keybinds"].as<std::map<std::string,keybindsAPI::KeybindValue>>();
     for (const auto &[action, settings] : *keybinds) {
         keyRaw.insert(settings.keyCode);
     };
@@ -44,7 +44,7 @@ getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
     if (configJson["keybinds"].size() == 0)
         return keys;
 
-    auto keybinds = configJson["keybinds"].as<std::unordered_map<std::string, keybindsAPI::KeybindValue>>().unwrapOrDefault();
+    auto keybinds = configJson["keybinds"].as<std::map<std::string, keybindsAPI::KeybindValue>>().unwrapOrDefault();
     for (const auto [action, value] : keybinds) {
         if (value.keyCode == -67 && ignoreEmpty)
             continue;
