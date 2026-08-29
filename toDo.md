@@ -35,6 +35,7 @@
 - ~~fix it to be playable on my pohne~~
 - ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
 - free control ids when deleting macros.
+- duplicating a macro needs to changes its control id
 
 # To be Refactored
 
