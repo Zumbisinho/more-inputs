@@ -72,9 +72,27 @@ void EditMobileKeys::calcSnaps(){
     };
 };
 
-bool EditMobileKeys::init() {
+bool EditMobileKeys::init(bool canSave) {
     if (!CCLayerColor::initWithColor({45, 158, 176, 255}))
         return false;
+
+    std::function<void()> okButtonCB;
+    if (canSave){
+        okButtonCB = [this]() {
+            saveKeybinds();
+            removeMeAndCleanup();
+        };
+    } else {
+        okButtonCB = [this]() {
+            removeMeAndCleanup();
+            for (auto& node: toEdit){
+                int actionId = node.first->getKey()->first;
+                if (auto it = KeybindCache::mobileKeyNodes.find(actionId);it != KeybindCache::mobileKeyNodes.end()){
+                    it->second->setPosition(node.first->getPosition());
+                };
+            };
+        };
+    };
 
     CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
     auto drawLayer = CCDrawNode::create();
@@ -91,10 +109,7 @@ bool EditMobileKeys::init() {
     this->setPosition({0, 0});
     this->setAnchorPoint({0, 0});
     //edit this bull shittt 🤣🫱
-    auto saveKey = GoffyBuilder::OkButton::create([this]() {
-        saveKeybinds();
-        removeMeAndCleanup();
-    });
+    auto saveKey = GoffyBuilder::OkButton::create(okButtonCB);
 
     saveKey->setPosition(screenSize.width / 2, 24);
     saveKey->setAnchorPoint({0.5, 0.5});
@@ -110,7 +125,7 @@ bool EditMobileKeys::init() {
     selectMenu->setZOrder(10);  
     m_selectMenu = selectMenu;
 
-    std::string levelName = LevelEditorLayer::get()->m_level->m_levelName;
+    std::string levelName = GJBaseGameLayer::get()->m_level->m_levelName;
 
     auto selectMenuTitle = CCLabelBMFont::create((levelName + " Keybinds").c_str(), "bigFont.fnt");
     selectMenuTitle->setScale(std::min(0.75f, 220.f / selectMenuTitle->getContentWidth()));

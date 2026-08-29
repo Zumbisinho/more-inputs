@@ -1,6 +1,6 @@
 #include "Geode/cocos/cocoa/CCObject.h"
-#include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "customLabels/keybindLabel.hpp"
+#include "mobile/editMobileKeys.hpp"
 #include <Geode/Geode.hpp>
 #include <Geode/binding/KeyframeObject.hpp>
 #include <string>
@@ -127,6 +127,38 @@ private:
         );
         scrollArea->scrollToTop();
 
+        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
+        mobileEditSpr->setScale(0.25);
+        auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(KeyBindsLocalConfigGui::onMobileEdit));
+
+        auto windowSize = m_buttonMenu->getContentSize();
+
+        mobileEditBtn->setAnchorPoint({0.5, 0.5});
+        mobileEditBtn->setPosition(
+            {windowSize.width - mobileEditBtn->getContentWidth() / 4,
+             windowSize.height - mobileEditBtn->getContentHeight() / 4}
+        );
+
+        m_buttonMenu->addChild(mobileEditBtn);
+
         return true;
     };
+    void onMobileEdit(CCObject *sender) {
+        if (!KeybindCache::initialized)
+            KeybindCache::init(LevelEditorLayer::get());
+        auto layer = EditMobileKeys::create(false);
+        size_t index = 0;
+        for (auto &keybind : KeybindCache::keySettings) {
+            CCPoint relativePos = keybind.second.pos;
+            CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
+
+            auto btn = MobileButton::create(&keybind);
+            btn->setAnchorPoint({0.5, 0.5});
+            btn->setPosition(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
+            layer->addNode(btn, index++ != 0, true);
+            layer->calcSnaps();
+        };
+
+        CCScene::get()->addChild(layer);
+    }
 };

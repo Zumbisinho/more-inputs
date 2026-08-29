@@ -635,7 +635,7 @@ private:
     void onMobileEdit(CCObject *sender) {
         if (!KeybindCache::initialized)
             KeybindCache::init(LevelEditorLayer::get());
-        auto layer = EditMobileKeys::create();
+        auto layer = EditMobileKeys::create(true);
         size_t index = 0;
         for (auto &keybind : KeybindCache::keySettings) {
             CCPoint relativePos = keybind.second.pos;

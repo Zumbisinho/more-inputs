@@ -76,7 +76,7 @@ protected:
 
     virtual void registerWithTouchDispatcher(void);
 
-    virtual bool init();
+    virtual bool init(bool canSave);
 
     virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
 
@@ -107,9 +107,9 @@ public:
     static constexpr CCPoint NullPoint = ccp(-167, -167);
 
     static EditMobileKeys *
-    create() {
+    create(bool canSave) {
         auto ret = new EditMobileKeys();
-        if (ret && ret->init()) {
+        if (ret && ret->init(canSave)) {
             ret->autorelease();
             return ret;
         }
@@ -213,6 +213,8 @@ public:
     };
 
     void saveKeybinds();
+
+    void updateKeys();
 
     void onMenuOpen(CCObject *sender);
 
