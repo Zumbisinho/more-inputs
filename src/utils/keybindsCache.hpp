@@ -21,5 +21,5 @@ namespace KeybindCache {
     inline std::vector<int> mobileKeysToHideOnInit;
     void init(CCLayer* layer);
     void reset();
-    void changeLocalKey(std::string actionName, int newKeyCode);
+    void changeLocalKey(const keybindsAPI::KeyFullSettings &key, int keyCode);
 }

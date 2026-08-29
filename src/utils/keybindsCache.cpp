@@ -15,22 +15,22 @@ namespace KeybindCache {
 bool initialized = false;
 int startId = 0;
 int value = 0;
+template<typename T, typename Predicate>
+void insertOrUpdate(
+    std::vector<T>& vect,
+    Predicate predicate,
+    const T& value
+) {
+    auto it = std::ranges::find_if(vect, predicate);
 
-void insertOrUpdate(std::vector<std::pair<std::string, int>> &keybindsAndAction,
-                    const std::string &actionName, int newValue) {
-    auto it = std::ranges::find(keybindsAndAction, actionName,
-                                &std::pair<std::string, int>::first);
-
-    if (it != keybindsAndAction.end()) {
-
-        it->second = newValue;
-    } else {
-
-        keybindsAndAction.emplace_back(actionName, newValue);
-    }
+    if (it != vect.end())
+        *it = value;
+    else
+        vect.push_back(value);
 }
 
 void init(CCLayer *layer) {
+    log::warn("INICIADO\nINICIADO\nINICIADO\nINICIADO\n");
     auto &json = getConfig();
     // Reset all Variables for safe integration with keybindsAPI
     keyToActionIds.clear();
@@ -62,6 +62,7 @@ void init(CCLayer *layer) {
 };
 
 void reset() {
+    log::warn("REINICIADO\nREINICIADO\nREINICIADO\nREINICIADO\n");
     initialized = false;
     keyToActionIds.clear();
     actionNameToID.clear();
@@ -72,26 +73,44 @@ void reset() {
     mobileKeysToHideOnInit.clear();
 
 };
-void changeLocalKey(std::string actionName, int newKeyCode) {
+void changeLocalKey(const keybindsAPI::KeyFullSettings& key, int keyCode) {
+    auto actionId = key.first;
+
+    int oldKeyCode = -67;
     
-    int oldKeyCode = std::ranges::find(keybindsAndAction, actionName,
-                                       &std::pair<std::string, int>::first)
-                         ->second;
-    int actionID = actionNameToID[actionName];
-    if (keyToActionIds[oldKeyCode].size() ==
-        1) // if more that 1 action, we need just to remove the actionId, else,
-           // remove from keybinds and delete the pair
-    {
+    log::warn("wdasd {} {}",keySettings.size(),initialized);
+    for (auto& keySetting : keySettings) {
+        log::warn("{}{}",keySetting.second.name,keySetting.first);
+        if (keySetting.first == actionId) {
+            oldKeyCode = keySetting.second.keyCode;
+            break;
+        }
+    }
+
+    log::warn("{} | {}",oldKeyCode,keyCode);
+    
+    if (oldKeyCode == -67)
+        return;
+    if (keyToActionIds[oldKeyCode].size() == 1) {
         keybinds.erase(oldKeyCode);
         keyToActionIds.erase(oldKeyCode);
     } else {
-
-        std::erase(keyToActionIds[oldKeyCode], actionID);
+        std::erase(keyToActionIds[oldKeyCode], actionId);
     }
-    keybinds.insert(newKeyCode);
-    keyToActionIds[newKeyCode].push_back(actionID);
-    insertOrUpdate(keybindsAndAction,actionName,newKeyCode);
-   
-};
+
+    keybinds.insert(keyCode);
+    keyToActionIds[keyCode].push_back(actionId);
+
+    auto newKey = key;
+    newKey.second.keyCode = keyCode;
+
+    insertOrUpdate(
+    keySettings,
+    [&](const auto& keySetting) {
+        return keySetting.first == actionId;
+    },
+    newKey
+    );
+}
 
 } // namespace KeybindCache

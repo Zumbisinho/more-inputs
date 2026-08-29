@@ -25,7 +25,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         int id = m_fields->m_defaultModIdentityPickupId;
         int value = m_fields->m_defaultModIdentityValue;
-        KeybindCache::init(this);
         pickupManager::changePickupId(id,value);
 
         return true;
@@ -36,7 +35,6 @@ class $modify(MyPlayLayer, PlayLayer) {
             return;
         int id = m_fields->m_defaultModIdentityPickupId;
         int value = m_fields->m_defaultModIdentityValue;
-        KeybindCache::init(this);
         pickupManager::changePickupId(id,value);
 		
     }
@@ -49,8 +47,8 @@ class $modify(MyPlayLayer, PlayLayer) {
         
         pickupManager::changePickupId(id,value);
     };
-    void onExit() {
-        PlayLayer::onExit();
+    void onQuit() {
+        PlayLayer::onQuit();
         KeybindCache::reset();
     }
 };
