@@ -13,7 +13,7 @@ using namespace geode::prelude;
 
 class setMobileKeyPopup : public Popup {
 
-protected:
+public:
     std::function<void(int)> m_callback;
     bool m_isAlive = true;
     GoffyBuilder::NumericInput* m_input;
