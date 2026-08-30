@@ -4,7 +4,6 @@
 using namespace geode::prelude;
 // ! Boring shit do dooooooooooooooooooo
 std::string keyToString(int key) {
-
     
     if (key >= KEY_A && key <= KEY_Z)
         return std::string(1, 'a' + (key - KEY_A));
@@ -47,21 +46,21 @@ std::string keyToString(int key) {
         case KEY_PageUp: return "pg up";
         case KEY_PageDown: return "pg down";
         
-        case KEY_F1: return "f1";
-        case KEY_F2: return "f2";
-        case KEY_F3: return "f3";
-        case KEY_F4: return "f4";
-        case KEY_F5: return "f5";
-        case KEY_F6: return "f6";
-        case KEY_F7: return "f7";
-        case KEY_F8: return "f8";
-        case KEY_F9: return "f9";
-        case KEY_F10: return "f10";
-        case KEY_F11: return "f11";
-        case KEY_F12: return "f12";
-        case KEY_F13: return "f13";
-        case KEY_F14: return "f14";
-        case KEY_F15: return "f15";
+        case KEY_F1: return "F1";
+        case KEY_F2: return "F2";
+        case KEY_F3: return "F3";
+        case KEY_F4: return "F4";
+        case KEY_F5: return "F5";
+        case KEY_F6: return "F6";
+        case KEY_F7: return "F7";
+        case KEY_F8: return "F8";
+        case KEY_F9: return "F9";
+        case KEY_F10: return "F10";
+        case KEY_F11: return "F11";
+        case KEY_F12: return "F12";
+        case KEY_F13: return "F13";
+        case KEY_F14: return "F14";
+        case KEY_F15: return "F15";
 
         
         case KEY_Multiply: return "num *";
@@ -76,7 +75,8 @@ std::string keyToString(int key) {
         case KEY_OEMMinus: return "-";
         case KEY_OEMComma: return ",";
         case KEY_OEMPeriod: return ".";
-        case 4103: return ";";
+        case 4103: return "/";
+        case 4101: return ";";
         case KEY_OEM2: return "/";
         case 4098: return "`";
         case 4099: return "[";
@@ -92,19 +92,20 @@ std::string keyToString(int key) {
         // remaing
         case 4096: return "'";
 
-        case KEY_LeftShift: return "shift"; 
+        case KEY_LeftShift: return "Lshift"; 
         case 93 :return "menu";
-        case KEY_LeftControl: return "control"; 
+        case KEY_LeftControl: return "Lcontrol"; 
         case KEY_LeftWindowsKey: return "win";
 
-        case KEY_RightShift: return "right shift";
-        case KEY_RightControl: return "right control"; // some reason altGR doesnt detect, it gets translated to this
+        case KEY_RightShift: return "Rshift";
+        case KEY_RightControl: return "Rcontrol"; // some reason altGR doesnt detect, it gets translated to this
         case KEY_RightWindowsKey: return "right win";
+        case KEY_RightMenu: return "Rmenu";
         case KEY_Numlock: return  "num lock";
         
         
         
         default:
-            return "unknown (" + std::to_string(key) + ")";
+            return "unk (" + std::to_string(key) + ")";
     }
 }

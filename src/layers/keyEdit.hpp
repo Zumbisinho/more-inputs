@@ -3,11 +3,12 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
+#include "mobileKeyEdit.hpp"
 #include <Geode/Geode.hpp>
 
-namespace keyEdit {
-class setKeyPopup : public geode::Popup {
-protected:
+
+class setPcKeyPopup : public geode::Popup{
+public:
     std::function<void(int)> m_callback;
     bool m_isAlive = true;
     bool init(std::function<void(int)> cb) {
@@ -45,8 +46,8 @@ protected:
     }
 
 public:
-    static setKeyPopup *create(std::function<void(int)> cb) {
-        auto ret = new setKeyPopup;
+    static setPcKeyPopup *create(std::function<void(int)> cb) {
+        auto ret = new setPcKeyPopup;
         if (ret && ret->init(cb)) {
             ret->autorelease();
             return ret;
@@ -54,6 +55,38 @@ public:
         delete ret;
         return nullptr;
     }
+    static void open(CCObject *, std::function<void(int)> cb) {
+        auto layer = create(cb);
+        layer->show();
+    }
+};
+
+namespace keyEdit {
+class setKeyPopup : public geode::Popup {
+public:
+    #ifdef GEODE_IS_DESKTOP
+    static setPcKeyPopup *create(std::function<void(int)> cb) {
+        auto ret = new setPcKeyPopup;
+        if (ret && ret->init(cb)) {
+            ret->autorelease();
+            return ret;
+        }
+        delete ret;
+        return nullptr;
+    };
+    #else
+    static setMobileKeyPopup *create(std::function<void(int)> cb) {
+        auto ret = new setMobileKeyPopup;
+        if (ret && ret->init(cb)) {
+            ret->autorelease();
+            return ret;
+        }
+        delete ret;
+        return nullptr;
+    };
+    #endif
+    
+
     static void open(CCObject *, std::function<void(int)> cb) {
         auto layer = create(cb);
         layer->show();

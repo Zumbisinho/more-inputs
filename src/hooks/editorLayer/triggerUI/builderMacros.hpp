@@ -107,7 +107,8 @@ public:
         float size,
         ExtraInputWidget ExtraInputWidget,
         bool hasGoldText,
-        bool isVertical
+        bool isVertical,
+        std::function<void(std::string)> cb
     );
     float getNumber() {
         return numFromString<float>(m_input->getString()).unwrapOr(0);
@@ -116,6 +117,7 @@ public:
         m_input->setString(string);
     };
 
+
 protected:
     TextInput *m_input;
     ExtraInputWidget m_side;
@@ -123,6 +125,7 @@ protected:
     float m_maxSlider;
     float m_minSlider;
     bool m_supressSlider;
+    std::function<void(std::string)> m_onChangeCb;
 
 protected:
     bool init(
@@ -130,11 +133,13 @@ protected:
         float size,
         ExtraInputWidget ExtraInputWidget,
         bool hasGoldText,
-        bool isVertical
+        bool isVertical,
+        std::function<void(std::string)> cb
     );
     void onSliderChanged(SliderNode *sender, float value);
 
     void add(CCObject *sender);
     void remove(CCObject *sender);
+    
 };
 }; // namespace GoffyBuilder

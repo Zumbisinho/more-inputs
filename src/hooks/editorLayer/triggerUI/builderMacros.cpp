@@ -412,13 +412,14 @@ NumericInput *NumericInput::create(
     float size,
     ExtraInputWidget ExtraInputWidget,
     bool hasGoldText = true,
-    bool isVertical = true
+    bool isVertical = true,
+    std::function<void(std::string)> cb = nullptr
 ) {
 
     auto ret = new NumericInput();
 
     if (ret &&
-        ret->init(labelName, size, ExtraInputWidget, hasGoldText, isVertical)) {
+        ret->init(labelName, size, ExtraInputWidget, hasGoldText, isVertical,cb)) {
         ret->autorelease();
         return ret;
     }
@@ -432,7 +433,8 @@ bool NumericInput::init(
     float size,
     ExtraInputWidget ExtraInputWidget,
     bool hasGoldText = true,
-    bool isVertical = true
+    bool isVertical = true,
+    std::function<void(std::string)> cb = nullptr
 ) {
     if (!CCMenu::init())
         return false;
@@ -484,12 +486,19 @@ bool NumericInput::init(
 
     auto numberInput = TextInput::create(70.f, "Num");
     m_input = numberInput;
+    numberInput->setCommonFilter(CommonFilter::Uint);
+    numberInput->setFilter("0123456789");
 
     numberInput->setMaxCharCount(4);
+    if (cb) {
+        numberInput->setCallback(cb);
+        m_onChangeCb = cb;
+    };
     m_side = ExtraInputWidget;
     switch (ExtraInputWidget) {
         case ExtraInputWidget::Arrows: {
             numberInput->setCommonFilter(CommonFilter::Uint);
+            numberInput->setFilter("0123456789");
             auto leftSpr =
                 CCSprite::createWithSpriteFrameName("edit_leftBtn_001.png");
 
@@ -668,6 +677,8 @@ void NumericInput::add(CCObject *sender) {
     if (newCur > 9999)
         return;
     m_input->setString(std::to_string(newCur));
+    m_onChangeCb(std::to_string(newCur));
+
     return;
 }
 void NumericInput::remove(CCObject *sender) {
@@ -683,6 +694,7 @@ void NumericInput::remove(CCObject *sender) {
 
     int newCur = getNumber() - 1;
     m_input->setString(std::to_string(newCur));
+    m_onChangeCb(std::to_string(newCur));
     return;
 }
 

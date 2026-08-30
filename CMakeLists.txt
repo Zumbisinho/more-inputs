@@ -15,6 +15,7 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS src/*.hpp)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
+
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
 else()
@@ -22,6 +23,8 @@ else()
 endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+CPMAddPackage("gh:dankmeme01/cue#main") # prefer a specific commit over main
+target_link_libraries(${PROJECT_NAME} cue)
 
 # Set up dependencies, resources, and link Geode.
 setup_geode_mod(${PROJECT_NAME})

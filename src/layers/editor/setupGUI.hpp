@@ -444,14 +444,14 @@ private:
         bool keyTipDeleted = false;
         m_noKeysTip->setVisible(true);
 
-        for (const auto &[actionId, key] : keybinds) {
+        for (const auto &key : keybinds) {
             if (!keyTipDeleted) {
                 m_noKeysTip->setVisible(false);
                 keyTipDeleted = true;
             };
-            const keybindsAPI::KeyFullSettings keyFullSetting = {actionId, key};
+            
             auto Label = KeyBindsSection::create(
-                &keyFullSetting, {m_contentSize.width, 20.f}, m_editCB
+                &key, {m_contentSize.width, 20.f}, m_editCB
             );
             m_contentLayer->addChild(Label);
         };
