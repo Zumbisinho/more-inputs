@@ -181,21 +181,11 @@ PopupConfig customTriggers::EditKeybindTrigger::getEditConfig(const Selected &se
         .width(440.f)
         .title("Edit Keybind Trigger")
         .info(InfoPopup::builder().title("Help")
-            .description("Listens for a <cy>player action</c> and activates groups when "
-            "that action is detected. Use the <cj>Action</c> selector to "
-            "choose which input event this trigger will monitor."
+            .description("Enables/Disables the selected key, "
+            "when disable, both mobile button and the press are disabled."
 
-            "\n<cs>Press ID:</c> the group that will be activated "
-            "when the selected action key is <cg>pressed</c>."
-
-            "\n<cs>Release ID:</c> the group that will be activated "
-            "when the selected action key is <cr>released</c>."
-
-            "\n<cj>Action:</c> determines which player input this trigger will "
-            "listen for."
-
-            "\n<co>Disarm On First Key</c> causes the trigger to deactivate "
-            "itself after the first valid input is detected.")
+            "\n<cs>Activate Keybind:</c> enables/disables the selected key."
+            )
         .build())
         .menu(CustomValueMenu::builder()
             .id("edit-keybind-macro-dropdown"_spr)
@@ -209,7 +199,7 @@ PopupConfig customTriggers::EditKeybindTrigger::getEditConfig(const Selected &se
             .gap(20)
             .padding({20,60,20,0})
             .menu(ToggleMenu::builder()
-                .title("Activate Group")
+                .title("Activate Keybind")
                 .id("edit-keybind-activate"_spr)
                 .onValue([](const bool value, const Selected &selected, Popup *popup) {
                     applyValueToSelected(selected, &EditKeybindTrigger::m_disableKey, value);

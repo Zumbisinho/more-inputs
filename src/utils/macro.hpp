@@ -33,17 +33,17 @@ void addLLSATCBs(std::function<void(std::vector<EffectGameObject *>)> func, int 
 #define $Alter(x, y) \
     [this](auto &self) { self.x = y; }
 
-#define setMacroId(x) \
+#define setMacroId(x)                                                    \
     static inline const std::string macroId = std::string(x) + "-macro"; \
-    std::string getMacroId() const override { \
-        return macroId; \
+    std::string getMacroId() const override {                            \
+        return macroId;                                                  \
     }
 
 namespace MacroTriggers {
 
+inline bool ignoreOnCreateCB = false;
+
 extern std::function<void(CCPoint)> macroTriggerOnCreateCallBacks;
-
-
 
 class AbstractMacroAuxiliarTrigger {
 protected:
@@ -52,7 +52,10 @@ protected:
 
 public:
     EffectGameObject *m_obj = nullptr;
+    int m_objID = 0;
     virtual void applyDynamicProps(EffectGameObject *) {};
+    virtual void applyInitProps() {};
+    virtual void createTrigger(CCPoint pos, int id, int controlId) {};
 };
 
 template <std::derived_from<EffectGameObject> ClassType, int triggerObjId>
@@ -88,7 +91,7 @@ public:
         (m_initPropSetting.emplace_back(std::forward<Funcs>(funcs)), ...);
     }
 
-    void applyInitProps() {
+    void applyInitProps() override{
         geode::log::warn("m_obj = {}", fmt::ptr(m_obj));
 
         if (!m_obj) {
@@ -97,13 +100,13 @@ public:
         }
 
         for (auto &alteration : m_initPropSetting) {
-            alteration(*static_cast<ClassType*>(m_obj));
+            alteration(*static_cast<ClassType *>(m_obj));
         }
 
         m_initPropSetting.clear();
     }
 
-    void createTrigger(CCPoint pos, int id, int controlId) {
+    void createTrigger(CCPoint pos, int id, int controlId) override {
         auto obj = LevelEditorLayer::get()->createObject(
             triggerObjId,
             pos,
@@ -131,16 +134,13 @@ public:
             fmt::ptr(&m_obj)
         );
     }
-
 };
 
 class macroTrigger : public object_collab::CustomObject<EffectGameObject> {
 
-    
-
 public:
     static inline std::string macroId;
-    std::vector<AbstractMacroAuxiliarTrigger *> m_auxTriggers;
+    std::vector<AbstractMacroAuxiliarTrigger *> m_auxTriggers = {};
     virtual std::string getMacroId() const {
         return macroId;
     }
@@ -162,28 +162,44 @@ public:
 
     macroTrigger(ObjectInfo *info, ObjectTraits traits);
 
-    template <typename... Triggers>
-    void createTriggers(Triggers &...triggers) {
+    void createTriggers() {
+        if (ignoreOnCreateCB){
+            ignoreOnCreateCB = false;
+            return;
+        };
+        auto nextFreeControlId = LevelCache::getNextFreeControlId();
+        
+        this->m_controlID = nextFreeControlId;
+
+        macroTriggerOnCreateCallBacks = createCallback(nextFreeControlId, m_auxTriggers);
+    }
+    void createTriggersAtPos(const CCPoint &pos) {
+        log::warn("create trigers at la pose");
         auto nextFreeControlId = LevelCache::getNextFreeControlId();
 
         this->m_controlID = nextFreeControlId;
 
-        macroTriggerOnCreateCallBacks =
-            createCallback(nextFreeControlId, triggers...);
+        CCArray *toSelect = CCArray::create();
+        for (auto &trig : m_auxTriggers) {
+            trig->createTrigger(pos, trig->m_objID, nextFreeControlId);
+            trig->applyInitProps();
+            toSelect->addObject(trig->m_obj);
+        }
+
+        EditorUI::get()->selectObjects(toSelect, true);
+        
     }
 
-    template <typename... Triggers>
-    auto createCallback(int controlId, Triggers &...triggers) {
-        return [controlId, &triggers...](CCPoint point) {
-            CCArray* toSelect = CCArray::create(); 
-            (
-                (
-                    triggers.createTrigger(point, triggers.m_objID, controlId),
-                    triggers.applyInitProps(),
-                    toSelect->addObject(triggers.m_obj)
-                ),
-                ...);
-            EditorUI::get()->selectObjects(toSelect,true);
+    std::function<void(CCPoint)> createCallback(int controlId, std::vector<AbstractMacroAuxiliarTrigger *> triggers) {
+        return [controlId, triggers](CCPoint point) {
+            CCArray *toSelect = CCArray::create();
+            for (auto &trig : triggers) {
+                trig->createTrigger(point, trig->m_objID, controlId);
+                trig->applyInitProps();
+                toSelect->addObject(trig->m_obj);
+            }
+
+            EditorUI::get()->selectObjects(toSelect, true);
         };
     }
     void createInitLinkageCallback(int controlId, std::vector<AbstractMacroAuxiliarTrigger *> &triggers) {
@@ -200,12 +216,13 @@ public:
     void selectAllAux();
 
     void selfSelect();
-    
+
+    void changeAllControlId(int controlId);
 };
 
 #define $macro(name) \
     name:            \
 public               \
-    MacroTriggers::macroTrigger 
+    MacroTriggers::macroTrigger
 
 } // namespace MacroTriggers

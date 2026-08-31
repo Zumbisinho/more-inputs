@@ -42,12 +42,13 @@ public:
     MacroAuxiliarTrigger<CountTriggerGameObject, 1611> m_pressCount;
     MacroAuxiliarTrigger<CountTriggerGameObject, 1611> m_releaseCount;
 
-    void customInit() override {
-        // invisible colo
-        // Aux Trigger Init
-        if (!KeybindCache::initialized)
-            KeybindCache::init(LevelEditorLayer::get() ? (CCLayer *)LevelEditorLayer::get() : (CCLayer *)PlayLayer::get());
+    TouchMacroTrigger(ObjectInfo *info) : MacroTriggers::macroTrigger(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
+        // add the triggers to the vec
+        m_auxTriggers.push_back(&m_pressCount);
+        m_auxTriggers.push_back(&m_releaseCount);
 
+        if (!KeybindCache::initialized)
+            KeybindCache::init(GJBaseGameLayer::get());
         m_pressCount.addInitProps(
             $Alter(m_zOrder, -67),
             $Alter(m_activateGroup, true),
@@ -64,14 +65,6 @@ public:
             $Alter(m_scaleX, 0.25f),
             $Alter(m_scaleY, 0.25f)
         );
-
-        createTriggers(m_pressCount, m_releaseCount);
-    }
-
-    TouchMacroTrigger(ObjectInfo *info) : MacroTriggers::macroTrigger(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
-        // add the triggers to the vec
-        m_auxTriggers.push_back(&m_pressCount);
-        m_auxTriggers.push_back(&m_releaseCount);
 
         m_pressCount.addDynamicProps(
             $Alter(m_itemID, !KeybindCache::keySettings.empty() ? KeybindCache::keySettings[*&m_actionIndex].first : 0),

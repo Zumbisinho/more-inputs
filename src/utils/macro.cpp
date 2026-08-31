@@ -17,8 +17,9 @@
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/SetupTriggerPopup.hpp>
 #include <Geode/modify/CustomizeObjectLayer.hpp>
-#include <Geode/modify/EditGameObjectPopup.hpp>
+#include <Geode/modify/EditTriggersPopup.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/modify/LevelEditorLayer.hpp>
 #include <vector>
 
 template <typename T>
@@ -39,6 +40,21 @@ macroTrigger::macroTrigger(
 )
     : CustomObject(info, std::move(traits)) {
 }
+// on Delete func
+class $modify(LevelEditorLayer){
+    void removeSpecial(GameObject* object) {
+        auto macro = typeinfo_cast<macroTrigger *>(object);
+        if (macro){
+            LevelCache::freeControlId(macro->m_controlID);
+            LevelCache::m_macroTriggers.erase(macro->m_controlID);
+        }
+        if (auto EUI = EditorUI::get())
+            EUI->deselectObject(object);
+        LevelEditorLayer::removeSpecial(object);
+        log::warn("deleted {}\n",object);
+    }
+};
+
 
 class $modify(GetEditorUI, EditorUI) {
     static void onModify(auto &self) {
@@ -53,6 +69,7 @@ class $modify(GetEditorUI, EditorUI) {
         EditorUI::selectObject(object, ignoreFilter);
         if (m_fields->ignoreSelect)
             return;
+        log::warn("To selecionado\n{}",object);
         // if its selecting the macro itself
         if (auto macro = typeinfo_cast<macroTrigger *>(object)) {
             if (macro->m_auxTriggers[0]->m_obj == nullptr) // onCreate the aux are not ready
@@ -75,18 +92,17 @@ class $modify(GetEditorUI, EditorUI) {
         EditorUI::selectObjects(objects, ignoreFilter);
         if (m_fields->ignoreSelect)
             return;
-        for (auto &object : objects->asExt<GameObject *>()) {
+        log::warn("To selecionado\n{}",objects);
+        for (auto object : objects->asExt<GameObject *>()) {
             // if its selecting the macro itself
             if (auto macro = typeinfo_cast<macroTrigger *>(object)) {
                 macro->selectAllAux();
-                log::warn("e macro");
                 return;
             }
             // selecting a aux trigger
             if (auto auxTrigger = typeinfo_cast<EffectGameObject *>(object)) {
                 if (auxTrigger->m_objectMaterial == LevelCache::IdentityMaterialId) {
                     auto macro = LevelCache::m_macroTriggers[auxTrigger->m_controlID];
-                    log::warn("e trig");
                     macro->selectAllAux();
                     macro->selfSelect();
                 }
@@ -144,6 +160,38 @@ class $modify(GetEditorUI, EditorUI) {
         EditorUI::editObject(sender);
     }
 
+    gd::string copyObjects(CCArray* objects, bool copyColors, bool sort) {
+        auto copy = objects->shallowCopy();
+        for (auto& obj : copy->asExt<GameObject*>()){
+            auto macro = typeinfo_cast<macroTrigger *>(obj);
+            if (!macro)
+                continue;
+            for (auto& aux: macro->m_auxTriggers){
+                copy->removeObject(aux->m_obj);
+            }
+
+        };
+        gd::string ret = EditorUI::copyObjects(copy, copyColors, sort);
+        //selectObjects(copy,true);
+        return ret;
+    }
+
+    CCArray *pasteObjects(gd::string str, bool withColor, bool noUndo) {
+        ignoreOnCreateCB = true;
+        CCArray *ret = EditorUI::pasteObjects(str, withColor, noUndo);
+        log::warn("{}", ret);
+        for (auto& GO : ret->asExt<GameObject>()){
+            auto macro = typeinfo_cast<macroTrigger *>(GO);
+            if (!macro)
+                continue;
+            macro->createTriggersAtPos(macro->getPosition());
+            macro->bulkApplyDynamicProps();
+            LevelCache::m_macroTriggers[macro->m_controlID] = macro;
+        }
+        
+        return ret;
+    }
+
     void onCreateObject(int id) {
         EditorUI::onCreateObject(id);
 
@@ -196,8 +244,26 @@ class $modify(idk, CustomizeObjectLayer) {
         CustomizeObjectLayer::onClose(sender);
     }
 };
+class $modify(idk2,EditTriggersPopup) {
+    void onClose(CCObject *sender) {
+        auto EUI = EditorUI::get();
+        auto selected = EUI->m_selectedObjects->shallowCopy();
+
+        static_cast<GetEditorUI *>(EUI)->m_fields->ignoreSelect = false;
+        if (EUI->m_selectedObject)
+            selected->addObject(EUI->m_selectedObject);
+        for (auto &obj : selected->asExt<GameObject *>()) {
+            if (auto macro = typeinfo_cast<macroTrigger *>(obj)) {
+                macro->selectAllAux();
+            };
+        }
+
+        EditTriggersPopup::onClose(sender);
+    }
+};
 
 void macroTrigger::firstSetup() {
+    createTriggers();
     customInit();
     m_objectMaterial = LevelCache::IdentityMaterialId;
     LevelCache::m_macroTriggers[this->m_controlID] = this;
@@ -209,7 +275,7 @@ void macroTrigger::selectAllAux() {
     auto toSelect = CCArray::create();
 
     static_cast<GetEditorUI *>(EUI)->m_fields->ignoreSelect = false;
-    if (!this || m_auxTriggers.empty()) {
+    if (this->m_auxTriggers.empty()) {
         return;
     }
     for (auto &aux : m_auxTriggers) { // 205
@@ -228,13 +294,20 @@ void macroTrigger::selfSelect() {
     auto toSelect = CCArray::create();
 
     static_cast<GetEditorUI *>(EUI)->m_fields->ignoreSelect = false;
-    if (!this)
-        return;
     toSelect->addObject(this);
 
     EUI->selectObjects(toSelect, true);
     EUI->updateButtons();
     EUI->updateObjectInfoLabel();
+};
+
+void macroTrigger::changeAllControlId(int controlId){
+    this->m_controlID = controlId;
+    for (auto& trig : m_auxTriggers){
+        if (!trig->m_obj)
+            continue;
+        trig->m_obj->m_controlID = controlId;
+    };
 };
 
 } // namespace MacroTriggers

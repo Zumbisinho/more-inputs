@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -22,13 +23,14 @@ using namespace geode::prelude;
 namespace LevelCache {
 static short IdentityMaterialId = getConfig()["keyBindsIdentityMaterialId"].asInt().unwrapOrDefault();
 static int StartControlId = getConfig()["keyBindsIdentityStartControlId"].asInt().unwrapOr(67);
-inline std::vector<int> freeControlIds;
+inline std::set<int> freeControlIds;
 inline int maxFreeControlId = StartControlId;
 inline std::unordered_map<int,MacroTriggers::macroTrigger*> m_macroTriggers;
 inline std::unordered_map<int,std::function<void(std::vector<EffectGameObject*>)>> onLevelLoadSetupAuxTriggersCallbacks; // {ControlId : list of all auxTriggers Pointers}
 
 int getNextFreeControlId();
 
+void freeControlId(int controlId);
 void init(LevelEditorLayer *layer);
 
 void addLLSATCBs(std::function<void(std::vector<EffectGameObject*>)> func, int controlId);

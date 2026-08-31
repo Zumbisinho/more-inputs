@@ -13,7 +13,7 @@
 - ~~Add a enable/disable Snap button~~
 - _Add a side menu to config text label, size and input a image moved to 2.1.0_
 - ~~Add the mobile preview to the level editor thing~~
-- Add a keyboard to mobile player add the key -- ui done just need to implement only on mobile  #ifdef GEODE_IS_MOBILE
+- ~~Add a keyboard to mobile player add the key -- ui done just need to implement only on mobile  #ifdef GEODE_IS_MOBILE~~
 - ~~Add the edit local mobile buttons~~
 - ~~hook the EditorUI::editObject to temp remove the aux triggers from the m_selectedObjects soo the ObjectCollabApi only process the customtriggers, and right after realocate the objs to the m_selectedObjs~~
 - ~~every time you select a macro or a aux trigger, it selects all (link control or something);~~
@@ -35,7 +35,8 @@
 - ~~fix it to be playable on my pohne~~
 - ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
 - free control ids when deleting macros.
-- duplicating a macro needs to changes its control id
+- ~~duplicating a macro needs to changes its control id~~
+- ~~keybind togle needs info rewrite and activate gourp -> activate keybind~~
 
 # To be Refactored
 

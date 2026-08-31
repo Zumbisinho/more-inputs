@@ -6,21 +6,20 @@
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <string>
 
-template <typename T>
-bool removeValue(std::vector<T> &vec, const T &value) {
-    auto it = std::find(vec.begin(), vec.end(), value);
 
-    if (it == vec.end())
-        return false;
-
-    vec.erase(it);
-    return true;
-}
+void LevelCache::freeControlId(int controlId){
+    if (controlId > maxFreeControlId)
+        return;
+    if (controlId < StartControlId)
+        return;
+    freeControlIds.insert(controlId);
+    geode::log::warn("freed {} {}",controlId,freeControlIds);
+};
 
 int LevelCache::getNextFreeControlId() {
     if (!freeControlIds.empty()) { // if not reach the max
-        auto toReturn = freeControlIds.front();
-        removeValue(freeControlIds, toReturn);
+        auto toReturn = *freeControlIds.begin();
+        freeControlIds.erase(toReturn);
         return toReturn;
     } else {
         return ++maxFreeControlId;
@@ -87,13 +86,13 @@ void LevelCache::init(LevelEditorLayer *layer) {
         };
         if (controlId > minFreeControlId) { // greater that min + 1
             if (controlId < maxFreeControlId) {
-                removeValue(freeControlIds, controlId);
+               freeControlIds.erase(controlId);
                 return;
             };
             if (controlId > maxFreeControlId) {
                 for (int i = maxFreeControlId + 1; i < controlId; i++) {
                     log::warn("To no loop o i agr é: {} eo max e o control id {} {}", i, maxFreeControlId, controlId);
-                    freeControlIds.push_back(i);
+                    freeControlIds.insert(i);
                 };
                 maxFreeControlId = controlId;
                 return;
