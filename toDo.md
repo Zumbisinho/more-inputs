@@ -1,3 +1,10 @@
+# Remmeber
+SMJS Ícone de cargo, Index Staff (role) — 16:33
+not with primitives, strings and vectors
+primitives are trival to copy
+strings you use std::string_view or ZStringView if you plan to c_str it and just copy the view
+vectors you std::span and just copy the span
+
 # To be Added
 
 - ~~Mobile Button Port~~
@@ -34,7 +41,7 @@
 
 - ~~fix it to be playable on my pohne~~
 - ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
-- free control ids when deleting macros.
+- ~~free control ids when deleting macros.~~
 - ~~duplicating a macro needs to changes its control id~~
 - ~~keybind togle needs info rewrite and activate gourp -> activate keybind~~
 
