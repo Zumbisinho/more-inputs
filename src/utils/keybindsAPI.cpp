@@ -26,24 +26,29 @@ using namespace geode::prelude;
 namespace keybindsAPI {
 // ? helper functions
 
-matjson::Value formatInJson(const KeybindValue *values) {
-    auto newObj = matjson::Value::object();
-    auto posArr = matjson::Value::array();
-    posArr.push(values->pos.x);
-    posArr.push(values->pos.y);
-    auto sizeArr = matjson::Value::array();
-    sizeArr.push(values->contentSize.width);
-    sizeArr.push(values->contentSize.height);
 
-    newObj["name"] = values->name;
-    newObj["keyCode"] = values->keyCode;
-    newObj["isSpr"] = values->isSpr;
-    newObj["position"] = posArr;
-    newObj["contentSize"] = sizeArr;
-    newObj["buttonLabel"] = values->buttonLabel;
+KeybindValue KeybindValue::parse(std::string name, int keyCode, bool isSpr, CCPoint pos, CCSize contentSize, std::string buttonLabel,MobileKeySprProps mksp) {
+        auto dummy = matjson::Value::object();
+        auto positionArray = matjson::Value::array();
+        auto sizeArray = matjson::Value::array();
+        
+        positionArray.push(pos.x);
+        positionArray.push(pos.y);
 
-    return newObj;
+        sizeArray.push(contentSize.width);
+        sizeArray.push(contentSize.height);
+
+        dummy["name"] = name;
+        dummy["keyCode"] = keyCode;
+        dummy["isSpr"] = isSpr;
+        dummy["position"] = positionArray;
+        dummy["contentSize"] = sizeArray;
+        dummy["buttonLabel"] = buttonLabel;
+        dummy["mobileKeySprProps"] = mksp;
+        return KeybindValue{dummy};
 };
+
+
 std::string versionStr = Mod::get()->getVersion().toVString();
 matjson::Value getDefaultJson() {
     matjson::Value keybinds = matjson::Value::object();
@@ -120,7 +125,7 @@ void addKeyToJson(
 
     if (nextFree.pos == 0 ||
         nextFree.pos == -1) { // first interraction or last pos
-        (*json)["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
+        (*json)["keybinds"][std::to_string(nextFree.actionId)] = matjson::Value(*keySettings);
         geode::log::warn("AddKeyToJson 0 or -1 condition : {}", json->dump());
         return;
     }
@@ -130,7 +135,7 @@ void addKeyToJson(
     for (auto const &[key, value] : (*json)["keybinds"]) {
         if (idx++ == nextFree.pos) {
             geode::log::warn("Item {} é a posição, mudando", key);
-            newObj["keybinds"][std::to_string(nextFree.actionId)] = formatInJson(keySettings);
+            newObj["keybinds"][std::to_string(nextFree.actionId)] = matjson::Value(*keySettings);
         };
         newObj["keybinds"][key] = value;
         geode::log::warn("Item {}, {}", key, newObj.dump());
@@ -150,7 +155,7 @@ void editKeybind(
     for (auto const &[key, value] : (*json)["keybinds"]) {
         int curActionId = numFromString<int>(key).unwrapOr(0);
         if (curActionId == actionId && !asFounded) {
-            newObj["keybinds"][key] = formatInJson(newKeySettings);
+            newObj["keybinds"][key] = matjson::Value(*newKeySettings);
             asFounded = true;
         } else {
             newObj["keybinds"][key] = value;
@@ -274,7 +279,7 @@ void convertLevelKeybinds(LevelEditorLayer *layer) {
         }
 
         auto dummy = createPcValue(actionName, keycodeInt, anotherIndexThing);
-        newObj["keybinds"][std::to_string(idx++)] = formatInJson(&dummy);
+        newObj["keybinds"][std::to_string(idx++)] = matjson::Value(dummy);
     };
     alpha::level_storage::setSavedValue(layer, "config", newObj);
     KeybindCache::reset();
@@ -295,7 +300,9 @@ inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, in
     CCPoint relPos = absToRel(absX, absY);
 
     index++;
-    return keybindsAPI::KeybindValue::parse(name, keyCode, false, relPos, CCSize{50, 50}, name);
+    return keybindsAPI::KeybindValue::parse(name, keyCode, false, relPos, CCSize{50, 50}, name,MobileKeySprProps::getDefault());
 };
+
+
 
 } // namespace keybindsAPI

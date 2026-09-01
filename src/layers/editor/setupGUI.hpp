@@ -366,7 +366,7 @@ private:
 
         auto oldKeySettings = m_keySetting.second;
 
-        auto newKeyValue = keybindsAPI::KeybindValue::parse(actionName, m_keyCode, oldKeySettings.isSpr, oldKeySettings.pos, oldKeySettings.contentSize, oldKeySettings.buttonLabel);
+        auto newKeyValue = keybindsAPI::KeybindValue::parse(actionName, m_keyCode, oldKeySettings.isSpr, oldKeySettings.pos, oldKeySettings.contentSize, oldKeySettings.buttonLabel,oldKeySettings.mobileKeySprProps);
         if (actionName.empty())
             return;
 

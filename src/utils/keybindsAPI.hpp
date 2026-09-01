@@ -22,26 +22,10 @@ inline void resetCurButtonIdx() {
     log::warn("Resetado");
 };
 
-struct MobileKey {
-    bool isSpr;
-    CCPoint pos;
-    CCSize contentSize;
-    std::string buttonLabel;
-
-    MobileKey(
-        std::string buttonLabel, bool isSpr, CCPoint pos, CCSize contentSize
-    )
-        : buttonLabel(buttonLabel), isSpr(isSpr), pos(pos),
-          contentSize(contentSize) {};
-};
-
-struct KeybindValue {
-    KeybindValue() = default;
-
-
-private:
+struct MatJsonUtils {
+protected:
     // ? helper functions
-
+    
     using JSONArray = std::vector<matjson::Value>;
     template <typename returnType>
     returnType getOr(matjson::Value json, returnType defaultValue) {
@@ -59,12 +43,86 @@ private:
                 toReturn.push_back(result.unwrap());
         };
         if (toReturn.size() == 0) {
-            toReturn.push_back(defaultValue[0].as<returnType>().unwrapOrDefault());
-            toReturn.push_back(defaultValue[1].as<returnType>().unwrapOrDefault());
+            for (auto& value: defaultValue){
+                toReturn.push_back(value.as<returnType>().unwrapOrDefault());
+            }
         }
         return toReturn;
     };
+    JSONArray defaultArray = {0, 0};
 
+};
+
+struct MobileKey {
+    bool isSpr;
+    CCPoint pos;
+    CCSize contentSize;
+    std::string buttonLabel;
+
+    MobileKey(
+        std::string buttonLabel, bool isSpr, CCPoint pos, CCSize contentSize
+    )
+        : buttonLabel(buttonLabel), isSpr(isSpr), pos(pos),
+          contentSize(contentSize) {};
+};
+
+struct MobileKeySprProps : MatJsonUtils{
+public:
+    ccColor3B color;
+    float rotation;
+    CCPoint offset;
+    CCSize scale;
+    bool invertedX;
+    bool invertedY;
+
+    MobileKeySprProps() = default;
+
+    MobileKeySprProps(matjson::Value props){
+        auto colorArray = getArray<GLubyte>(props["color"],{ 255, 255, 255 });
+        color = ccc3(colorArray[0],colorArray[1],colorArray[2]);
+
+        rotation = getOr<float>(props["rotation"], 0);
+
+        auto positionArray = getArray<float>(props["offset"], defaultArray);
+        offset = CCPoint{positionArray[0], positionArray[1]};
+
+        auto contentSizeArray = getArray<float>(props["scale"], {1,1});
+        scale = CCSize{contentSizeArray[0], contentSizeArray[1]};
+
+        invertedX = getOr<bool>(props["invertedX"], false);
+
+        invertedY = getOr<bool>(props["invertedY"], false);
+    };
+    static MobileKeySprProps parse(ccColor3B color,float rotation,CCPoint offset,CCSize scale,bool invertedX,bool invertedY) {
+        auto dummy = matjson::Value::object();
+        auto colorArray = matjson::Value::array();
+        auto positionArray = matjson::Value::array();
+        auto sizeArray = matjson::Value::array();
+
+        colorArray.push(color.r);
+        colorArray.push(color.g);
+        colorArray.push(color.b);
+
+        positionArray.push(offset.x);
+        positionArray.push(offset.y);
+
+        sizeArray.push(scale.width);
+        sizeArray.push(scale.height);
+
+        dummy["color"] = colorArray;
+        dummy["rotation"] = rotation;
+        dummy["offset"] = positionArray;
+        dummy["scale"] = sizeArray;
+        dummy["invertedX"] = invertedX;
+        dummy["invertedY"] = invertedY;
+        return MobileKeySprProps{dummy};
+    };
+    static MobileKeySprProps getDefault(){
+        return parse({255,255,255},0,{0,0},{1,1},false,false);
+    }
+};
+
+struct KeybindValue : MatJsonUtils {
 public:
     std::string name;
     int keyCode;
@@ -72,9 +130,11 @@ public:
     CCPoint pos;
     CCSize contentSize;
     std::string buttonLabel;
+    MobileKeySprProps mobileKeySprProps;
+
+    KeybindValue() = default;
 
     KeybindValue(matjson::Value keySettings) {
-        JSONArray defaultArray = {0, 0};
         name = getOr<std::string>(keySettings["name"], "name");
 
         keyCode = getOr(keySettings["keyCode"], -67);
@@ -82,39 +142,18 @@ public:
         buttonLabel = getOr<std::string>(keySettings["buttonLabel"], "name");
         isSpr = getOr(keySettings["isSpr"], false);
 
-        auto positionArray =
-            getArray<float>(keySettings["position"], defaultArray);
+        auto positionArray = getArray<float>(keySettings["position"], defaultArray);
         pos = CCPoint{positionArray[0], positionArray[1]};
 
-        auto contentSizeArray =
-            getArray<float>(keySettings["contentSize"], defaultArray);
+        auto contentSizeArray = getArray<float>(keySettings["contentSize"], defaultArray);
         contentSize = CCSize{contentSizeArray[0], contentSizeArray[1]};
+ 
+        mobileKeySprProps = getOr<MobileKeySprProps>(keySettings["mobileKeySprProps"],MobileKeySprProps::getDefault());
     };
-    // ? Debug
-    //~KeybindValue(){
-    //    log::info("Object Killed: {}",this->name);
-    //    //__debugbreak();
-    //};
-    static KeybindValue parse(std::string name, int keyCode, bool isSpr, CCPoint pos, CCSize contentSize, std::string buttonLabel) {
-        auto dummy = matjson::Value::object();
-        auto positionArray = matjson::Value::array();
-        auto sizeArray = matjson::Value::array();
-
-        positionArray.push(pos.x);
-        positionArray.push(pos.y);
-
-        sizeArray.push(contentSize.width);
-        sizeArray.push(contentSize.height);
-
-        dummy["name"] = name;
-        dummy["keyCode"] = keyCode;
-        dummy["isSpr"] = isSpr;
-        dummy["position"] = positionArray;
-        dummy["contentSize"] = sizeArray;
-        dummy["buttonLabel"] = buttonLabel;
-        return KeybindValue{dummy};
-    };
+    static KeybindValue parse(std::string name, int keyCode, bool isSpr, CCPoint pos, CCSize contentSize, std::string buttonLabel,MobileKeySprProps mksp);
 };
+
+
 // ? helper functions
 using KeyFullSettings = std::pair<int, KeybindValue>;
 // just convert from numeric Position to a ratio from the screen size
@@ -146,6 +185,41 @@ void convertLevelKeybinds(LevelEditorLayer *layer);
 
 namespace matjson {
 
+
+template <>
+struct Serialize<keybindsAPI::MobileKeySprProps> {
+    static Result<keybindsAPI::MobileKeySprProps> fromJson(Value const &value) {
+        return Ok(keybindsAPI::MobileKeySprProps(value));
+    }
+
+    static Value toJson(keybindsAPI::MobileKeySprProps const &value) {
+        auto json = Value::object();
+
+        auto color = Value::array();
+        color.push(value.color.r);
+        color.push(value.color.g);
+        color.push(value.color.b);
+
+        auto offset = Value::array();
+        offset.push(value.offset.x);
+        offset.push(value.offset.y);
+
+        auto scale = Value::array();
+        scale.push(value.scale.width);
+        scale.push(value.scale.height);
+
+        json["color"] = color;
+        json["rotation"] = value.rotation;
+        json["offset"] = offset;
+        json["scale"] = scale;
+        json["invertedX"] = value.invertedX;
+        json["invertedY"] = value.invertedY;
+
+        return json;
+    }
+};
+
+
 template <>
 struct Serialize<keybindsAPI::KeybindValue> {
     static Result<keybindsAPI::KeybindValue> fromJson(Value const &value) {
@@ -169,6 +243,7 @@ struct Serialize<keybindsAPI::KeybindValue> {
         json["pos"] = pos;
         json["contentSize"] = size;
         json["buttonLabel"] = value.buttonLabel;
+        json["mobileKeySprProps"] = value.mobileKeySprProps;
 
         return json;
     }

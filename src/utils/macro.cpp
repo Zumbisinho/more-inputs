@@ -51,7 +51,6 @@ class $modify(LevelEditorLayer){
         if (auto EUI = EditorUI::get())
             EUI->deselectObject(object);
         LevelEditorLayer::removeSpecial(object);
-        log::warn("deleted {}\n",object);
     }
 };
 

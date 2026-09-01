@@ -40,6 +40,8 @@ vectors you std::span and just copy the span
 - Remake the mobile button to a good version
 
 - ~~fix it to be playable on my pohne~~
+- add a system that shows a popup when versions is outdated
+- add the new params to the saving system to not fuck up my next month
 - ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
 - ~~free control ids when deleting macros.~~
 - ~~duplicating a macro needs to changes its control id~~
