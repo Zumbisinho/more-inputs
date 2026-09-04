@@ -18,7 +18,6 @@
 #include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <functional>
 #include <string>
-#include <sys/stat.h>
 #include <vector>
 
 using namespace geode::prelude;

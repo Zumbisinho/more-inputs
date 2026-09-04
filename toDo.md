@@ -9,7 +9,7 @@ vectors you std::span and just copy the span
 
 - ~~Mobile Button Port~~
 - ~~Add a trigger that detect if the mod is loaded~~ *the object collab already does that*
-- Add a splash art from the icon to the Tab
+- ~~Add a splash art from the icon to the Tab~~
 - ~~Add a cache when selecting custom triggers~~ *new api for doing that*
 - ~~Add a Automatic UI system for lazy ass people~~
 - ~~Add a trigget to enable/disable a key (most for mobiles)~~ *almost that, just need to disable from pc*

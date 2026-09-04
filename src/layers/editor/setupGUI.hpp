@@ -639,11 +639,14 @@ private:
         size_t index = 0;
         for (auto &keybind : KeybindCache::keySettings) {
             CCPoint relativePos = keybind.second.pos;
+            log::warn("RelativePos: {}",relativePos);
             CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
 
             auto btn = MobileButton::create(&keybind);
             btn->setAnchorPoint({0.5, 0.5});
-            btn->setPosition(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
+            auto pos = CCPoint{relativePos.x * screenSize.width, relativePos.y * screenSize.height};
+            btn->setPosition(pos);
+            log::warn("Posicao: {}",pos);
             layer->addNode(btn, index++ != 0, true);
             layer->calcSnaps();
         };

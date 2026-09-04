@@ -41,7 +41,7 @@ KeybindValue KeybindValue::parse(std::string name, int keyCode, bool isSpr, CCPo
         dummy["name"] = name;
         dummy["keyCode"] = keyCode;
         dummy["isSpr"] = isSpr;
-        dummy["position"] = positionArray;
+        dummy["pos"] = positionArray;
         dummy["contentSize"] = sizeArray;
         dummy["buttonLabel"] = buttonLabel;
         dummy["mobileKeySprProps"] = mksp;
@@ -286,7 +286,7 @@ void convertLevelKeybinds(LevelEditorLayer *layer) {
 
 };
 
-inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, int &index) {
+keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, int &index) {
 
     auto screenSize = CCDirector::sharedDirector()->getWinSize();
     int threshold = floor((screenSize.width / 60)) -3; // to not overdraw on the plataform move thing

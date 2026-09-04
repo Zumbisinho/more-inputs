@@ -142,7 +142,7 @@ public:
         buttonLabel = getOr<std::string>(keySettings["buttonLabel"], "name");
         isSpr = getOr(keySettings["isSpr"], false);
 
-        auto positionArray = getArray<float>(keySettings["position"], defaultArray);
+        auto positionArray = getArray<float>(keySettings["pos"], defaultArray);
         pos = CCPoint{positionArray[0], positionArray[1]};
 
         auto contentSizeArray = getArray<float>(keySettings["contentSize"], defaultArray);
@@ -162,7 +162,7 @@ inline CCPoint absToRel(float x, float y) {
     return ccp(x / screenSize.width, y / screenSize.height);
 };
 
-inline keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode,int& index);
+keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode,int& index);
 
 std::unordered_set<int> getLevelKeyBindsRaw(CCLayer *layer);
 std::vector<std::pair<std::string, int>> getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty);

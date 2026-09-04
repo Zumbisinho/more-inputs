@@ -65,8 +65,10 @@ class $modify(GetEditorUI, EditorUI) {
         bool ignoreSelect = false;
     };
     void selectObject(GameObject *object, bool ignoreFilter) {
+        if (!object)
+            return;
         EditorUI::selectObject(object, ignoreFilter);
-        if (m_fields->ignoreSelect)
+        if (m_fields->ignoreSelect) // 69
             return;
         log::warn("To selecionado\n{}",object);
         // if its selecting the macro itself
