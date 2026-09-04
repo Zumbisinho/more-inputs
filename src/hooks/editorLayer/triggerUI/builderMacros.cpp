@@ -346,18 +346,18 @@ bool ToggleOption::init(
         RowLayout::create()
             ->setCrossAxisLineAlignment(AxisAlignment::Center)
             ->setAutoScale(false)
-            ->setGap(5)
+            ->setGap(5.1)
             ->setAutoGrowAxis(10.f)
     );
 
     auto uncheckSpr =
         CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
-    uncheckSpr->setScale(0.75);
+    uncheckSpr->setScale(0.55);
 
     if (!m_sprites.second) { // might be the WORSE way to prevent a leak
         auto checkSpr =
             CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
-        checkSpr->setScale(0.75);
+        checkSpr->setScale(0.55);
 
         uncheckSpr->retain();
         checkSpr->retain();
@@ -403,6 +403,8 @@ void ToggleOption::onCheck(CCObject *sender) {
             m_unCheck->m_checkBtn->setSprite(m_sprites.first);
         };
     }
+    if (m_cb)
+        m_cb(m_isChecked);
 
     return;
 }

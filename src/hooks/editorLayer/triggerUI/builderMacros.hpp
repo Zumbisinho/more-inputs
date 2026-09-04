@@ -90,11 +90,15 @@ public:
             m_checkBtn->setSprite(m_sprites.first);
         }
     }
+    void setCB(std::function<void(bool)> cb){
+        m_cb = cb;
+    }
 
 protected:
     CCMenuItemSpriteExtra *m_checkBtn;
     std::pair<CCSprite *, CCSprite *> m_sprites;
     ToggleOption *m_onCheck;
+    std::function<void(bool)> m_cb;
 
 protected:
     bool init(std::string labelName, float size, ToggleOption *showOnCheck);

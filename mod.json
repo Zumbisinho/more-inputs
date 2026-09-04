@@ -1,11 +1,11 @@
 {
     "geode": "5.10.1",
     "gd": {
-		"win": "2.2081",
-		"android": "2.2081",
-		"ios": "2.2081",
-		"mac": "2.2081"
-	},
+        "win": "2.2081",
+        "android": "2.2081",
+        "ios": "2.2081",
+        "mac": "2.2081"
+    },
     "id": "zumbisinho.more-inputs",
     "name": "More Inputs",
     "version": "v2.0.0",
@@ -14,28 +14,27 @@
     "dependencies": {
         "geode.node-ids": ">=v1.20.0",
         "alphalaneous.level-storage-api": ">=v1.0.0",
-        "alphalaneous.editortab_api" : ">=2.1.5",
-        "smjs.object-collab" : ">=v0.5.5-beta.3"
+        "alphalaneous.editortab_api": ">=2.1.5",
+        "smjs.object-collab": ">=v0.5.5-beta.3"
     },
     "resources": {
         "spritesheets": {
             "Btns": ["resources/*.png"],
-            "MenuArt" : ["resources/menuArt/*.png"]
+            "MenuArt": ["resources/menuArt/*.png"]
         },
-        "files": [
-            "resources/constrains.json"
-        ]
+        "files": ["resources/constrains.json"]
     },
-    "tags": [
-        "editor",
-        "gameplay",
-        "offline",
-        "utility",
-        "enhancement"
-    ],
+    "tags": ["editor", "gameplay", "offline", "utility", "enhancement"],
     "links": {
         "source": "https://github.com/Zumbisinho/more-inputs",
         "community": "https://discord.gg/XW8cm36KxE"
-
+    },
+    "settings": {
+        "mobile-buttons-on-editor": {
+            "type": "bool",
+            "name": "Enable Mobile buttons on editor.",
+            "description": "Enable the Mobile buttons view for the editor level gameplay (usefull for testing mobile layout).",
+            "default": false
+        }
     }
 }

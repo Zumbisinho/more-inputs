@@ -19,8 +19,6 @@ public:
     GoffyBuilder::NumericInput* m_input;
     cue::RadioLogic<int> m_keys;
     CCMenuItemToggler *createButton(int keyCode, float scaleX) {
-        auto keyDefaultSpr = CCLabelBMFont::create(keyToString(keyCode).c_str(), "bigFont.fnt");
-        keyDefaultSpr->setAnchorPoint({0.5f, 0.4f});
         CCSize size = {24, 24};
 
         auto keyOff = ButtonSprite::create(
