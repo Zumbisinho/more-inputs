@@ -127,7 +127,7 @@ private:
         );
         scrollArea->scrollToTop();
 
-        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
+        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIP.png"_spr);
         mobileEditSpr->setScale(0.25);
         auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(KeyBindsLocalConfigGui::onMobileEdit));
 

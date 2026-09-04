@@ -25,6 +25,7 @@ vectors you std::span and just copy the span
 - ~~hook the EditorUI::editObject to temp remove the aux triggers from the m_selectedObjects soo the ObjectCollabApi only process the customtriggers, and right after realocate the objs to the m_selectedObjs~~
 - ~~every time you select a macro or a aux trigger, it selects all (link control or something);~~
 - ~~add a system that shows a popup when versions is outdated~~
+- Add a option like the show hitboxs and ground n shit to show mobile buttons
 
 
 
@@ -38,7 +39,8 @@ vectors you std::span and just copy the span
 - ~~Swithing with a old level to a new one fucks touch trigger UI | *touchmacro.hpp ~171*~~ 
 - ~~Removing the last key left crashes the game.~~
 - ~~Saving the level sometimes ruins the keybind mobile layout~~
-- Remake the mobile button to a good version
+- ~~Remake the mobile button to a good version~~
+- only enable the overlay on mobile
 
 - ~~fix it to be playable on my pohne~~
 

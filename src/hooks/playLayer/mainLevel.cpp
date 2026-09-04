@@ -18,7 +18,7 @@ bool MyPlayLayer::init(GJGameLevel *level, bool useReplay, bool dontCreateObject
 
     auto curVersion = Mod::get()->getVersion();
     auto version = keybindsAPI::getLevelVersion(this);
-    if (curVersion == version) {
+    if (curVersion < version) {
         m_fields->showPopUp = true;
     };
 

@@ -594,7 +594,7 @@ private:
         auto deleteSize = deleteBtn->getScaledContentSize();
         deleteBtn->setPosition({deleteSize.width / 4, deleteSize.height / 4});
 
-        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIProt.png"_spr);
+        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIP.png"_spr);
         mobileEditSpr->setScale(0.25);
         auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(setupKeyBindsGUI::onMobileEdit));
 
