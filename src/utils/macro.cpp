@@ -104,7 +104,7 @@ class $modify(GetEditorUI, EditorUI) {
             if (auto auxTrigger = typeinfo_cast<EffectGameObject *>(object)) {
                 if (auxTrigger->m_objectMaterial == LevelCache::IdentityMaterialId) {
                     auto macro = LevelCache::m_macroTriggers[auxTrigger->m_controlID];
-                    if (macro && !macro->m_auxTriggers.empty() && macro->m_auxTriggers[0]->m_obj == nullptr);
+                    if (macro && !macro->m_auxTriggers.empty() && macro->m_auxTriggers[0]->m_obj == nullptr)
                         return;
                     macro->selectAllAux();
                     macro->selfSelect();

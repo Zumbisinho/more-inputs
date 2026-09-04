@@ -24,6 +24,7 @@ vectors you std::span and just copy the span
 - ~~Add the edit local mobile buttons~~
 - ~~hook the EditorUI::editObject to temp remove the aux triggers from the m_selectedObjects soo the ObjectCollabApi only process the customtriggers, and right after realocate the objs to the m_selectedObjs~~
 - ~~every time you select a macro or a aux trigger, it selects all (link control or something);~~
+- ~~add a system that shows a popup when versions is outdated~~
 
 
 
@@ -40,7 +41,7 @@ vectors you std::span and just copy the span
 - Remake the mobile button to a good version
 
 - ~~fix it to be playable on my pohne~~
-- add a system that shows a popup when versions is outdated
+
 - ~~add the new params to the saving system to not fuck up my next month~~
 - ~~1 time the nextFreecontrolid got a panick and start to overflowing my ram, add a limit ig idk -- tung tung sahurcles and its a garbage problem with accessing non controled id game objects~~ *just .isTrigger() was missing*
 - ~~free control ids when deleting macros.~~

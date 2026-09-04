@@ -154,14 +154,14 @@ class objectCluster {
 public:
     int uniqueId;
     CCSprite* getSprite() {
-        return &m_sprite;
+        return m_sprite;
     }
     void setSprite(CCSprite *spr){
-        m_sprite = *spr;
+        m_sprite = spr;
     }
 
 public:
-    static inline CCSprite m_sprite;
+    static inline CCSprite* m_sprite;
     std::string m_relativeObjectStr;
     CCPointButBetter m_clusterSize;
     CCPointButBetter m_clusterCenter;
