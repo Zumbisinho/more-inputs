@@ -1,3 +1,18 @@
+# 2.0.0 (This is gonna be long)
+- Add Full Mobile Support
+- Refactored Custom Triggers 
+- Refactored Saving System 
+- Added Mobile key edit
+- Removed SoggyBrine
+- Added Keybind Toggle Trigger
+- Added More Input Logo as a *object cluster*
+- Edit Local Mobile keys
+- Added a keyboard to mobile players set action key
+- Trigger Macro API (This is gonna be a separated mod)
+- Not fucking with SemVer anymore
+- UnSupported Level Popup
+
+
 # 1.1.0
 - Fixed not being able to use any keybinds after creating a key
 - Fixed not being able to select the Touch Macro when multi-selecting
