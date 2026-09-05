@@ -118,8 +118,6 @@ class $modify(AddStupidButtons,EditorPauseLayer){
             static_cast<RowLayout*>(shit)->setAutoScale(false);
         if (!stupidList)
             return true;
-        auto on = CCSprite::createWithSpriteFrameName("GJ_checkOn_001.png");
-        auto off = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png");
         auto stupidToggler = GoffyBuilder::ToggleOption::create("Show Mobile Buttons",0.35,nullptr);
         stupidToggler->setCheck(Mod::get()->getSettingValue<bool>("mobile-buttons-on-editor"));
         stupidToggler->setCB([this](bool check){

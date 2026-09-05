@@ -49,9 +49,7 @@ private:
 
         auto keybinds = KeybindCache::keySettings;
         m_contentLayer->removeAllChildrenWithCleanup(true);
-        if (keybinds.size() != 0)
-            geode::log::warn("Size {}\nItem {}: {} {}", keybinds.size(), keybinds[0].first, keybinds[0].second.name, keybinds[0].second.keyCode);
-
+        
         for (const auto &key : keybinds) {
             auto Label = KeyBindsSection::create(
                 &key, {m_contentSize.width, 20.f}, m_editCB

@@ -4,7 +4,6 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "builderMacros.hpp"
 #include "smjs.object-collab/include/CustomObject.hpp"
@@ -77,7 +76,6 @@ private:
         } else {
             for (auto &action : keybinds) {
                 actionList.push_back(action.second.name);
-                geode::log::info("Keybinds TouchUI name: {}\n Dict: {}", action.second.name, actionList);
             };
         }
 

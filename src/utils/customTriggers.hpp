@@ -3,7 +3,7 @@
 #include "../hooks/editorLayer/triggerUI/actionDropdown.hpp"
 #include "Geode/cocos/cocoa/CCGeometry.h"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/loader/Mod.hpp"
 #include "Geode/loader/ModEvent.hpp"
 #include "keybindsCache.hpp"
@@ -92,11 +92,6 @@ public:
 
     void postEditorInit() override;
 
-    // void bulkApplyDynamicProps() override {
-    //     m_pressCount.applyDynamicProps();
-    //     m_releaseCount.applyDynamicProps();
-    //     log::warn("Adrs: {},{}",m_pressCount.m_obj,m_releaseCount.m_obj);
-    // };
 
     std::string format();
 };

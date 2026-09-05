@@ -1,6 +1,6 @@
 #include "customTriggers.hpp"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/ui/Layout.hpp"
 #include "keybindsCache.hpp"
 #include "smjs.object-collab/include/EditorPopupConfig.hpp"

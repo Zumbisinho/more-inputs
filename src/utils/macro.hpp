@@ -3,7 +3,6 @@
 #include "Geode/binding/EffectGameObject.hpp"
 #include "Geode/cocos/cocoa/CCArray.h"
 #include "Geode/cocos/cocoa/CCGeometry.h"
-#include "Geode/loader/Log.hpp"
 #include "smjs.object-collab/include/CustomObject.hpp"
 #include "smjs.object-collab/include/EditorPopupConfig.hpp"
 #include "smjs.object-collab/include/object_collab.hpp"
@@ -67,9 +66,6 @@ protected:
 public:
     int m_objID = 0;
 
-    ~MacroAuxiliarTrigger<ClassType, triggerObjId>() {
-        geode::log::info("Morri!");
-    };
 
     template <typename... Funcs>
     void addDynamicProps(Funcs &&...funcs) {
@@ -77,11 +73,8 @@ public:
     }
 
     void applyDynamicProps(EffectGameObject *genericObj) override {
-        log::warn("antes do SC {}", genericObj);
         auto obj = static_cast<ClassType *>(genericObj);
-        log::warn("size das alteracoes {}", m_alterations.size());
         for (auto &alteration : m_alterations) {
-            log::warn("bulk thing {}", obj);
             alteration(*obj);
         }
     }
@@ -92,10 +85,9 @@ public:
     }
 
     void applyInitProps() override{
-        geode::log::warn("m_obj = {}", fmt::ptr(m_obj));
 
         if (!m_obj) {
-            geode::log::error("m_obj IS NULL");
+
             return;
         }
 
@@ -128,11 +120,7 @@ public:
         m_obj->m_baseColor->m_colorID = 676;
         m_obj->m_objectMaterial = getConfig()["keyBindsIdentityMaterialId"].asInt().unwrapOr(67);
         m_objID = triggerObjId;
-        log::warn(
-            "SETTING PRESS: this={} pressCount={}",
-            fmt::ptr(this),
-            fmt::ptr(&m_obj)
-        );
+
     }
 };
 
@@ -148,12 +136,9 @@ public:
     virtual void customInit() {}
 
     void bulkApplyDynamicProps() {
-        log::warn("size do m_auxTrigges{}", m_auxTriggers.size());
         for (auto &trg : m_auxTriggers) {
-            log::warn("ponteiro no bulk aply{}", fmt::ptr(trg->m_obj));
             trg->applyDynamicProps(trg->m_obj);
         }
-        log::warn("Di apply {}", m_auxTriggers.size());
     }
 
     void firstSetup() override;
@@ -174,7 +159,6 @@ public:
         macroTriggerOnCreateCallBacks = createCallback(nextFreeControlId, m_auxTriggers);
     }
     void createTriggersAtPos(const CCPoint &pos) {
-        log::warn("create trigers at la pose");
         auto nextFreeControlId = LevelCache::getNextFreeControlId();
 
         this->m_controlID = nextFreeControlId;
@@ -207,7 +191,6 @@ public:
             std::size_t i = 0;
             for (auto trigger : triggers) {
                 trigger->m_obj = auxTriggers[i++];
-                log::warn("Ai dentctrus mudei o {}", trigger->m_obj);
             }
         };
 

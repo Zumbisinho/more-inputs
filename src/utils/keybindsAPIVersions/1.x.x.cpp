@@ -1,6 +1,5 @@
 #include "1.x.x.hpp"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
-#include "Geode/loader/Log.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <array>

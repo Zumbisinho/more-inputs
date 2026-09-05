@@ -1,6 +1,6 @@
 #include "levelCache.hpp"
 
-#include "Geode/loader/Log.hpp"
+
 #include <Geode/binding/ColorAction.hpp>
 #include <Geode/binding/EffectGameObject.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
@@ -13,7 +13,6 @@ void LevelCache::freeControlId(int controlId){
     if (controlId < StartControlId)
         return;
     freeControlIds.insert(controlId);
-    geode::log::warn("freed {} {}",controlId,freeControlIds);
 };
 
 int LevelCache::getNextFreeControlId() {
@@ -58,7 +57,6 @@ std::string printTheAuxThing(std::unordered_map<int, std::vector<EffectGameObjec
 
 void LevelCache::init(LevelEditorLayer *layer) {
     auto objs = CCArrayExt<GameObject *>(layer->m_objects);
-    log::warn("Iniciando o level cache, size dos objs: {}", objs.size());
     if (objs.empty()) // empty level
         return;
 
@@ -91,7 +89,6 @@ void LevelCache::init(LevelEditorLayer *layer) {
             };
             if (controlId > maxFreeControlId) {
                 for (int i = maxFreeControlId + 1; i < controlId; i++) {
-                    log::warn("To no loop o i agr é: {} eo max e o control id {} {}", i, maxFreeControlId, controlId);
                     freeControlIds.insert(i);
                 };
                 maxFreeControlId = controlId;
@@ -119,17 +116,11 @@ void LevelCache::init(LevelEditorLayer *layer) {
             
         }
     };
-    log::warn("Depois de tudo Max: {} Min: {}, Lista: {}\nTbm aqui a lista de trigger pelo id: {}", maxFreeControlId, minFreeControlId, freeControlIds, printTheAuxThing(auxiliarMacroTriggers));
-    for (auto& [key,value] : m_macroTriggers){
-        log::warn("    {}: {},",key,value);
-    }
     // linking aux triggers to the respective macro
-    log::warn("var muito extensa: {}", printTheLongAssVar(LevelCache::onLevelLoadSetupAuxTriggersCallbacks));
     for (auto &[controlId, vec] : auxiliarMacroTriggers) {
         auto cb = onLevelLoadSetupAuxTriggersCallbacks.find(controlId);
         if (cb == onLevelLoadSetupAuxTriggersCallbacks.end())
             continue;
-        log::warn("Deve ta executado acho ig");
 
         cb->second(vec);
     }

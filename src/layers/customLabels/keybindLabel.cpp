@@ -2,7 +2,7 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
-#include "Geode/loader/Log.hpp"
+
 #include <string>
 
 KeyBindsSection *KeyBindsSection::create(
@@ -10,7 +10,7 @@ KeyBindsSection *KeyBindsSection::create(
     const CCSize &size = {60.f, 67.f},
     const std::function<void(CCObject *, const keybindsAPI::KeyFullSettings)> callback = nullptr
 ) {
-    geode::log::warn("\nItem {}: {} {}",key->first,key->second.name,key->second.keyCode);
+    
     auto ret = new KeyBindsSection(key);
 
     if (ret && ret->init(key, size, callback)) {
@@ -31,9 +31,7 @@ bool KeyBindsSection::init(
         return false;
     if (!key)
         return false;
-    
-    log::warn("actionId = {}", m_keySetting.first);
-    log::warn("keycode = {}", m_keySetting.second.keyCode);
+
     // ! Ponteiro invalido, ta copiando o nada e allocando um gazetals de memoria, arrumar isso
     auto keyString = m_keySetting.second.name;
     m_callback = callback;

@@ -1,6 +1,6 @@
 #include "keybindsAPI.hpp"
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCLayer.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/utils/VersionInfo.hpp"
 #include "Geode/utils/general.hpp"
 #include "alphalaneous.level-storage-api/include/LevelStorageAPI.hpp"
@@ -89,12 +89,9 @@ IDAndPos getNextFreeActionId(matjson::Value *json) {
         return {0, 0};
     int lastId = -1;
     int index = -1;
-    log::warn("{}", json->dump());
     for (auto const &[key, value] : (*json)["keybinds"]) {
-        log::info("Cur {}", key);
         index++;
         int actionId = numFromString<int>(key).unwrapOr(0);
-        log::info("CurConverted {}", actionId);
         if (lastId == -1) {
             lastId = actionId;
             continue;
@@ -119,14 +116,12 @@ void addKeyToJson(
         return;
     ;
     IDAndPos nextFree = getNextFreeActionId(json);
-    log::warn("NextFree: {} {}", nextFree.actionId, nextFree.pos);
     if (nextFree.actionId == 0)
         return; // Error that can be supress
 
     if (nextFree.pos == 0 ||
         nextFree.pos == -1) { // first interraction or last pos
         (*json)["keybinds"][std::to_string(nextFree.actionId)] = matjson::Value(*keySettings);
-        geode::log::warn("AddKeyToJson 0 or -1 condition : {}", json->dump());
         return;
     }
 
@@ -134,19 +129,19 @@ void addKeyToJson(
     matjson::Value newObj = getDefaultJson();
     for (auto const &[key, value] : (*json)["keybinds"]) {
         if (idx++ == nextFree.pos) {
-            geode::log::warn("Item {} é a posição, mudando", key);
+            
             newObj["keybinds"][std::to_string(nextFree.actionId)] = matjson::Value(*keySettings);
         };
         newObj["keybinds"][key] = value;
-        geode::log::warn("Item {}, {}", key, newObj.dump());
+        
     };
     *json = newObj;
-    geode::log::warn("AddKeyToJson : {}", json->dump());
+    
 }
 void editKeybind(
     matjson::Value *json, const KeybindValue *newKeySettings, int actionId
 ) {
-    log::warn("Edit keybinds Id: {}", actionId);
+
     if (!json || !json->isObject()) // how do you even get here?
         return;
 
@@ -202,7 +197,7 @@ std::vector<KeyFullSettings> getLevelKeySettings(CCLayer *layer) {
             if (keybinds.size() == 0)
                 return keys;
             for (const auto &[key, value] : keybinds) {
-                geode::log::warn("{} {} {} {} {}", key, value.keyCode, value.buttonLabel, value.contentSize, value.name);
+
                 int curActionId = numFromString<int>(key).unwrapOr(0);
                 keys.push_back({curActionId, value});
             };
@@ -290,7 +285,6 @@ keybindsAPI::KeybindValue createPcValue(std::string name, int keyCode, int &inde
 
     auto screenSize = CCDirector::sharedDirector()->getWinSize();
     int threshold = floor((screenSize.width / 60)) -3; // to not overdraw on the plataform move thing
-    geode::log::warn("Agr o index dos buttoms {}", index);
 
     int buttonRow = floor(index / threshold);
     float absX = screenSize.width - 25 - (index - threshold * buttonRow) * 60;

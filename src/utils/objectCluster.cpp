@@ -6,8 +6,7 @@ using namespace ObjectClusterAPI;
 
 class $modify(ObjectClustersEUI, EditorUI) {
     static void onModify(auto &self) {
-        if (!self.setHookPriorityBeforePre("EditorUI::onCreateObject", "hjfod.betteredit"))
-            log::warn("Not found");
+        !self.setHookPriorityBeforePre("EditorUI::onCreateObject", "hjfod.betteredit");
     }
     CreateMenuItem *getCreateBtn(int id, int bg) {
         if (auto it = m_objectClusters.find(id); it != m_objectClusters.end()) {

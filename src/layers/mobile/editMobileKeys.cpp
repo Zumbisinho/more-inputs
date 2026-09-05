@@ -11,7 +11,7 @@
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
 #include "Geode/cocos/support/CCPointExtension.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "ccTypes.h"
@@ -225,7 +225,6 @@ void EditMobileKeys::saveKeybinds() {
         if (auto keybind = node.first; keybind != nullptr) {
             auto keySettings = keybind->getKey()->second;
             auto keyPickupId = keybind->getKey()->first;
-            geode::log::warn("Changing key {} to pos {}{}", keybind->getKey()->second.buttonLabel, keybind->getKey()->second.pos.x, keybind->getKey()->second.pos.y);
             keybindsAPI::editLevelKeyBind(LevelEditorLayer::get(), keyPickupId, &keySettings);
         };
     }
@@ -236,7 +235,7 @@ void EditMobileKeys::registerWithTouchDispatcher(void) {
 }
 
 bool EditMobileKeys::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent) {
-    log::warn("Clicado");
+
     if (!this->isVisible())
         return false;
 
@@ -291,7 +290,6 @@ void EditMobileKeys::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent) {
         auto whereSnap = snapLine.Snap(curDragging);
 
         if (whereSnap == NullPoint) { // Cannot snap
-            geode::log::warn("Theres nothing to snap!");
             if (curDrawing) { // removes any drawn line
                 curDrawing = nullptr;
                 m_drawLayer->clear();
@@ -313,7 +311,7 @@ void EditMobileKeys::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent) {
     if (auto keybind = static_cast<MobileButton *>(curDragging); keybind != nullptr) { // updates internal keyValue
 
         keybind->getKey()->second.pos = canvaPosToRelative(keybind->getPosition());
-        geode::log::warn("Setting up {} to {},{}", keybind->getKey()->second.name, keybind->getKey()->second.pos.x, keybind->getKey()->second.pos.y);
+       
     };
     curDragging = nullptr;
     curDrawing = nullptr;

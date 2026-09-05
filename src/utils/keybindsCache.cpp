@@ -30,7 +30,7 @@ void insertOrUpdate(
 }
 
 void init(CCLayer *layer) {
-    log::warn("INICIADO\nINICIADO\nINICIADO\nINICIADO\n");
+
     auto &json = getConfig();
     // Reset all Variables for safe integration with keybindsAPI
     keyToActionIds.clear();
@@ -62,7 +62,6 @@ void init(CCLayer *layer) {
 };
 
 void reset() {
-    log::warn("REINICIADO\nREINICIADO\nREINICIADO\nREINICIADO\n");
     initialized = false;
     keyToActionIds.clear();
     actionNameToID.clear();
@@ -78,16 +77,16 @@ void changeLocalKey(const keybindsAPI::KeyFullSettings& key, int keyCode) {
 
     int oldKeyCode = -67;
     
-    log::warn("wdasd {} {}",keySettings.size(),initialized);
+
     for (auto& keySetting : keySettings) {
-        log::warn("{}{}",keySetting.second.name,keySetting.first);
+
         if (keySetting.first == actionId) {
             oldKeyCode = keySetting.second.keyCode;
             break;
         }
     }
 
-    log::warn("{} | {}",oldKeyCode,keyCode);
+
     
     if (oldKeyCode == -67)
         return;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Geode/loader/Log.hpp"
+
 #include <Geode/Geode.hpp>
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <matjson.hpp>
@@ -19,7 +19,6 @@ VersionInfo getLevelVersion(CCLayer *layer);
 
 inline void resetCurButtonIdx() {
     curButtonIdx = 0;
-    log::warn("Resetado");
 };
 
 struct MatJsonUtils {

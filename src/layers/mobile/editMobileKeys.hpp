@@ -11,7 +11,7 @@
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/platform/CCPlatformMacros.h"
 #include "Geode/cocos/robtop/keyboard_dispatcher/CCKeyboardDelegate.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/ui/ScrollLayer.hpp"
 #include "ccTypes.h"
 #include "mobileKeys.hpp"
@@ -50,11 +50,6 @@ public:
 
             auto nodeCenter = getCenterOfNode(node);
 
-            // geode::log::warn("\nx {} \n y {}", nodeCenter.x, nodeCenter.y);
-            // geode::log::warn(" \n --X Rect--\n Position min: {} {}    max: {} {}", xRect.getMinX(), xRect.getMinY(), xRect.getMaxX(), xRect.getMaxY());
-            // geode::log::warn("\n Size x: {} y: {}", xRect.size.width, xRect.size.height);
-            // geode::log::warn(" \n --Y Rect--\n Position min: {} {}    max: {} {}", yRect.getMinX(), yRect.getMinY(), yRect.getMaxX(), yRect.getMaxY());
-            // geode::log::warn("\n Size x: {} y: {}", yRect.size.width, yRect.size.height);
 
             if (centerSquare.containsPoint(nodeCenter)) {
                 return pos;

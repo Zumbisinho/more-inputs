@@ -4,7 +4,7 @@
 using namespace geode::prelude;
 
 void MobileButton::selected()  {
-    log::info("My custom button was activated! {}", m_keyPickup);
+
     this->setColor({128, 128, 128});
 
     CCRGBAProtocol *rgba = typeinfo_cast<CCRGBAProtocol *>(m_inner);
@@ -14,7 +14,7 @@ void MobileButton::selected()  {
     pickupManager::changePickupId(m_keyPickup, 1);
 }
 void MobileButton::unselected()  {
-    log::info("My custom button was de-activated! {}", m_keyPickup);
+
     this->setColor({255, 255, 255});
 
     CCRGBAProtocol *rgba = typeinfo_cast<CCRGBAProtocol *>(m_inner);

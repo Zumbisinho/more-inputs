@@ -14,7 +14,7 @@
 #include "Geode/cocos/layers_scenes_transitions_nodes/CCTransition.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
+
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/Popup.hpp"
 #include "Geode/ui/PopupManager.hpp"
@@ -439,8 +439,7 @@ private:
 
         auto keybinds = KeybindCache::keySettings;
         m_contentLayer->removeAllChildrenWithCleanup(true);
-        if (keybinds.size() != 0)
-            geode::log::warn("Size {}\nItem {}: {} {}", keybinds.size(), keybinds[0].first, keybinds[0].second.name, keybinds[0].second.keyCode);
+        
         bool keyTipDeleted = false;
         m_noKeysTip->setVisible(true);
 
@@ -614,7 +613,6 @@ private:
                 [this](auto popup, bool btn2) {
                     if (btn2) {
                         keybindsAPI::convertLevelKeybinds(LevelEditorLayer::get());
-                        geode::log::info("Convertendo");
                     };
                     onClose(nullptr);
                 }
@@ -639,14 +637,12 @@ private:
         size_t index = 0;
         for (auto &keybind : KeybindCache::keySettings) {
             CCPoint relativePos = keybind.second.pos;
-            log::warn("RelativePos: {}",relativePos);
             CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
 
             auto btn = MobileButton::create(&keybind);
             btn->setAnchorPoint({0.5, 0.5});
             auto pos = CCPoint{relativePos.x * screenSize.width, relativePos.y * screenSize.height};
             btn->setPosition(pos);
-            log::warn("Posicao: {}",pos);
             layer->addNode(btn, index++ != 0, true);
             layer->calcSnaps();
         };
@@ -665,7 +661,7 @@ private:
 
                 auto keySetting = keybindsAPI::createPcValue(actionName, actionKey, curMobileButtonIdx);
 
-                geode::log::warn("Keycode from the OnAdd{}", keySetting.keyCode);
+
                 keybindsAPI::addLevelKeyBind(
                     LevelEditorLayer::get(), &keySetting
                 );

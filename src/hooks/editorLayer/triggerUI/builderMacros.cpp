@@ -5,7 +5,6 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/cocos/menu_nodes/CCMenu.h"
 #include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/loader/Log.hpp"
 #include "Geode/ui/Layout.hpp"
 #include "Geode/ui/ScrollLayer.hpp"
 #include "Geode/ui/Scrollbar.hpp"
@@ -209,9 +208,7 @@ bool DropDownList::init(
 ) {
     if (!CCMenu::init())
         return false;
-    geode::log::warn("{}",itemList);
     m_itemList = itemList;
-    geode::log::warn("{}",m_itemList);
     this->setContentSize({200.f, 60.f});
     this->setLayout(
         ColumnLayout::create()
@@ -233,10 +230,6 @@ bool DropDownList::init(
     if (m_itemList.size() == 1) // disables render because it wont open anyways
         curArrow->setVisible(false);
         
-    geode::log::warn("itemList.size = {}", itemList.size());
-    geode::log::warn("m_itemList.size = {}", m_itemList.size());
-    geode::log::warn("{}, {}",itemList,itemList[0]);
-    geode::log::warn("{}, {}",m_itemList,m_itemList[0]);
 
     auto curLabel = CCLabelBMFont::create(m_itemList[0].c_str(), "bigFont.fnt");
     curLabel->setScale(size);

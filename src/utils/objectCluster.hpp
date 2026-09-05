@@ -66,7 +66,6 @@ inline std::optional<CCPointButBetter> getCenterCCPointButBetter(
         }
 
         if (value34) {
-            log::warn("Achei porra {} {}",x,y);
             return CCPointButBetter(x, y);
         }
     }
@@ -117,13 +116,11 @@ inline std::string setPositions(
         for (size_t i = 0; i + 1 < values.size(); i += 2) {
             if (values[i] == "2") {
                 auto toSet = std::to_string(positions[obj].x);
-                log::warn("X {}",toSet);
                 values[i + 1] = toSet;
             }
             else if (values[i] == "3") {
                 auto toSet = std::to_string(positions[obj].y);
                 values[i + 1] = toSet;
-                log::warn("Y {}",toSet);
             }}
 
         objects[obj] = string::join(values, ",");
@@ -169,7 +166,6 @@ public:
     bool init(std::string_view string) {
         auto center = getCenterCCPointButBetter(string);
         if (center) {
-            log::warn("Achei o centro"); 
             m_clusterCenter = center.value();
         }
         CCPointButBetter min_point = {DBL_MAX,DBL_MAX};
@@ -183,7 +179,6 @@ public:
         if (!center) {
             m_clusterCenter = (m_clusterSize / 2) + min_point;
         }
-        log::warn("Centro: {}\nMin Point {}\n Max point {}",m_clusterCenter,min_point,max_point); // should be 1125 540
         // absolute to relative
         for (auto &objPos : positions) {
             objPos -= m_clusterCenter;
@@ -191,9 +186,7 @@ public:
         m_relativeObjectStr = setPositions(string, positions);
         return true;
     };
-    ~objectCluster(){
-        log::warn("Morri!");
-    }
+
 
 public:
     static objectCluster *create(std::string_view string) {
@@ -208,9 +201,7 @@ public:
     }
     void placeOn(CCPointButBetter pos) {
         auto posAbs = getPositions(m_relativeObjectStr);
-        log::warn("posabs {}\n",posAbs.size());
         for (auto &obj : posAbs) {
-            log::warn("Before {} {}\n After {} {}",obj.x,obj.y,obj.x+pos.x, obj.y+pos.y);
             obj += pos;
         };
         std::string dummy;

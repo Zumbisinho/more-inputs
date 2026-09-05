@@ -3,7 +3,6 @@
 #include "Geode/cocos/cocoa/CCArray.h"
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/cocos/support/data_support/ccCArray.h"
-#include "Geode/loader/Log.hpp"
 #include "levelCache.hpp"
 #include "smjs.object-collab/include/ObjectAPI.hpp"
 #include "smjs.object-collab/include/object_collab.hpp"
@@ -57,8 +56,7 @@ class $modify(LevelEditorLayer){
 
 class $modify(GetEditorUI, EditorUI) {
     static void onModify(auto &self) {
-        if (!self.setHookPriorityBeforePre("EditorUI::editObject", "smjs.object-collab"))
-            log::warn("Fucccck");
+        self.setHookPriorityBeforePre("EditorUI::editObject", "smjs.object-collab");
     }
     struct Fields {
         GameObject *m_beforeSelectedGO = nullptr;
@@ -70,7 +68,6 @@ class $modify(GetEditorUI, EditorUI) {
         EditorUI::selectObject(object, ignoreFilter);
         if (m_fields->ignoreSelect) // 69
             return;
-        log::warn("To selecionado\n{}",object);
         // if its selecting the macro itself
         if (auto macro = typeinfo_cast<macroTrigger *>(object)) {
             if (macro->m_auxTriggers[0]->m_obj == nullptr) // onCreate the aux are not ready
@@ -80,7 +77,6 @@ class $modify(GetEditorUI, EditorUI) {
         // selecting a aux trigger
         if (auto auxTrigger = typeinfo_cast<EffectGameObject *>(object)) {
             if (auxTrigger->m_objectMaterial == LevelCache::IdentityMaterialId) {
-                log::warn("{}", LevelCache::m_macroTriggers.size());
                 auto macro = LevelCache::m_macroTriggers[auxTrigger->m_controlID];
                 if (macro && !macro->m_auxTriggers.empty() && macro->m_auxTriggers[0]->m_obj == nullptr) // onCreate the aux are not ready
                     return;
@@ -93,7 +89,6 @@ class $modify(GetEditorUI, EditorUI) {
         EditorUI::selectObjects(objects, ignoreFilter);
         if (m_fields->ignoreSelect)
             return;
-        log::warn("To selecionado\n{}",objects);
         for (auto object : objects->asExt<GameObject *>()) {
             // if its selecting the macro itself
             if (auto macro = typeinfo_cast<macroTrigger *>(object)) {
@@ -134,7 +129,6 @@ class $modify(GetEditorUI, EditorUI) {
 
         m_fields->ignoreSelect = true; // to not re-select the unselected objects
         for (auto obj : selected) {
-            log::warn("{}", obj);
             toSelect.push_back(obj);
 
             auto macro = typeinfo_cast<macroTrigger *>(obj);
@@ -144,10 +138,8 @@ class $modify(GetEditorUI, EditorUI) {
         }
         // unsellects all the aux triggers outside the for loop because i cannot create a copy of the cur selected
         for (auto &macro : macroTriggers) {
-            log::warn("aux count: {}", macro->m_auxTriggers.size());
             for (auto &auxTrigger : macro->m_auxTriggers) {
                 auto obj = static_cast<GameObject *>(auxTrigger->m_obj);
-                log::warn("Removing: {}", obj);
                 removeValue(toSelect, obj);
             }
         }
@@ -183,7 +175,6 @@ class $modify(GetEditorUI, EditorUI) {
     CCArray *pasteObjects(gd::string str, bool withColor, bool noUndo) {
         ignoreOnCreateCB = true;
         CCArray *ret = EditorUI::pasteObjects(str, withColor, noUndo);
-        log::warn("{}", ret);
         for (auto& GO : ret->asExt<GameObject>()){
             auto macro = typeinfo_cast<macroTrigger *>(GO);
             if (!macro)
@@ -224,7 +215,6 @@ class $modify(GetEditorUI, EditorUI) {
                 m_selectedObject->getPosition()
             );
 
-            geode::log::warn("Executandoooo");
         }
 
         m_fields->m_beforeSelectedGO = m_selectedObject;
@@ -271,7 +261,6 @@ void macroTrigger::firstSetup() {
     customInit();
     m_objectMaterial = LevelCache::IdentityMaterialId;
     LevelCache::m_macroTriggers[this->m_controlID] = this;
-    log::warn("atualizadoss {}",this->m_controlID);
 };
 
 void macroTrigger::selectAllAux() {
