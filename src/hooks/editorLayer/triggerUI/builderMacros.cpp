@@ -373,6 +373,8 @@ bool ToggleOption::init(
 
     auto label = CCLabelBMFont::create(labelName.c_str(), "bigFont.fnt");
     label->setScale(size);
+    label->limitLabelWidth(96,size,0.02);
+    label->updateLabel();
 
     this->addChild(btn);
     this->addChild(label);

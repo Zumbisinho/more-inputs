@@ -11,6 +11,7 @@
 #include <Geode/modify/LevelEditorLayer.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 #include <Geode/modify/PlayLayer.hpp>
+#include <Geode/modify/MenuLayer.hpp>
 #include "../../hooks/editorLayer/triggerUI/builderMacros.hpp"
 
 
@@ -139,4 +140,20 @@ class $modify(AddStupidButtons,EditorPauseLayer){
 
         return true;
     }
+};
+// thanks cosmella_v for the code
+class $modify(MobileBS, MenuLayer) {
+    bool init() {
+        if (!MenuLayer::init()) {
+            return false;
+        }
+        if (!Mod::get()->setSavedValue("checked-mobile-buttons-on-editor", true)) {
+            #if defined(GEODE_IS_DESKTOP)
+                    Mod::get()->setSettingValue("mobile-buttons-on-editor", false);
+            #else
+                    Mod::get()->setSettingValue("mobile-buttons-on-editor", true);
+            #endif
+        }
+        return true;
+    }  
 };
