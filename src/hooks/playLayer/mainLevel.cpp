@@ -7,14 +7,6 @@ using namespace geode::prelude;
 bool MyPlayLayer::init(GJGameLevel *level, bool useReplay, bool dontCreateObjects) {
     if (!PlayLayer::init(level, useReplay, dontCreateObjects))
         return false;
-    auto &json = getConfig();
-
-    m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(-1);
-    m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(-1);
-
-    int id = m_fields->m_defaultModIdentityPickupId;
-    int value = m_fields->m_defaultModIdentityValue;
-    pickupManager::changePickupId(id, value);
 
     auto curVersion = Mod::get()->getVersion();
     auto version = keybindsAPI::getLevelVersion(this);
@@ -42,11 +34,6 @@ void MyPlayLayer::showPopup(float) {
 };
 void MyPlayLayer::startGame() {
     PlayLayer::startGame();
-    if (m_fields->m_defaultModIdentityPickupId == -1 || m_fields->m_defaultModIdentityValue == -1)
-        return;
-    int id = m_fields->m_defaultModIdentityPickupId;
-    int value = m_fields->m_defaultModIdentityValue;
-    pickupManager::changePickupId(id, value);
     if (m_fields->showPopUp) {
         scheduleOnce(schedule_selector(MyPlayLayer::showPopup), 0.01);
 
@@ -55,11 +42,6 @@ void MyPlayLayer::startGame() {
 }
 void MyPlayLayer::resetLevel() {
     PlayLayer::resetLevel();
-
-    int id = m_fields->m_defaultModIdentityPickupId;
-    int value = m_fields->m_defaultModIdentityValue;
-
-    pickupManager::changePickupId(id, value);
 };
 void MyPlayLayer::onQuit() {
     PlayLayer::onQuit();

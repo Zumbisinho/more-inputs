@@ -55,5 +55,7 @@ vectors you std::span and just copy the span
 - ~~Keybinds saving System~~
 - ~~Custom triggers~~ *object collab + macro trigger = holy coding*
 
+- Remove the macro trigger api because its broken + doesnt fit the mod
+
 
 

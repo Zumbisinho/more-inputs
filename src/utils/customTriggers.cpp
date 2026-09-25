@@ -7,27 +7,24 @@
 #include "smjs.object-collab/include/ObjectInfo.hpp"
 #include <fmt/format.h>
 
-std::string customTriggers::TouchMacroTrigger::format(){
+std::string customTriggers::TouchPPTrigger::format(){
     return fmt::format("{}/{}",m_pressGroupId,m_releaseGroupId);
 };
 
-void customTriggers::TouchMacroTrigger::postEditorInit() {
+void customTriggers::TouchPPTrigger::postEditorInit() {
     this->setTriggerTextProperty(105,{0,-4},0.75);
-    createInitLinkageCallback(m_controlID,m_auxTriggers);
-
-    
 };
 
-PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &selected) {
+PopupConfig customTriggers::TouchPPTrigger::getEditConfig(const Selected &selected) {
     auto disarmOnFirst = ToggleMenu::builder()
         .title("Disarm On\nFirst Key")
         .id("touch-macro-disarm-on-first"_spr)
         .onValue([](const bool value, const Selected &selected, Popup *popup) {
-            applyValueToSelected(selected, &TouchMacroTrigger::m_disarmOnFirst, value);
-            applyValueToSelected(selected, &TouchMacroTrigger::m_multiActivate, !value);
+            applyValueToSelected(selected, &TouchPPTrigger::m_disarmOnFirst, value);
+            applyValueToSelected(selected, &TouchPPTrigger::m_multiActivate, !value);
         })
         .currentValue([](const Selected &selected, Popup *popup) {
-            return getCommonValueOrDefault<bool>(selected, &TouchMacroTrigger::m_disarmOnFirst);
+            return getCommonValueOrDefault<bool>(selected, &TouchPPTrigger::m_disarmOnFirst);
         })
         .inverse(true)
     .build();
@@ -37,13 +34,6 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
         .height(280.f)
         .width(440.f)
         .title("Edit Touch Macro")
-        .onClose([](cocos2d::CCObject* sender, const Selected& selected, geode::Popup* popup){
-            for (auto& obj: selected){
-                auto convert = static_cast<TouchMacroTrigger*>(obj);
-                convert->bulkApplyDynamicProps();
-                convert->selectAllAux();
-            };
-        })
         .leftToggle(std::move(disarmOnFirst))
         .info(InfoPopup::builder().title("Help")
             .description("Listens for a <cy>player action</c> and activates groups when "
@@ -65,7 +55,7 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
         .menu(CustomValueMenu::builder()
             .id("touch-macro-dropdown"_spr)
             .factory([](const Selected &selected, Popup *popup) -> CCMenu * {
-                return ActionDropdown<TouchMacroTrigger>::create(selected);
+                return ActionDropdown<TouchPPTrigger>::create(selected);
                 })
                 .build()
         )
@@ -81,9 +71,9 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
                 .precision(0)
                 .inputType(NumericMenu::InputType::Arrows)
                 .onValue([](const int value, const Selected &selected, Popup *popup) {
-                    applyValueToSelected(selected,&TouchMacroTrigger::m_pressGroupId,value);
+                    applyValueToSelected(selected,&TouchPPTrigger::m_pressGroupId,value);
                     for (auto& obj : selected){
-                        auto trig = typeinfo_cast<customTriggers::TouchMacroTrigger *>(obj);
+                        auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
                         if (!trig)
                             continue;
                 
@@ -91,7 +81,7 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
                     }
                 })
                 .currentValue([](const Selected &selected, Popup *popup) {
-                    return getCommonValueOrDefault(selected, &TouchMacroTrigger::m_pressGroupId);
+                    return getCommonValueOrDefault(selected, &TouchPPTrigger::m_pressGroupId);
                 })
             .build())
             .menu(NumericMenu::builder()
@@ -102,9 +92,9 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
                 .precision(0)
                 .inputType(NumericMenu::InputType::Arrows)
                 .onValue([](const int value, const Selected &selected, Popup *popup) {
-                    applyValueToSelected(selected, &TouchMacroTrigger::m_releaseGroupId, value);
+                    applyValueToSelected(selected, &TouchPPTrigger::m_releaseGroupId, value);
                     for (auto& obj : selected){
-                        auto trig = typeinfo_cast<customTriggers::TouchMacroTrigger *>(obj);
+                        auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
                         if (!trig)
                             continue;
                 
@@ -113,37 +103,37 @@ PopupConfig customTriggers::TouchMacroTrigger::getEditConfig(const Selected &sel
             }
                 )
                 .currentValue([](const Selected &selected, Popup *popup) {
-                    return getCommonValueOrDefault(selected, &TouchMacroTrigger::m_releaseGroupId);
+                    return getCommonValueOrDefault(selected, &TouchPPTrigger::m_releaseGroupId);
                 })
             .build())
         .build())
-        .build()
-        ;
+        .build();
+        
 };
 
 $on_mod(Loaded) {
     ObjectAPI::registerObject(ObjectInfo::builder()
-    .id(customTriggers::TouchMacroTrigger::macroId)
-    .sprite("touchMacro.png"_spr)
+    .id("touch-pp-trigger")
+    .sprite("touch-pp.png"_spr)
     .editorTab(EditorTab::None)
-    .editObject(customTriggers::TouchMacroTrigger::getEditConfig)
+    .editObject(customTriggers::TouchPPTrigger::getEditConfig)
     .editorButtonColor(EditorButtonColor::LightGray)
     .construction(ComplexObject::builder()
-        .factory(customTriggers::TouchMacroTrigger::create)
+        .factory(customTriggers::TouchPPTrigger::create)
         .customProperties({
-            PropertyInterface::from(101, &customTriggers::TouchMacroTrigger::m_actionIndex, 0), 
-            PropertyInterface::from(102, &customTriggers::TouchMacroTrigger::m_pressGroupId, 0), 
-            PropertyInterface::from(103, &customTriggers::TouchMacroTrigger::m_releaseGroupId, 0), 
-            PropertyInterface::from(104, &customTriggers::TouchMacroTrigger::m_disarmOnFirst, false),
-            PropertyInterface::from(204, &customTriggers::TouchMacroTrigger::m_multiActivate, true),  
-            PropertyInterface::from(105, &customTriggers::TouchMacroTrigger::m_formatedTriggerLabel, "0/0")
+            PropertyInterface::from(101, &customTriggers::TouchPPTrigger::m_actionIndex, 0), 
+            PropertyInterface::from(102, &customTriggers::TouchPPTrigger::m_pressGroupId, 0), 
+            PropertyInterface::from(103, &customTriggers::TouchPPTrigger::m_releaseGroupId, 0), 
+            PropertyInterface::from(104, &customTriggers::TouchPPTrigger::m_disarmOnFirst, false),
+            PropertyInterface::from(204, &customTriggers::TouchPPTrigger::m_multiActivate, true),  
+            PropertyInterface::from(105, &customTriggers::TouchPPTrigger::m_formatedTriggerLabel, "0/0")
         }).build()
     )
     .build());
 }
 void customTriggers::EditKeybindTrigger::postEditorInit(){
     if (!this->m_disableKey){
-        this->init("editKeybindDisabled.png"_spr);
+        setSprite("editKeybindDisabled.png"_spr);
     };
     
 }

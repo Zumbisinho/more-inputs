@@ -3,7 +3,6 @@
 #include "../../utils/pickupManager.hpp"
 #include "../../utils/getJson.hpp"
 #include "../../utils/keybindsCache.hpp"
-#include "../../utils/levelCache.hpp"
 
 // TODO Encode keysbinds via some shit with object encoding (Or just lazy json on text label Exact what i'm gonna do!)
 
@@ -14,35 +13,23 @@ using namespace geode::prelude;
 
 class $modify(MyPlayLayer, LevelEditorLayer) {
     struct Fields {
-        int m_defaultModIdentityPickupId = 0;
-        int m_defaultModIdentityValue = 0; // Custom field
-
         ~Fields(){ // when leaves a level
             KeybindCache::reset();
-            LevelCache::reset();
         }
     };
     bool init(GJGameLevel* level, bool noUI) {
         if (!LevelEditorLayer::init(level, noUI)) return false;
-        auto& json = getConfig();
 
         KeybindCache::reset();
         KeybindCache::init(this);
-        LevelCache::init(this);
-        m_fields->m_defaultModIdentityPickupId = json["defaultModIdentityPickupId"].asInt().unwrapOr(0);
-        m_fields->m_defaultModIdentityValue = json["defaultModIdentityValue"].asInt().unwrapOr(0);
+
         return true;
     }
     
 	void onPlaytest() {
         LevelEditorLayer::onPlaytest();
-        if (m_fields->m_defaultModIdentityPickupId == -1 || m_fields->m_defaultModIdentityValue == -1)
-            return;
-        int id = m_fields->m_defaultModIdentityPickupId;
-        int value = m_fields->m_defaultModIdentityValue;
 
         KeybindCache::init(this);
-        pickupManager::changePickupId(id,value);
     }
     
 };

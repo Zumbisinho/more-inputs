@@ -32,7 +32,7 @@ bool KeyBindsSection::init(
     if (!key)
         return false;
 
-    // ! Ponteiro invalido, ta copiando o nada e allocando um gazetals de memoria, arrumar isso
+    // ! Ponteiro invalido, ta copiando o nada e allocando um gazetals de memoria, arrumar isso // ima gonna keep this because just a dumb mistake
     auto keyString = m_keySetting.second.name;
     m_callback = callback;
 
