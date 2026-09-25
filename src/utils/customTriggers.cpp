@@ -113,7 +113,7 @@ PopupConfig customTriggers::TouchPPTrigger::getEditConfig(const Selected &select
 
 $on_mod(Loaded) {
     ObjectAPI::registerObject(ObjectInfo::builder()
-    .id("touch-pp-trigger")
+    .id("touch-pp-trigger"_spr)
     .sprite("touch-pp.png"_spr)
     .editorTab(EditorTab::None)
     .editObject(customTriggers::TouchPPTrigger::getEditConfig)
