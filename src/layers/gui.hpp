@@ -65,12 +65,13 @@ private:
     }
     bool init(const std::vector<keybindsAPI::KeyFullSettings> keyBindsDict) {
         if (!Popup::init(440.f, 280.f))
-            return false;
+        return false;
         #ifndef GEODE_IS_DESKTOP
             onMobileEdit(nullptr);
+            onClose(nullptr);
             return true;
         #endif
-        
+
         auto playLayer = PlayLayer::get();
         if (playLayer && playLayer->m_level) {
             std::string levelName = playLayer->m_level->m_levelName;
