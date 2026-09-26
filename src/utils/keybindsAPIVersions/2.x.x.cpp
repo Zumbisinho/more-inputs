@@ -39,7 +39,7 @@ getLevelKeyBinds(CCLayer *layer, bool ignoreEmpty) {
     std::vector<std::pair<std::string, int>> keys;
     auto configJson =
         alpha::level_storage::getSavedValue<matjson::Value>(layer, "config");
-    geode::log::warn("{}", configJson.dump());
+    geode::log::debug("{}", configJson.dump());
     if (configJson["keybinds"].size() == 0)
         return keys;
 
