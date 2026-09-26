@@ -66,7 +66,11 @@ private:
     bool init(const std::vector<keybindsAPI::KeyFullSettings> keyBindsDict) {
         if (!Popup::init(440.f, 280.f))
             return false;
-
+        #ifndef GEODE_IS_DESKTOP
+            onMobileEdit(nullptr);
+            return true;
+        #endif
+        
         auto playLayer = PlayLayer::get();
         if (playLayer && playLayer->m_level) {
             std::string levelName = playLayer->m_level->m_levelName;
@@ -125,21 +129,10 @@ private:
         );
         scrollArea->scrollToTop();
 
-        auto mobileEditSpr = CCSprite::createWithSpriteFrameName("editMobileMIP.png"_spr);
-        mobileEditSpr->setScale(0.225);
-        auto mobileEditBtn = CCMenuItemSpriteExtra::create(mobileEditSpr, this, menu_selector(KeyBindsLocalConfigGui::onMobileEdit));
-
-        auto windowSize = m_buttonMenu->getContentSize();
-
-        mobileEditBtn->setAnchorPoint({0.5, 0.5});
-        mobileEditBtn->setPosition(
-            {windowSize.width - mobileEditBtn->getContentWidth() / 4,
-             windowSize.height - mobileEditBtn->getContentHeight() / 4}
-        );
-
-        m_buttonMenu->addChild(mobileEditBtn);
+        
 
         return true;
+        
     };
     void onMobileEdit(CCObject *sender) {
         if (!KeybindCache::initialized)

@@ -27,8 +27,8 @@ vectors you std::span and just copy the span
 - ~~add a system that shows a popup when versions is outdated~~
 - ~~Add a option like the show hitboxs and ground n shit to show mobile buttons~~
 - ~~Using the keybind disabler disables the key from working~~
-- Remove mobile buttom edit from Pc Local Binds
-- Redirect to mobile button edit when clicking the MI buttom on mobile
+- ~~Remove mobile buttom edit from Pc Local Binds~~
+- ~~Redirect to mobile button edit when clicking the MI buttom on mobile~~
 
 
 
