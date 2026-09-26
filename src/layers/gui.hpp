@@ -65,13 +65,7 @@ private:
     }
     bool init(const std::vector<keybindsAPI::KeyFullSettings> keyBindsDict) {
         if (!Popup::init(440.f, 280.f))
-        return false;
-        #ifndef GEODE_IS_DESKTOP
-            onMobileEdit(nullptr);
-            onClose(nullptr);
-            return true;
-        #endif
-
+            return false;
         auto playLayer = PlayLayer::get();
         if (playLayer && playLayer->m_level) {
             std::string levelName = playLayer->m_level->m_levelName;
@@ -135,22 +129,5 @@ private:
         return true;
         
     };
-    void onMobileEdit(CCObject *sender) {
-        if (!KeybindCache::initialized)
-            KeybindCache::init(LevelEditorLayer::get());
-        auto layer = EditMobileKeys::create(false);
-        size_t index = 0;
-        for (auto &keybind : KeybindCache::keySettings) {
-            CCPoint relativePos = keybind.second.pos;
-            CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
-
-            auto btn = MobileButton::create(&keybind);
-            btn->setAnchorPoint({0.5, 0.5});
-            btn->setPosition(relativePos.x * screenSize.width, relativePos.y * screenSize.height);
-            layer->addNode(btn, index++ != 0, true);
-            layer->calcSnaps();
-        };
-
-        CCScene::get()->addChild(layer);
-    }
+    
 };
