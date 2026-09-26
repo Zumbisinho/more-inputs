@@ -38,6 +38,7 @@ void init(CCLayer *layer) {
     keybinds.clear();
     keybindsAndAction.clear();
     keySettings.clear();
+    disabledKeys.clear();
 
     startId = json["startKeyPickupId"].asInt().unwrapOr(0);
     value = json["keyPressedValue"].asInt().unwrapOr(0);
@@ -68,6 +69,7 @@ void reset() {
     keybinds.clear();
     keybindsAndAction.clear();
     keySettings.clear();
+    disabledKeys.clear();
     mobileKeyNodes.clear();
     mobileKeysToHideOnInit.clear();
 

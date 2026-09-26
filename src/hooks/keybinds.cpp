@@ -10,7 +10,6 @@
 #include <Geode/binding/LevelEditorLayer.hpp>
 #include <Geode/binding/PlayLayer.hpp>
 
-
 $execute {
     KeyboardInputEvent()
         .listen(+[](const geode::KeyboardInputData &event) {
@@ -29,6 +28,8 @@ $execute {
             auto actions = KeybindCache::keyToActionIds.find(keyAsInt);
             if (KeybindCache::keybinds.contains(keyAsInt)) {
                 for (const int& actionID : actions->second) {
+                    if (KeybindCache::disabledKeys.find(actionID) != KeybindCache::disabledKeys.end())
+                        return geode::ListenerResult::Propagate;
                     Loader::get()->queueInMainThread([=] {
                         pickupManager::changePickupId(
                             actionID,

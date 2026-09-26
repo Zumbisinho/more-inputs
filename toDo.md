@@ -26,6 +26,9 @@ vectors you std::span and just copy the span
 - ~~every time you select a macro or a aux trigger, it selects all (link control or something);~~
 - ~~add a system that shows a popup when versions is outdated~~
 - ~~Add a option like the show hitboxs and ground n shit to show mobile buttons~~
+- ~~Using the keybind disabler disables the key from working~~
+- Remove mobile buttom edit from Pc Local Binds
+- Redirect to mobile button edit when clicking the MI buttom on mobile
 
 
 
@@ -55,7 +58,7 @@ vectors you std::span and just copy the span
 - ~~Keybinds saving System~~
 - ~~Custom triggers~~ *object collab + macro trigger = holy coding*
 
-- Remove the macro trigger api because its broken + doesnt fit the mod
+- ~~Remove the macro trigger api because its broken + doesnt fit the mod~~
 
 
 

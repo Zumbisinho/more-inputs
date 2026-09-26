@@ -30,7 +30,7 @@ class $modify(MyEditorUI, EditorUI) {
                 auto btn = getSpriteButton(
                     "addKeyMIP.png"_spr,
                     menu_selector(MyEditorUI::onSetupBtn),
-                    this->m_tabsMenu,
+                    nullptr,
                     0.8f,
                     4,
                     {0, 0}

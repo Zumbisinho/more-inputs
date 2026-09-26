@@ -19,6 +19,7 @@ namespace KeybindCache {
     inline std::vector<keybindsAPI::KeyFullSettings> keySettings;
     inline std::unordered_map<int,CCMenuItemSpriteExtra*> mobileKeyNodes;
     inline std::vector<int> mobileKeysToHideOnInit;
+    inline std::unordered_set<int> disabledKeys;
     void init(CCLayer* layer);
     void reset();
     void changeLocalKey(const keybindsAPI::KeyFullSettings &key, int keyCode);

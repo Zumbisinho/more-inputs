@@ -7,149 +7,158 @@
 #include "smjs.object-collab/include/ObjectInfo.hpp"
 #include <fmt/format.h>
 
-std::string customTriggers::TouchPPTrigger::format(){
-    return fmt::format("{}/{}",m_pressGroupId,m_releaseGroupId);
+#pragma region TouchPP
+
+std::string customTriggers::TouchPPTrigger::format() {
+    return fmt::format("{}/{}", m_pressGroupId, m_releaseGroupId);
 };
 
+void customTriggers::TouchPPTrigger::triggerObject(GJBaseGameLayer *layer, int uniqueID, const gd::vector<int> *remapKeys) {
+    // to continue with the original method of doing via Pickup Ids im gonna
+    // simulate the trigger running with the gjeffect one, if you disagree with this approach
+    // just ping me on discord or reject the mod
+
+    // ? before roasting me again, i CAN and if only needed,
+    // ? I WILL implement this using GJEffectManager::spawnGroup
+
+    auto effectManager = layer->m_effectManager;
+    if (!effectManager)
+        return;
+    int actionId = !KeybindCache::keySettings.empty() ? KeybindCache::keySettings[*&m_actionIndex].first : 0;
+
+    // ? Press Handler
+    effectManager->runCountTrigger(
+        actionId,
+        1,
+        !this->m_disarmOnFirst,
+        m_pressGroupId,
+        true,
+        gd::vector<int>{},
+        uniqueID,
+        this->m_controlID
+    );
+    // ? Release
+    effectManager->runCountTrigger(
+        actionId,
+        0,
+        !this->m_disarmOnFirst,
+        m_releaseGroupId,
+        true,
+        gd::vector<int>{},
+        uniqueID,
+        this->m_controlID
+    );
+}
+
 void customTriggers::TouchPPTrigger::postEditorInit() {
-    this->setTriggerTextProperty(105,{0,-4},0.75);
+    this->setTriggerTextProperty(105, {0, -4}, 0.75);
 };
 
 PopupConfig customTriggers::TouchPPTrigger::getEditConfig(const Selected &selected) {
     auto disarmOnFirst = ToggleMenu::builder()
-        .title("Disarm On\nFirst Key")
-        .id("touch-macro-disarm-on-first"_spr)
-        .onValue([](const bool value, const Selected &selected, Popup *popup) {
-            applyValueToSelected(selected, &TouchPPTrigger::m_disarmOnFirst, value);
-            applyValueToSelected(selected, &TouchPPTrigger::m_multiActivate, !value);
-        })
-        .currentValue([](const Selected &selected, Popup *popup) {
-            return getCommonValueOrDefault<bool>(selected, &TouchPPTrigger::m_disarmOnFirst);
-        })
-        .inverse(true)
-    .build();
+                             .title("Disarm On\nFirst Key")
+                             .id("touch-pp-disarm-on-first"_spr)
+                             .onValue([](const bool value, const Selected &selected, Popup *popup) {
+                                 applyValueToSelected(selected, &TouchPPTrigger::m_disarmOnFirst, value);
+                             })
+                             .currentValue([](const Selected &selected, Popup *popup) {
+                                 return getCommonValueOrDefault<bool>(selected, &TouchPPTrigger::m_disarmOnFirst);
+                             })
+                             .inverse(true)
+                             .build();
 
     return PopupConfig::builder()
         .triggerToggles(true)
         .height(280.f)
         .width(440.f)
-        .title("Edit Touch Macro")
+        .title("Edit Touch ++")
         .leftToggle(std::move(disarmOnFirst))
-        .info(InfoPopup::builder().title("Help")
-            .description("Listens for a <cy>player action</c> and activates groups when "
-            "that action is detected. Use the <cj>Action</c> selector to "
-            "choose which input event this trigger will monitor."
+        .info(InfoPopup::builder().title("Help").description("Listens for a <cy>player action</c> and activates groups when "
+                                                             "that action is detected. Use the <cj>Action</c> selector to "
+                                                             "choose which input event this trigger will monitor."
 
-            "\n<cs>Press ID:</c> the group that will be activated "
-            "when the selected action key is <cg>pressed</c>."
+                                                             "\n<cs>Press ID:</c> the group that will be activated "
+                                                             "when the selected action key is <cg>pressed</c>."
 
-            "\n<cs>Release ID:</c> the group that will be activated "
-            "when the selected action key is <cr>released</c>."
+                                                             "\n<cs>Release ID:</c> the group that will be activated "
+                                                             "when the selected action key is <cr>released</c>."
 
-            "\n<cj>Action:</c> determines which player input this trigger will "
-            "listen for."
+                                                             "\n<cj>Action:</c> determines which player input this trigger will "
+                                                             "listen for."
 
-            "\n<co>Disarm On First Key</c> causes the trigger to deactivate "
-            "itself after the first valid input is detected.")
-        .build())
-        .menu(CustomValueMenu::builder()
-            .id("touch-macro-dropdown"_spr)
-            .factory([](const Selected &selected, Popup *popup) -> CCMenu * {
-                return ActionDropdown<TouchPPTrigger>::create(selected);
-                })
-                .build()
-        )
-        .menu(AxisLayoutMenu::builder()
-            .axis(Axis::Row)
-            .gap(20)
-            .padding({20,60,20,0})
-            .menu(NumericMenu::builder()
-                .id("touch-macro-press-groupId"_spr)
-                .title("Press Id")
-                .min(0)
-                .max(9999)
-                .precision(0)
-                .inputType(NumericMenu::InputType::Arrows)
-                .onValue([](const int value, const Selected &selected, Popup *popup) {
-                    applyValueToSelected(selected,&TouchPPTrigger::m_pressGroupId,value);
-                    for (auto& obj : selected){
-                        auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
-                        if (!trig)
-                            continue;
-                
-                        trig->updateProperty(105, trig->format());
-                    }
-                })
-                .currentValue([](const Selected &selected, Popup *popup) {
-                    return getCommonValueOrDefault(selected, &TouchPPTrigger::m_pressGroupId);
-                })
-            .build())
-            .menu(NumericMenu::builder()
-                .id("touch-macro-release-groupId"_spr)
-                .title("Release Id")
-                .min(0)
-                .max(9999)
-                .precision(0)
-                .inputType(NumericMenu::InputType::Arrows)
-                .onValue([](const int value, const Selected &selected, Popup *popup) {
-                    applyValueToSelected(selected, &TouchPPTrigger::m_releaseGroupId, value);
-                    for (auto& obj : selected){
-                        auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
-                        if (!trig)
-                            continue;
-                
-                        trig->updateProperty(105, trig->format());
-                    }
-            }
-                )
-                .currentValue([](const Selected &selected, Popup *popup) {
-                    return getCommonValueOrDefault(selected, &TouchPPTrigger::m_releaseGroupId);
-                })
-            .build())
-        .build())
+                                                             "\n<co>Disarm On First Key</c> causes the trigger to deactivate "
+                                                             "itself after the first valid input is detected.")
+                  .build())
+        .menu(CustomValueMenu::builder().id("touch-pp-dropdown"_spr).factory([](const Selected &selected, Popup *popup) -> CCMenu * {
+                                                                        return ActionDropdown<TouchPPTrigger>::create(selected);
+                                                                    })
+                  .build())
+        .menu(AxisLayoutMenu::builder().axis(Axis::Row).gap(20).padding({20, 60, 20, 0}).menu(NumericMenu::builder().id("touch-pp-press-groupId"_spr).title("Press Id").min(0).max(9999).precision(0).inputType(NumericMenu::InputType::Arrows).onValue([](const int value, const Selected &selected, Popup *popup) {
+                                                                                                                                                                                                                                                   applyValueToSelected(selected, &TouchPPTrigger::m_pressGroupId, value);
+                                                                                                                                                                                                                                                   for (auto &obj : selected) {
+                                                                                                                                                                                                                                                       auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
+                                                                                                                                                                                                                                                       if (!trig)
+                                                                                                                                                                                                                                                           continue;
+
+                                                                                                                                                                                                                                                       trig->updateProperty(105, trig->format());
+                                                                                                                                                                                                                                                   }
+                                                                                                                                                                                                                                               })
+                                                                                                  .currentValue([](const Selected &selected, Popup *popup) {
+                                                                                                      return getCommonValueOrDefault(selected, &TouchPPTrigger::m_pressGroupId);
+                                                                                                  })
+                                                                                                  .build())
+                  .menu(NumericMenu::builder().id("touch-pp-release-groupId"_spr).title("Release Id").min(0).max(9999).precision(0).inputType(NumericMenu::InputType::Arrows).onValue([](const int value, const Selected &selected, Popup *popup) {
+                                                                                                                                                                                 applyValueToSelected(selected, &TouchPPTrigger::m_releaseGroupId, value);
+                                                                                                                                                                                 for (auto &obj : selected) {
+                                                                                                                                                                                     auto trig = typeinfo_cast<customTriggers::TouchPPTrigger *>(obj);
+                                                                                                                                                                                     if (!trig)
+                                                                                                                                                                                         continue;
+
+                                                                                                                                                                                     trig->updateProperty(105, trig->format());
+                                                                                                                                                                                 }
+                                                                                                                                                                             })
+                            .currentValue([](const Selected &selected, Popup *popup) {
+                                return getCommonValueOrDefault(selected, &TouchPPTrigger::m_releaseGroupId);
+                            })
+                            .build())
+                  .build())
         .build();
-        
 };
 
 $on_mod(Loaded) {
-    ObjectAPI::registerObject(ObjectInfo::builder()
-    .id("touch-pp-trigger"_spr)
-    .sprite("touch-pp.png"_spr)
-    .editorTab(EditorTab::None)
-    .editObject(customTriggers::TouchPPTrigger::getEditConfig)
-    .editorButtonColor(EditorButtonColor::LightGray)
-    .construction(ComplexObject::builder()
-        .factory(customTriggers::TouchPPTrigger::create)
-        .customProperties({
-            PropertyInterface::from(101, &customTriggers::TouchPPTrigger::m_actionIndex, 0), 
-            PropertyInterface::from(102, &customTriggers::TouchPPTrigger::m_pressGroupId, 0), 
-            PropertyInterface::from(103, &customTriggers::TouchPPTrigger::m_releaseGroupId, 0), 
-            PropertyInterface::from(104, &customTriggers::TouchPPTrigger::m_disarmOnFirst, false),
-            PropertyInterface::from(204, &customTriggers::TouchPPTrigger::m_multiActivate, true),  
-            PropertyInterface::from(105, &customTriggers::TouchPPTrigger::m_formatedTriggerLabel, "0/0")
-        }).build()
-    )
-    .build());
+    ObjectAPI::registerObject(ObjectInfo::builder().id("touch-pp-trigger"_spr).sprite("touch-pp.png"_spr).editorTab(EditorTab::None).editObject(customTriggers::TouchPPTrigger::getEditConfig).editorButtonColor(EditorButtonColor::LightGray).construction(ComplexObject::builder().factory(customTriggers::TouchPPTrigger::create).customProperties({PropertyInterface::from(101, &customTriggers::TouchPPTrigger::m_actionIndex, 0), PropertyInterface::from(102, &customTriggers::TouchPPTrigger::m_pressGroupId, 0), PropertyInterface::from(103, &customTriggers::TouchPPTrigger::m_releaseGroupId, 0), PropertyInterface::from(104, &customTriggers::TouchPPTrigger::m_disarmOnFirst, false), PropertyInterface::from(105, &customTriggers::TouchPPTrigger::m_formatedTriggerLabel, "0/0")}).build()).build());
 }
-void customTriggers::EditKeybindTrigger::postEditorInit(){
-    if (!this->m_disableKey){
+void customTriggers::EditKeybindTrigger::postEditorInit() {
+    if (!this->m_enabledKey) {
         setSprite("editKeybindDisabled.png"_spr);
     };
-    
 }
-void customTriggers::EditKeybindTrigger::triggerObject(GJBaseGameLayer *layer, int uniqueID, const gd::vector<int> *remapKeys){
-    if (!KeybindCache::initialized){
+#pragma endregion
+
+#pragma region EditKeybind
+void customTriggers::EditKeybindTrigger::triggerObject(GJBaseGameLayer *layer, int uniqueID, const gd::vector<int> *remapKeys) {
+    if (!KeybindCache::initialized) {
         auto playLayer = PlayLayer::get();
         auto editorLayer = LevelEditorLayer::get();
 
-        KeybindCache::init(playLayer ? (CCLayer*)playLayer: (CCLayer*)editorLayer);
+        KeybindCache::init(playLayer ? (CCLayer *)playLayer : (CCLayer *)editorLayer);
     }
 
     auto actionId = KeybindCache::keySettings[m_actionIndex].first;
+    // handles the disable keys thing
+    if (!m_enabledKey) {
+        KeybindCache::disabledKeys.insert(actionId);
+    } else {
+        KeybindCache::disabledKeys.erase(actionId);
+    }
+
     if (actionId == 0)
         return;
 
-    if (KeybindCache::mobileKeyNodes.empty() && !m_disableKey){
+    if (!Mod::get()->getSettingValue<bool>("mobile-buttons-on-editor"))
+        return;
+
+    if (KeybindCache::mobileKeyNodes.empty() && !m_enabledKey) {
         KeybindCache::mobileKeysToHideOnInit.push_back(actionId);
     }
 
@@ -160,7 +169,7 @@ void customTriggers::EditKeybindTrigger::triggerObject(GJBaseGameLayer *layer, i
         auto node = it->second;
         if (node->retainCount() == 0)
             return;
-        node->setVisible(this->m_disableKey);
+        node->setVisible(this->m_enabledKey);
     }
 };
 
@@ -170,59 +179,34 @@ PopupConfig customTriggers::EditKeybindTrigger::getEditConfig(const Selected &se
         .height(280.f)
         .width(440.f)
         .title("Edit Keybind Trigger")
-        .info(InfoPopup::builder().title("Help")
-            .description("Enables/Disables the selected key, "
-            "when disable, both mobile button and the press are disabled."
+        .info(InfoPopup::builder().title("Help").description("Enables/Disables the selected key, "
+                                                             "when disable, both mobile button and the press are disabled."
 
-            "\n<cs>Activate Keybind:</c> enables/disables the selected key."
-            )
-        .build())
-        .menu(CustomValueMenu::builder()
-            .id("edit-keybind-macro-dropdown"_spr)
-            .factory([](const Selected &selected, Popup *popup) -> CCMenu * {
-                return ActionDropdown<EditKeybindTrigger>::create(selected);
-                })
-        .build()
-        )
-        .menu(AxisLayoutMenu::builder()
-            .axis(Axis::Row)
-            .gap(20)
-            .padding({20,60,20,0})
-            .menu(ToggleMenu::builder()
-                .title("Activate Keybind")
-                .id("edit-keybind-activate"_spr)
-                .onValue([](const bool value, const Selected &selected, Popup *popup) {
-                    applyValueToSelected(selected, &EditKeybindTrigger::m_disableKey, value);
-                    for (auto& obj : selected){
-                        if (!value)
-                            obj->init("editKeybindDisabled.png"_spr);
-                        else
-                            obj->init("editKeybind.png"_spr);
-                    }
-                })
-                .currentValue([](const Selected &selected, Popup *popup) {
-                    return getCommonValueOrDefault<bool>(selected, &EditKeybindTrigger::m_disableKey);
-                })
-                .inverse(false)
-            .build())
-        .build()
-        )
-        
-    .build();
+                                                             "\n<cs>Activate Keybind:</c> enables/disables the selected key.")
+                  .build())
+        .menu(CustomValueMenu::builder().id("edit-keybind-macro-dropdown"_spr).factory([](const Selected &selected, Popup *popup) -> CCMenu * {
+                                                                                  return ActionDropdown<EditKeybindTrigger>::create(selected);
+                                                                              })
+                  .build())
+        .menu(AxisLayoutMenu::builder().axis(Axis::Row).gap(20).padding({20, 60, 20, 0}).menu(ToggleMenu::builder().title("Activate Keybind").id("edit-keybind-activate"_spr).onValue([](const bool value, const Selected &selected, Popup *popup) {
+                                                                                                                                                                                 applyValueToSelected(selected, &EditKeybindTrigger::m_enabledKey, value);
+                                                                                                                                                                                 for (auto &obj : selected) {
+                                                                                                                                                                                     if (!value)
+                                                                                                                                                                                         obj->init("editKeybindDisabled.png"_spr);
+                                                                                                                                                                                     else
+                                                                                                                                                                                         obj->init("editKeybind.png"_spr);
+                                                                                                                                                                                 }
+                                                                                                                                                                             })
+                                                                                                  .currentValue([](const Selected &selected, Popup *popup) {
+                                                                                                      return getCommonValueOrDefault<bool>(selected, &EditKeybindTrigger::m_enabledKey);
+                                                                                                  })
+                                                                                                  .inverse(false)
+                                                                                                  .build())
+                  .build())
+
+        .build();
 };
 $on_mod(Loaded) {
-    ObjectAPI::registerObject(ObjectInfo::builder()
-    .id("edit-keybind-trigger"_spr)
-    .sprite("editKeybind.png"_spr)
-    .editorTab(EditorTab::None)
-    .editObject(customTriggers::EditKeybindTrigger::getEditConfig)
-    .editorButtonColor(EditorButtonColor::LightGray)
-    .construction(ComplexObject::builder()
-        .factory(customTriggers::EditKeybindTrigger::create)
-        .customProperties({
-            PropertyInterface::from(101, &customTriggers::EditKeybindTrigger::m_actionIndex, 0), 
-            PropertyInterface::from(102, &customTriggers::EditKeybindTrigger::m_disableKey, false)
-        }).build()
-    )
-    .build());
+    ObjectAPI::registerObject(ObjectInfo::builder().id("edit-keybind-trigger"_spr).sprite("editKeybind.png"_spr).editorTab(EditorTab::None).editObject(customTriggers::EditKeybindTrigger::getEditConfig).editorButtonColor(EditorButtonColor::LightGray).construction(ComplexObject::builder().factory(customTriggers::EditKeybindTrigger::create).customProperties({PropertyInterface::from(101, &customTriggers::EditKeybindTrigger::m_actionIndex, 0), PropertyInterface::from(102, &customTriggers::EditKeybindTrigger::m_enabledKey, false)}).build()).build());
 }
+#pragma endregion

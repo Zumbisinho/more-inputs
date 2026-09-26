@@ -30,7 +30,6 @@ public:
     int m_pressGroupId = 0;
     int m_releaseGroupId = 0;
     bool m_disarmOnFirst = false;
-    bool m_multiActivate = !m_disarmOnFirst;
     std::string m_formatedTriggerLabel = "0/0";
 
     TouchPPTrigger(ObjectInfo *info) : CustomObject(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
@@ -40,7 +39,7 @@ public:
         return new TouchPPTrigger(info);
     }
     static PopupConfig getEditConfig(const Selected &selected);
-
+    void triggerObject(GJBaseGameLayer *layer, int uniqueID, const gd::vector<int> *remapKeys) override;
     void postEditorInit() override;
 
 
@@ -50,7 +49,7 @@ public:
 class $object(EditKeybindTrigger, EffectGameObject) {
 public:
     int m_actionIndex = 0;
-    bool m_disableKey = false;
+    bool m_enabledKey = false;
 
     EditKeybindTrigger(ObjectInfo *info) : CustomObject(info, ObjectTraits::builder().gameObjectType(GameObjectType::Modifier).ignoreEditorDuration(true).build()) {
     }
