@@ -3,10 +3,12 @@
 
 using namespace ObjectClusterAPI;
 
+using namespace geode::prelude;
 
 class $modify(ObjectClustersEUI, EditorUI) {
     static void onModify(auto &self) {
-        !self.setHookPriorityBeforePre("EditorUI::onCreateObject", "hjfod.betteredit");
+        (void) !self.setHookPriorityBeforePre("EditorUI::onCreateObject", "hjfod.betteredit");
+
     }
     CreateMenuItem *getCreateBtn(int id, int bg) {
         if (auto it = m_objectClusters.find(id); it != m_objectClusters.end()) {
@@ -35,22 +37,21 @@ class $modify(ObjectClustersEUI, EditorUI) {
         return ret;
     }
     void onCreateObject(int id) {
-        if (auto it = m_objectClusters.find(id); it != m_objectClusters.end()){
+        if (auto it = m_objectClusters.find(id); it != m_objectClusters.end()) {
             auto before = m_selectedObject;
             EditorUI::onCreateObject(1);
             if (before == m_selectedObject)
                 return;
-            CCPointButBetter pos = {m_selectedObject->m_positionX,m_selectedObject->m_positionY - 90};
-            deleteObject(m_selectedObject,true);
+            CCPointButBetter pos = {m_selectedObject->m_positionX, m_selectedObject->m_positionY - 90};
+            deleteObject(m_selectedObject, true);
             it->second->placeOn(pos);
+            return;
         };
         EditorUI::onCreateObject(id);
     }
-    
 };
 
 void ObjectClusterAPI::registerObjectCluster(objectCluster *obj) {
     obj->uniqueId = curObjRegIdx;
     m_objectClusters[curObjRegIdx] = obj;
-
 };

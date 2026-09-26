@@ -212,7 +212,7 @@ public:
     }
 };
 
-inline std::map<int, objectCluster *> m_objectClusters; // uniqueId - obj
+inline std::map<int, objectCluster *> m_objectClusters = {}; // uniqueId - obj
 inline int curObjRegIdx = 258672;
 
 void registerObjectCluster(objectCluster *obj);
