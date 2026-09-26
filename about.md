@@ -15,7 +15,7 @@ A mod that adds more inputs to the game via <ca>actions</c>.
 
 You can <cy>create</c>, <cj>edit</cj> and <cr>delete</cr> using the Setup Button on the new <cc>More Inputs Tab</c>.
 
-You also can <cg>hook</c> the actions using the <cl>Touch Macro</c>
+You also can <cg>hook</c> the actions using the <cl>Touch++</c>
 
 Change the mobile keys position on the <cg>Edit Mobile Buttons</c> on the <cb>Add Key menu</c>
 

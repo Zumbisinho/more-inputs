@@ -1,3 +1,11 @@
+# 2.1.0
+- Removed Macro API (I am gonna work with that later)
+- Refactored Touch Macro Trigger (Now Touch++)
+- Fixed bugs with Object Clusters
+- Simplifyed the Local Key Edit for Pc and Mobile
+- The best re-write ever of a entire API 
+- *Added Berimbau Avançado - Dj ZvitorOriginal*
+
 # 2.0.0 (This is gonna be long)
 - Add Full Mobile Support
 - Refactored Custom Triggers 
